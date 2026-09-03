@@ -9,3 +9,10 @@ def calcula_soma(x,y):
 
 def calcula_radiciação(x,y):
     return x**(1/y)
+
+def calcula_exponenciacao(x,y):
+    return x ** y
+
+def calcula_percentual(x,y):
+    return (x * y) / 100
+    
