@@ -1,7 +1,7 @@
 
-def calcula_subtracao(x,y)
+def calcula_subtracao(x,y):
     return x - y
-def calcula_percentual(x,y)
+def calcula_percentual(x,y):
     return(x/100)*y
 
 def calcula_soma(x,y):
