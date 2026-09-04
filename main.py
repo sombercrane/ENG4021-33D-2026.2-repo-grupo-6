@@ -1,4 +1,3 @@
-
 def calcula_subtracao(x,y):
     return x - y
 def calcula_percentual(x,y):
@@ -10,9 +9,16 @@ def calcula_soma(x,y):
 def calcula_radiciação(x,y):
     return x**(1/y)
 
-def calcula_exponenciacao(x,y):
-    return x ** y
+def calcula_multiplicação(x,y):
+    return x*y
 
-def calcula_percentual(x,y):
-    return (x * y) / 100
-    
+def calcula_divisão_inteira(x,y):
+    return x // y
+
+
+def divisao(x,y):
+    return x / y
+
+
+def resto(x,y):
+    return x % y
