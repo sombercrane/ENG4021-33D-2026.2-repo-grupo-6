@@ -1,1 +1,6 @@
-print("Eu sou fluminense")
+def divisao(x,y):
+    return x / y
+
+
+def resto(x,y):
+    return x % y
