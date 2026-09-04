@@ -27,8 +27,6 @@ def calcula_exponenciacao(x, y):
 
 opcao = 1
 
-opcao = 1
-
 while opcao != 0:
     print("\nEscolha uma das opções abaixo:")
     print("1 - Adição")
