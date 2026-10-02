@@ -1,0 +1,116 @@
+#LEME
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Leme</title>
+<style>
+body {
+  font-family: Arial;
+  max-width: 420px;
+  margin: 0;
+}
+header {
+  background: #1f2e24;
+  color: white;
+  padding: 20px;
+}
+header button {
+  background: #3b4b40;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 20px;
+}
+nav {
+  padding: 10px;
+}
+nav button {
+  background: #efe9dd;
+  border: none;
+  padding: 10px;
+  border-radius: 20px;
+}
+#mapa {
+  background: #e5ebe4;
+  height: 200px;
+  padding: 10px;
+}
+main {
+  padding: 20px;
+}
+.caixa {
+  background: #efe9dd;
+  border-radius: 16px;
+  padding: 10px;
+  display: inline-block;
+  width: 28%;
+}
+#verde {
+  background: #2f4a34;
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 30px;
+}
+#branco {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 16px;
+  border-radius: 30px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Localiza PUC</h1>
+  <h2>Mapa da PUC-Rio</h2>
+  <button>Ver campus inteiro</button>
+</header>
+
+<nav>
+  <button>Entrada</button>
+  <button>Elevador</button>
+  <button>Escada</button>
+  <button>Banheiro</button>
+</nav>
+
+<div id="mapa">
+  <h3>Prédio Leme</h3>
+</div>
+
+<main>
+  <p>Destino selecionado</p>
+  <h1>Prédio Leme</h1>
+
+  <div class="caixa">
+    <p>Prédio</p>
+    <b>Leme</b>
+  </div>
+  <div class="caixa">
+    <p>Andar</p>
+    <b>Térreo</b>
+  </div>
+  <div class="caixa">
+    <p>Espaço</p>
+    <b>L</b>
+  </div>
+
+  <p>
+    Distância e tempo estimado
+    até o destino: 109 m ·
+    1 min a pé
+  </p>
+
+  <button id="verde">
+    Ver detalhes
+  </button>
+  <button id="branco">
+    Ver andares
+  </button>
+</main>
+
+</body>
+</html>
