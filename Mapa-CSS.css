@@ -1,0 +1,32 @@
+body {
+    background-color: #f0ecdf;
+    font-family: Arial, sans-serif;
+    color: #1b3022;
+}
+.pagina {
+    max-width: 420px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: white;
+}
+.topo, .buscar {
+    background-color: #1b3022;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+.filtros {
+    text-align: center;
+}
+img {
+    width: 100%;
+}
+h1 {
+    font-size: 26px;
+}
+h2 {
+    font-size: 16px;
+}
+p {
+    font-size: 14px;
+}
