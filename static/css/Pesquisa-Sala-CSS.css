@@ -37,3 +37,17 @@ input {
 p {
     font-size: 14px;
 }
+
+/* Ajustes de Links e Cores */
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+.topo a {
+    color: white;
+}
+.filtros a {
+    margin: 0 4px;
+    color: #1b3022;
+}
