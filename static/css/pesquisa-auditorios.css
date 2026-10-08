@@ -1,0 +1,123 @@
+body {
+    font-family: sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 20px;
+}
+
+header {
+    margin-bottom: 20px;
+}
+
+.voltar {
+    text-decoration: none;
+    color: #000;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.topo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.logo {
+    font-size: 24px;
+}
+
+h1 {
+    font-size: 20px;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.busca {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.busca input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
+}
+
+.filtros {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+}
+
+.filtros button {
+    background-color: #e0e0e0;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 15px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.filtros button.ativo {
+    background-color: #1b3622;
+    color: white;
+}
+
+.filtros a {
+    text-decoration: none;
+}
+
+h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+main a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.resultado {
+    background-color: #e8e3d5;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.icone {
+    font-size: 18px;
+    margin-right: 12px;
+}
+
+.texto {
+    flex-grow: 1;
+}
+
+.texto h3 {
+    margin: 0 0 5px 0;
+    font-size: 15px;
+}
+
+.texto p {
+    margin: 0;
+    font-size: 12px;
+    color: #555;
+}
+
+.seta {
+    font-size: 18px;
+    color: #333;
+}
