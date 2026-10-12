@@ -1,7 +1,8 @@
+```css
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #050605;
+    background-color: #080b08;
     color: #d3e2d4;
 }
 
@@ -9,24 +10,32 @@ header {
     display: flex;
     align-items: center;
     background-color: #c9ddd0;
-    color: black;
+    color: #111;
     padding: 18px 25px;
+    box-shadow: 0 3px 12px #0005;
 }
 
 .topo {
     display: flex;
     align-items: center;
+    gap: 22px;
+    flex-wrap: wrap;
 }
 
 .voltar {
-    margin-right: 25px;
-    color: black;
+    color: #111;
     text-decoration: none;
-    font-size: 16px;
+    font-size: 15px;
+}
+
+.voltar:hover {
+    text-decoration: underline;
 }
 
 .logo {
-    margin-right: 15px;
+    margin-right: 10px;
+    color: #102014;
+    text-decoration: none;
 }
 
 .logo h1 {
@@ -40,16 +49,18 @@ header {
 }
 
 main {
-    padding: 20px;
+    padding: 25px;
+    max-width: 1250px;
+    margin: auto;
 }
 
 .busca {
     display: flex;
     align-items: center;
-    background-color: black;
-    border: 1px solid #333;
-    padding: 12px;
-    border-radius: 15px;
+    background-color: #111511;
+    border: 1px solid #344638;
+    padding: 13px;
+    border-radius: 12px;
     margin-bottom: 20px;
 }
 
@@ -59,7 +70,7 @@ main {
 
 .busca input {
     width: 100%;
-    background-color: black;
+    background: transparent;
     color: white;
     border: none;
     font-size: 16px;
@@ -68,35 +79,38 @@ main {
 
 .filtros {
     display: flex;
-    margin-top: 15px;
-    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 15px 0 25px;
 }
 
 .filtros button {
-    margin-right: 8px;
-    padding: 8px 12px;
+    padding: 9px 14px;
     background-color: #211a09;
     color: #d3e2d4;
-    border: none;
+    border: 1px solid #3a4438;
     border-radius: 10px;
+    cursor: pointer;
 }
 
+.filtros button:hover,
 .filtros .ativo {
     background-color: #b9d8c3;
-    color: black;
+    color: #111;
 }
 
 .conteudo {
     display: flex;
     justify-content: space-between;
-    gap: 20px;
+    align-items: flex-start;
+    gap: 22px;
 }
 
 .mapa {
     width: 55%;
     background-color: #102014;
-    padding: 15px;
-    border-radius: 10px;
+    padding: 18px;
+    border-radius: 14px;
 }
 
 .mapa h2 {
@@ -107,16 +121,19 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #b9d8c3;
-    color: black;
+    flex-wrap: wrap;
+    gap: 12px;
+    background-color: #c9ddd0;
+    color: #111;
     padding: 20px;
-    border-radius: 15px;
+    border-radius: 12px;
     min-height: 280px;
 }
 
 .predio {
     width: 38%;
     background-color: #e3eee6;
+    color: #17251a;
     padding: 15px;
     border-radius: 10px;
 }
@@ -149,6 +166,7 @@ main {
     background-color: #b9d8c3;
     border: none;
     border-radius: 8px;
+    cursor: pointer;
 }
 
 .informacoes {
@@ -158,10 +176,11 @@ main {
 .resultado {
     display: flex;
     align-items: center;
-    background-color: #191408;
+    background-color: #191e18;
     padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 10px;
+    margin-bottom: 12px;
+    border: 1px solid #29382b;
+    border-radius: 12px;
 }
 
 .icone {
@@ -178,33 +197,48 @@ main {
 }
 
 .texto p {
-    margin-top: 5px;
-    margin-bottom: 0;
+    margin: 5px 0 0;
     font-size: 14px;
-    color: #a29b8d;
+    color: #b0bbae;
 }
 
 .card {
     background-color: #102014;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 12px;
+    padding: 17px;
+    border: 1px solid #293d2e;
+    border-radius: 12px;
+    margin-bottom: 13px;
 }
 
 .card h3 {
-    margin: 0 0 7px 0;
+    margin: 0 0 7px;
 }
 
 .card p {
     font-size: 14px;
-    color: #a29b8d;
+    line-height: 1.5;
+    color: #b0bbae;
 }
 
-.detalhes,
-.rota-btn {
+.detalhes, .rota-btn {
     background-color: #b9d8c3;
-    color: black;
+    color: #111;
     border: none;
-    padding: 9px 13px;
+    padding: 10px 14px;
     border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
+
+.detalhes:hover, .rota-btn:hover, .zoom button:hover {
+    background-color: #8eb99b;
+}
+
+@media (max-width: 768px) {
+    main { padding: 16px; }
+    .conteudo { flex-direction: column; }
+    .mapa, .informacoes { width: 100%; box-sizing: border-box; }
+    .topo { gap: 12px; }
+    .predio { width: 100%; box-sizing: border-box; }
+}
+```
