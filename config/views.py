@@ -6,3 +6,5 @@ def home(request):
 def search(request):
     return render(request, 'search.html')
 
+def kennedy(request):
+    return render(request, 'kennedy.html')
