@@ -6,3 +6,5 @@ def home(request):
 def search(request):
     return render(request, 'search.html')
 
+def auditorios(request):
+    return render(request, 'pesquisa-auditorios.html')
