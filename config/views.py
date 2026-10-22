@@ -6,3 +6,5 @@ def home(request):
 def search(request):
     return render(request, 'search.html')
 
+def laboratorios(request):
+    return render(request, 'pesquisa_laboratorio.html')
