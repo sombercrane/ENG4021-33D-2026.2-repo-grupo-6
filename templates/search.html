@@ -31,19 +31,13 @@
     </header>
 
 
-    <main>
-
+    <form method="get" action="{% url 'search' %}">
         <div class="busca">
-
             <span>⌕</span>
-
-            <input
-                type="text"
-                placeholder="Buscar sala, prédio ou código"
-            >
-
+            {{ formulario.busca }}
+            <button type="submit">Buscar</button>
         </div>
-
+    </form>
 
         <div class="filtros">
 
