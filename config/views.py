@@ -18,6 +18,8 @@ def search(request):
         'formulario': formulario
     })
 
+def kennedy(request):
+    return render(request, 'kennedy.html')
 def auditorios(request):
     return render(request, 'pesquisa-auditorios.html')
 def rdc(request):
