@@ -24,4 +24,6 @@ urlpatterns = [
     path('pesquisa/', views.pesquisa, name='pesquisa'),
     path('search/', views.search, name='search'),
     path('leme/', views.leme, name='leme'),
+    path('laboratorio-fisica/', views.laboratorio_fisica, name='laboratorio_fisica'),
+    path('laboratorio-design/', views.laboratorio_design, name='laboratorio_design'),
 ]

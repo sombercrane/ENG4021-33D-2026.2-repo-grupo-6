@@ -10,3 +10,7 @@ def search(request):
 
 def leme(request):
     return render(request, 'HTML Tela Prédio Leme.html')
+def laboratorio_fisica(request):
+    return render(request, 'laboratorio_de_fisica.html')
+def laboratorio_design(request):
+    return render(request, 'laboratorio_de_design.html')
