@@ -9,18 +9,22 @@
 <body>
     <div class="pagina">
         <div class="topo">
-            <a href="home.html">← Voltar</a>
+            <a href="{% url 'home' %}">← Voltar</a>
             <h1>Localiza PUC</h1>
         </div>
 
-        <input type="text" placeholder="Buscar sala, prédio ou código">
+       <form method="GET" action="{% url 'pesquisa_sala' %}">
+    {{ form.busca }}
+</form>
+
         <p class="filtros">
-            <a href="Pesquisa-Sala-HTML.html">Todos</a>
-            <a href="Pesquisa-Sala-HTML.html">Salas</a>
+            <a href="{% url 'pesquisa_sala' %}">Todos</a>
+            <a href="{% url 'pesquisa_sala' %}">Salas</a>
             <a href="Pesquisa-Sala-HTML.html">Laboratórios</a>
-            <a href="Pesquisa-auditorios.html">Auditórios</a>
+            <a href="{% url 'pesquisa_auditorios' %}">Auditórios</a>
             <a href="Pesquisa-Sala-HTML.html">Prédios</a>
         </p>
+        
         <h2>Sugestões</h2>
 
         <a href="HTML Tela Prédio Leme.html">

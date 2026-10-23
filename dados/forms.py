@@ -11,3 +11,16 @@ class PesquisaEspacoForm(forms.Form):
             "class": "campo-busca"
         })
     )
+
+
+#Formulário Auditórios 
+class PesquisaAuditorioForm(forms.Form):
+    busca = forms.CharField(
+        required=False,
+        max_length=150,
+        label="Pesquisar auditório",
+        widget=forms.TextInput(attrs={
+            "placeholder": "Auditórios",
+            "class": "campo-busca"
+        })
+    )
