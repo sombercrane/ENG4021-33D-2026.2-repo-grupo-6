@@ -24,6 +24,7 @@ urlpatterns = [
     path('mapa/', views.mapa, name='mapa'),
     path('pesquisa/', views.pesquisa, name='pesquisa'),
     path('search/', views.search, name='search'),
+    path('auditorios/', views.auditorios, name='auditorios'),
     path('rdc/', views.rdc, name='rdc'),
     path('predios/', views.predios, name='predios'),
     path('leme/', views.leme, name='leme'),

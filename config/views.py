@@ -18,6 +18,8 @@ def search(request):
         'formulario': formulario
     })
 
+def auditorios(request):
+    return render(request, 'pesquisa-auditorios.html')
 def rdc(request):
     return render(request, 'rdc.html')
 def predios(request):
