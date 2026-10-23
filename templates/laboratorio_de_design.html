@@ -1,0 +1,156 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratório de Design - Localiza PUC</title>
+
+    <link rel="stylesheet" href="{% static 'css/design.css' %}">
+</head>
+
+<body>
+
+    <header class="topo">
+        <a href="#" class="voltar">‹</a>
+
+        <div class="logo">
+            <div class="logo-icone">♙</div>
+            <div>
+                <h1>Localiza</h1>
+                <h1>PUC</h1>
+            </div>
+        </div>
+
+        <div class="titulo-mapa">
+            <h2>Mapa da PUC-Rio</h2>
+            <button>Ver campus inteiro</button>
+        </div>
+    </header>
+
+
+    <main>
+
+        <section class="filtros">
+
+            <div class="filtro">
+                <span>↪</span>
+                Entrada
+            </div>
+
+            <div class="filtro">
+                <span>⇅</span>
+                Elevador
+            </div>
+
+            <div class="filtro">
+                <span>≡</span>
+                Escada
+            </div>
+
+            <div class="filtro">
+                <span>♙</span>
+                Banheiro
+            </div>
+
+        </section>
+
+
+        <section class="mapa">
+
+            <div class="mapa-conteudo">
+
+                <div class="predio rdc">
+                    RDC
+                </div>
+
+                <div class="predio iag">
+                    IAG
+                </div>
+
+                <div class="predio ki">
+                    KI
+                </div>
+
+                <div class="predio r">
+                    R
+                </div>
+
+                <div class="localizacao">
+                    <span>●</span>
+                </div>
+
+                <div class="destino-mapa">
+                    <span>📍</span>
+                    <strong>Laboratório de Design</strong>
+                </div>
+
+            </div>
+
+            <div class="controles-mapa">
+                <button>−</button>
+                <button>＋</button>
+                <button>⌾</button>
+            </div>
+
+        </section>
+
+
+        <section class="destino">
+
+            <div class="indicador"></div>
+
+            <p class="subtitulo">Destino selecionado</p>
+
+            <div class="nome-destino">
+                <span>📍</span>
+                <h2>Laboratório de Design</h2>
+            </div>
+
+
+            <div class="informacoes">
+
+                <div class="info">
+                    <p>Prédio</p>
+                    <strong>IAG</strong>
+                </div>
+
+                <div class="info">
+                    <p>Andar</p>
+                    <strong>Térreo</strong>
+                </div>
+
+                <div class="info">
+                    <p>Espaço</p>
+                    <strong>IAG-105</strong>
+                </div>
+
+            </div>
+
+
+            <p class="distancia">
+                Distância e tempo estimado até o destino:
+                <strong>184 m</strong> ·
+                <strong>2 min a pé</strong>
+            </p>
+
+
+            <div class="botoes">
+
+                <button class="botao-principal">
+                    Ver detalhes
+                </button>
+
+                <button class="botao-secundario">
+                    Ver andares
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>
