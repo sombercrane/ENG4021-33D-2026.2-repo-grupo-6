@@ -14,6 +14,8 @@ def search(request):
         'formulario': formulario
     })
 
+def rdc(request):
+    return render(request, 'rdc.html')
 def predios(request):
     return render(request, 'pesquisa_predio.html')
 def leme(request):
