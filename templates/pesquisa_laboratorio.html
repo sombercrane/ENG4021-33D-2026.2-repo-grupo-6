@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Pesquisa de laboratórios - Localiza PUC</title>
+    <link rel="stylesheet" href="{% static 'css/pesquisa_laboratorio.css' %}">
+</head>
+<body>
+    <div class="pagina">
+        <div class="topo">
+            <h1>Localiza PUC</h1>
+        </div>
+        <input type="text" placeholder="Buscar sala, prédio ou código">
+        <p class="filtros">Todos • Salas • <b>Laboratórios</b> • Auditórios • Prédios</p>
+        <h2>Sugestões</h2>
+
+        <div class="laboratorio">
+            <h3>Laboratório de Física</h3>
+            <p>Prédio Leme • 3º andar • Laboratório</p>
+        </div>
+        <div class="laboratorio">
+            <h3>Laboratório de Design</h3>
+            <p>Prédio IAG • Térreo • Laboratório</p>
+        </div>
+    </div>
+</body>
+</html>

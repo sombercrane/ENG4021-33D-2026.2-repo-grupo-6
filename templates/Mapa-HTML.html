@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Mapa - Localiza PUC</title>
+    <link rel="stylesheet" href="{% static 'css/Mapa-CSS.css' %}">
+</head>
+<body>
+    <div class="pagina">
+        <div class="topo">
+            <h1>Localiza PUC</h1>
+            <h2>Mapa da PUC-Rio</h2>
+        </div>
+
+        <p class="filtros">
+            <a href="home.html">Entrada</a> 
+            <a href="search.html">Elevador</a>
+            <a href="search.html">Escada</a> 
+            <a href="search.html">Banheiro</a>
+        </p>
+        <img src="../static/IMG/Mapa-IMG.png">
+
+        <h2>Visualização geral do campus</h2>
+        <p>Toque em um prédio para ver seus andares ou busque uma sala pelo nome ou código.</p>
+        <p class="buscar"><a href="search.html">Buscar sala</a></p>
+        <p class="filtros">
+            <a href="home.html">Início</a>
+            <a href="Mapa-HTML.html">Mapa</a>
+        </p>
+    </div>
+</body>
+</html>
