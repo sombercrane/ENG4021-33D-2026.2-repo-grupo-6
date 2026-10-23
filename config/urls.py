@@ -24,5 +24,6 @@ urlpatterns = [
     path('pesquisa/', views.pesquisa, name='pesquisa'),
     path('search/', views.search, name='search'),
     path('rdc/', views.rdc, name='rdc'),
+    path('predios/', views.predios, name='predios'),
     path('leme/', views.leme, name='leme'),
 ]
