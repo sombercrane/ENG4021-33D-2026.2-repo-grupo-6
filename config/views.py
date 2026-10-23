@@ -20,6 +20,8 @@ def search(request):
 
 def laboratorios(request):
     return render(request, 'pesquisa_laboratorio.html')
+def kennedy(request):
+    return render(request, 'kennedy.html')
 def auditorios(request):
     return render(request, 'pesquisa-auditorios.html')
 def rdc(request):
