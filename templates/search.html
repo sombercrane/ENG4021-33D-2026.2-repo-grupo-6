@@ -1,212 +1,111 @@
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
-    <title>Search - LocalizaPUC</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesquisa - LocalizaPUC</title>
     <link rel="stylesheet" href="{% static 'css/search.css' %}">
 </head>
-
 <body>
 
-    <header>
+    <header class="cabecalho">
+        <div class="cabecalho-conteudo">
+            <a href="{% url 'home' %}" class="voltar" aria-label="Voltar">
+                ←
+            </a>
 
-        <a href="home.html" class="voltar">
-            ←
-        </a>
-
-        <div class="topo">
-
-            <span class="logo">⌂</span>
-
-            <h1>
-                Localiza<br>
-                PUC
-            </h1>
-
+            <div class="logo">
+                <span>⌂</span>
+                <h1>Localiza<br>PUC</h1>
+            </div>
         </div>
-
     </header>
 
+    <main class="container">
 
-    <main>
+        <h2 class="titulo-pagina">Encontre seu destino</h2>
+        <p class="subtitulo">
+            Pesquise salas, laboratórios, auditórios e prédios do campus.
+        </p>
 
-        <div class="busca">
+    <div class="busca">
+        <span class="icone-busca">⌕</span>
+        <input type="text" placeholder="Buscar sala, prédio ou código">
+    </div>
 
-            <span>⌕</span>
+        <nav class="filtros" aria-label="Categorias">
+            <span class="filtro ativo">Todos</span>
+            <span class="filtro">Salas</span>
+            <span class="filtro">Laboratórios</span>
+            <span class="filtro">Auditórios</span>
+            <span class="filtro">Prédios</span>
+        </nav>
 
-            <input
-                type="text"
-                placeholder="Buscar sala, prédio ou código"
-            >
+        <section class="resultados">
+            <h2>Sugestões</h2>
 
-        </div>
+            <a href="{% url 'rdc' %}" class="resultado">
+                <span class="icone">▭</span>
+                <div class="texto">
+                    <h3>Auditório RDC</h3>
+                    <p>Prédio RDC · 2º andar · Auditório</p>
+                </div>
+                <span class="seta">›</span>
+            </a>
 
+            <a href="{% url 'iag' %}" class="resultado">
+                <span class="icone">▭</span>
+                <div class="texto">
+                    <h3>Auditório IAG</h3>
+                    <p>Prédio IAG · 2º andar · Auditório</p>
+                </div>
+                <span class="seta">›</span>
+            </a>
 
-        <div class="filtros">
+            <a href="{% url 'kennedy' %}" class="resultado">
+                <span class="icone">▭</span>
+                <div class="texto">
+                    <h3>Auditório Kennedy</h3>
+                    <p>Prédio Kennedy · 2º andar · Auditório</p>
+                </div>
+                <span class="seta">›</span>
+            </a>
 
-            <a href="search.html"><button class="ativo">Todos</button></a>
-
-            <a href="search.html"><button>Salas</button></a>
-
-            <a href="search.html"><button>Laboratórios</button></a>
-
-            <a href="search.html"><button>Auditórios</button></a>
-
-            <a href="search.html"><button>Prédios</button></a>
-
-        </div>
-
-
-        <h2>Sugestões</h2>
-
-    <a href="rdc.html">
-        <div class="resultado">
-
-            <div class="icone">
-                ▭
+            <div class="resultado">
+                <span class="icone">△</span>
+                <div class="texto">
+                    <h3>Laboratório de Física</h3>
+                    <p>Prédio Leme · 2º andar · Laboratório</p>
+                </div>
+                <span class="seta">›</span>
             </div>
 
-            <div class="texto">
+            <a href="{% url 'leme' %}" class="resultado">
+                <span class="icone">▯</span>
+                <div class="texto">
+                    <h3>Sala L100</h3>
+                    <p>Prédio Leme · Térreo · Sala</p>
+                </div>
+                <span class="seta">›</span>
+            </a>
 
-                <h3>Auditório RDC</h3>
+            <a href="{% url 'leme' %}" class="resultado">
+                <span class="icone">▯</span>
+                <div class="texto">
+                    <h3>Sala L340</h3>
+                    <p>Prédio Leme · 2º andar · Sala</p>
+                </div>
+                <span class="seta">›</span>
+            </a>
+        </section>
 
-                <p>
-                    Prédio RDC · 2º andar · Auditório
-                </p>
-
-            </div>
-
-            <span class="seta">
-                ›
-            </span>
-
-        </div>
-    </a>
-
-    <a href="HTML Tela Prédio IAG.html">
-        <div class="resultado">
-
-            <div class="icone">
-                ▭
-            </div>
-
-            <div class="texto">
-
-                <h3>Auditório IAG</h3>
-
-                <p>
-                    Prédio IAG · 2º andar · Auditório
-                </p>
-
-            </div>
-
-            <span class="seta">
-                ›
-            </span>
-
-        </div>
+        <a href="{% url 'mapa' %}" class="botao-mapa">
+            Ver mapa do campus
         </a>
-
-    <a href="kennedy.html">
-        <div class="resultado">
-
-            <div class="icone">
-                ▭
-            </div>
-
-            <div class="texto">
-
-                <h3>Auditório Kennedy</h3>
-
-                <p>
-                    Prédio Kennedy · 2º andar · Auditório
-                </p>
-
-            </div>
-
-            <span class="seta">
-                ›
-            </span>
-
-        </div>
-        </a>
-
-
-        <div class="resultado">
-
-            <div class="icone">
-                △
-            </div>
-
-            <div class="texto">
-
-                <h3>Laboratório de Física</h3>
-
-                <p>
-                    Prédio Leme · 2º andar · Laboratório
-                </p>
-
-            </div>
-
-            <span class="seta">
-                ›
-            </span>
-
-        </div>
-
-     <a href="HTML Tela Prédio Leme.html">
-        <div class="resultado">
-
-            <div class="icone">
-                ▯
-            </div>
-
-            <div class="texto">
-
-                <h3>Sala L100</h3>
-
-                <p>
-                    Prédio Leme · Térreo · Sala
-                </p>
-
-            </div>
-
-            <span class="seta">
-                ›
-            </span>
-
-        </div>
-    </a>
-
-    <a href="HTML Tela Prédio Leme.html">
-        <div class="resultado">
-
-            <div class="icone">
-                ▯
-            </div>
-
-            <div class="texto">
-
-                <h3>Sala L340</h3>
-
-                <p>
-                    Prédio Leme · 2º andar · Sala
-                </p>
-
-            </div>
-
-            <span class="seta">
-                ›
-            </span>
-
-        </div>
-    </a>
 
     </main>
 
 </body>
-
 </html>
