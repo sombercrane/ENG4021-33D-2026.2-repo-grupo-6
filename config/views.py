@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.core.paginator import Paginator
+from dados.models import Predio
 from dados.forms import PesquisaEspacoForm
 
 
@@ -18,6 +20,19 @@ def search(request):
         'formulario': formulario
     })
 
+def predios(request):
+    lista = Predio.objects.all().order_by('nome')
+    paginas = Paginator(lista, 5)
+    predios = paginas.get_page(request.GET.get('page'))
+
+    return render(request, 'pesquisa_predio.html', {'predios': predios})
+
+def leme(request):
+    return render(request, 'HTML Tela Prédio Leme.html')
+def laboratorios(request):
+    return render(request, 'pesquisa_laboratorio.html')
+def kennedy(request):
+    return render(request, 'kennedy.html')
 def auditorios(request):
     return render(request, 'pesquisa-auditorios.html')
 def rdc(request):

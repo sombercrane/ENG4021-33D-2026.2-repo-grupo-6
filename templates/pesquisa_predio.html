@@ -3,6 +3,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pesquisa de prédios - Localiza PUC</title>
     <link rel="stylesheet" href="{% static 'css/pesquisa_predio.css' %}">
 </head>
@@ -11,29 +12,37 @@
         <div class="topo">
             <h1>Localiza PUC</h1>
         </div>
+
         <input type="text" placeholder="Buscar sala, prédio ou código">
-        <p class="filtros">Todos • Salas • Laboratórios • Auditórios • <b>Prédios</b></p>
+
+        <p class="filtros">
+            Todos • Salas • Laboratórios • Auditórios • <b>Prédios</b>
+        </p>
+
         <h2>Sugestões</h2>
 
-        <div class="predio">
-            <h3>Prédio RDC</h3>
-            <p>Prédio RDC • Térreo • Prédio</p>
-        </div>
-        <div class="predio">
-            <h3>Prédio IAG</h3>
-            <p>Prédio IAG • Térreo • Prédio</p>
-        </div>
-        <div class="predio">
-            <h3>Prédio Kennedy</h3>
-            <p>Prédio Kennedy • Térreo • Prédio</p>
-        </div>
-        <div class="predio">
-            <h3>Prédio Leme</h3>
-            <p>Prédio Leme • Térreo • Prédio</p>
-        </div>
-        <div class="predio">
-            <h3>Prédio da Reitoria</h3>
-            <p>Prédio da Reitoria • Térreo • Prédio</p>
+        {% for predio in predios %}
+            <div class="predio">
+                <h3>{{ predio.nome }}</h3>
+                <p>{{ predio.sigla }}</p>
+                <p>{{ predio.endereco }}</p>
+            </div>
+        {% empty %}
+            <p>Nenhum prédio cadastrado.</p>
+        {% endfor %}
+        
+         <div class="paginacao">
+            {% if predios.has_previous %}
+                <a href="?page={{ predios.previous_page_number }}">Anterior</a>
+            {% endif %}
+
+            <span>
+                Página {{ predios.number }} de {{ predios.paginator.num_pages }}
+            </span>
+
+            {% if predios.has_next %}
+                <a href="?page={{ predios.next_page_number }}">Próxima</a>
+            {% endif %}
         </div>
     </div>
 </body>
