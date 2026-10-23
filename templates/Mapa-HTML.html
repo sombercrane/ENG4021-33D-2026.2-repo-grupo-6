@@ -1,33 +1,69 @@
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Mapa - Localiza PUC</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa - LocalizaPUC</title>
     <link rel="stylesheet" href="{% static 'css/Mapa-CSS.css' %}">
 </head>
 <body>
-    <div class="pagina">
-        <div class="topo">
-            <h1>Localiza PUC</h1>
-            <h2>Mapa da PUC-Rio</h2>
+
+    <header class="cabecalho">
+        <div class="cabecalho-conteudo">
+            <a href="{% url 'home' %}" class="voltar" aria-label="Voltar">
+                ←
+            </a>
+
+            <div class="logo">
+                <span>⌂</span>
+                <h1>Localiza<br>PUC</h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <h2 class="titulo">Mapa da PUC-Rio</h2>
+        <p class="subtitulo">
+            Explore os prédios e encontre seu caminho pelo campus.
+        </p>
+
+        <div class="filtros">
+            <span class="filtro">Entrada</span>
+            <span class="filtro">Elevador</span>
+            <span class="filtro">Escada</span>
+            <span class="filtro">Banheiro</span>
         </div>
 
-        <p class="filtros">
-            <a href="home.html">Entrada</a> 
-            <a href="search.html">Elevador</a>
-            <a href="search.html">Escada</a> 
-            <a href="search.html">Banheiro</a>
-        </p>
-        <img src="../static/IMG/Mapa-IMG.png">
+        <section class="cartao-mapa">
+            <img
+                src="{% static 'IMG/Mapa-IMG.png' %}"
+                alt="Mapa ilustrativo do campus da PUC-Rio"
+                class="imagem-mapa"
+            >
+        </section>
 
-        <h2>Visualização geral do campus</h2>
-        <p>Toque em um prédio para ver seus andares ou busque uma sala pelo nome ou código.</p>
-        <p class="buscar"><a href="search.html">Buscar sala</a></p>
-        <p class="filtros">
-            <a href="home.html">Início</a>
-            <a href="Mapa-HTML.html">Mapa</a>
-        </p>
-    </div>
+        <section class="informacoes">
+            <h2>Visualização geral do campus</h2>
+
+            <p>
+                Explore a localização dos prédios ou utilize a pesquisa
+                para encontrar uma sala pelo nome ou código.
+            </p>
+
+            <a href="{% url 'search' %}" class="botao-busca">
+                Buscar sala
+            </a>
+        </section>
+
+        <nav class="navegacao">
+            <a href="{% url 'home' %}">⌂ Início</a>
+            <a href="{% url 'mapa' %}" class="ativo">▣ Mapa</a>
+        </nav>
+
+    </main>
+
 </body>
 </html>
