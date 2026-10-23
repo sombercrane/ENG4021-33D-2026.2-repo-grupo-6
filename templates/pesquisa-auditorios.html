@@ -20,10 +20,10 @@
     </header>
 
 <main>
-    <div class="busca"
+  <form method="GET" action="{% url 'pesquisa-auditorios' %}" class="busca">
     <span>⌕</span>
-    <input type="text" placeholder="Buscar auditório, prédio ou código" value = "Auditórios">
-</div>
+    {{ form.busca }}
+</form>
 
 <div class="filtros">
     <a href="search.html"><button>Todos</button></a>
