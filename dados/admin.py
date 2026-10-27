@@ -7,4 +7,4 @@ from .models import Predio, Andar
 
 admin.site.register(Predio)
 admin.site.register(Andar)
-admin.site.register(Predio)
+

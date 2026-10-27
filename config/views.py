@@ -37,8 +37,6 @@ def auditorios(request):
     return render(request, 'pesquisa-auditorios.html')
 def rdc(request):
     return render(request, 'rdc.html')
-def predios(request):
-    return render(request, 'pesquisa_predio.html')
 def leme(request):
     return render(request, 'HTML Tela Prédio Leme.html')
 def laboratorio_fisica(request):

@@ -10,8 +10,8 @@ def pesquisa_auditorios(request):
     return render(request, 'pesquisa-auditorios.html', {'form': form})
 
 #Formulario de pesquisa de salas
-from .forms import PesquisaSalaForm 
+from .forms import PesquisaEspacoForm
 
 def pesquisa_sala(request):
-    form = PesquisaSalaForm(request.GET or None)
+    form = PesquisaEspacoForm(request.GET or None)
     return render(request, 'Pesquisa-Sala-HTML.html', {'form': form})
