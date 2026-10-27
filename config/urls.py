@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from . import views
+from  dados import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,6 +24,7 @@ urlpatterns = [
     path('mapa/', views.mapa, name='mapa'),
     path('pesquisa/', views.pesquisa, name='pesquisa'),
     path('search/', views.search, name='search'),
+    path('pesquisa-auditorios/', views.pesquisa_auditorios, name='pesquisa-auditorios'),
     path('laboratorios/', views.laboratorios, name='laboratorios'),
     path('kennedy/', views.kennedy, name='kennedy'),
     path('auditorios/', views.auditorios, name='auditorios'),
