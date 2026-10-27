@@ -8,12 +8,12 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
+import { Route as rootRouteImport } from './routes/__root.tsx'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as BuscaRouteImport } from './routes/busca'
-import { Route as MapaRouteImport } from './routes/mapa'
-import { Route as EspacoIdRouteImport } from './routes/espaco.$id'
-import { Route as PredioIdRouteImport } from './routes/predio.$id'
+import { Route as BuscaRouteImport } from './routes/busca.tsx'
+import { Route as MapaRouteImport } from './routes/mapa.tsx'
+import { Route as EspacoIdRouteImport } from './routes/espaco.$id.tsx'
+import { Route as PredioIdRouteImport } from './routes/predio.$id.tsx'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
