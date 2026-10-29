@@ -1,0 +1,170 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Consulte os andares, salas, laboratórios e espaços do Prédio RDC da PUC-Rio.">
+    <title>Prédio RDC | LocalizaPUC</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+
+<body>
+    <header class="cabecalho">
+        <div class="topo">
+            <a href="Pesquisa-Sala-HTML.html" class="voltar" aria-label="Voltar para a pesquisa">
+                &larr; Voltar
+            </a>
+
+            <a href="home.html" class="logo" aria-label="Página inicial do LocalizaPUC">
+                <h1>PUC-Rio</h1>
+                <span>LocalizaPUC</span>
+            </a>
+
+            <div class="titulo">
+                <span class="subtitulo">Mapa do campus</span>
+                <h2>Prédio RDC</h2>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="introducao">
+            <div>
+                <span class="etiqueta">PUC-Rio · Gávea</span>
+                <h2>Encontre seu destino no RDC</h2>
+                <p>Consulte os espaços do prédio e encontre as informações necessárias para chegar ao local desejado.</p>
+            </div>
+        </section>
+
+        <section class="busca" aria-label="Pesquisar espaços">
+            <label for="pesquisa-local">Pesquisar local</label>
+            <div class="campo-busca">
+                <span aria-hidden="true">&#128269;</span>
+                <input
+                    type="search"
+                    id="pesquisa-local"
+                    placeholder="Digite uma sala, laboratório ou espaço"
+                >
+                <button type="button" id="botao-pesquisar">Buscar</button>
+            </div>
+        </section>
+
+        <nav class="filtros" aria-label="Categorias de espaços">
+            <a href="Pesquisa-Sala-HTML.html" class="filtro ativo" aria-current="page">Todos</a>
+            <a href="Pesquisa-Sala-HTML.html" class="filtro">Salas</a>
+            <a href="Pesquisa-Sala-HTML.html" class="filtro">Laboratórios</a>
+            <a href="Pesquisa-Sala-HTML.html" class="filtro">Auditórios</a>
+        </nav>
+
+        <section class="conteudo">
+            <div class="area-mapa">
+                <div class="secao-titulo">
+                    <div>
+                        <h2>Visão geral do prédio</h2>
+                        <p>Exemplo ilustrativo dos espaços por andar</p>
+                    </div>
+                    <span class="indicador">RDC</span>
+                </div>
+
+                <div class="mapa-local" aria-label="Representação ilustrativa dos andares do RDC">
+                    <article class="andar-card">
+                        <div class="andar-cabecalho">
+                            <span class="numero-andar">01</span>
+                            <div>
+                                <h3>1º andar</h3>
+                                <p>Espaços disponíveis</p>
+                            </div>
+                        </div>
+                        <ul class="lista-espacos">
+                            <li><span class="icone-espaco">&#9635;</span> Sala RDC 101</li>
+                            <li><span class="icone-espaco">&#9881;</span> Laboratório</li>
+                            <li><span class="icone-espaco">&#9635;</span> Sala de aula</li>
+                        </ul>
+                    </article>
+
+                    <div class="conector" aria-hidden="true">&darr;</div>
+
+                    <article class="andar-card">
+                        <div class="andar-cabecalho">
+                            <span class="numero-andar">02</span>
+                            <div>
+                                <h3>2º andar</h3>
+                                <p>Espaços disponíveis</p>
+                            </div>
+                        </div>
+                        <ul class="lista-espacos">
+                            <li><span class="icone-espaco">&#9635;</span> Sala RDC 201</li>
+                            <li><span class="icone-espaco">&#9733;</span> Auditório</li>
+                            <li><span class="icone-espaco">&#9881;</span> Laboratório</li>
+                        </ul>
+                    </article>
+                </div>
+
+                <p class="aviso-mapa">
+                    Esta representação é ilustrativa e não substitui a planta oficial do prédio.
+                </p>
+            </div>
+
+            <aside class="informacoes">
+                <article class="card-destaque">
+                    <span class="icone-local" aria-hidden="true">&#128205;</span>
+                    <div>
+                        <span class="subtitulo">Local selecionado</span>
+                        <h2>Prédio RDC</h2>
+                        <p>PUC-Rio · Gávea, Rio de Janeiro</p>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <h3>Sobre o local</h3>
+                    <p>Consulte os espaços disponíveis e confirme o andar da sala antes de iniciar seu trajeto.</p>
+                </article>
+
+                <article class="card">
+                    <h3>Consultar andares</h3>
+                    <p>Veja a representação dos andares e continue explorando o mapa.</p>
+                    <a href="Mapa-HTML.html" class="botao botao-secundario">Ver andares</a>
+                </article>
+
+                <article class="card">
+                    <h3>Como chegar</h3>
+                    <p>Continue para consultar o mapa e planejar o caminho até o destino.</p>
+                    <a href="Mapa-HTML.html" class="botao botao-principal">Traçar rota &rarr;</a>
+                </article>
+            </aside>
+        </section>
+    </main>
+
+    <footer class="rodape">
+        <p>LocalizaPUC · Projeto acadêmico da PUC-Rio</p>
+    </footer>
+
+    <script>
+        const campoPesquisa = document.getElementById('pesquisa-local');
+        const botaoPesquisar = document.getElementById('botao-pesquisar');
+
+        function pesquisarLocal() {
+            const termo = campoPesquisa.value.trim();
+
+            if (!termo) {
+                campoPesquisa.focus();
+                return;
+            }
+
+            const destino = new URL('Pesquisa-Sala-HTML.html', window.location.href);
+            destino.searchParams.set('q', termo);
+            window.location.href = destino.href;
+        }
+
+        botaoPesquisar.addEventListener('click', pesquisarLocal);
+
+        campoPesquisa.addEventListener('keydown', function(evento) {
+            if (evento.key === 'Enter') {
+                pesquisarLocal();
+            }
+        });
+    </script>
+</body>
+</html>
+```

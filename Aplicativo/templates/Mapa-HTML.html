@@ -1,0 +1,69 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa - LocalizaPUC</title>
+    <link rel="stylesheet" href="{% static 'css/Mapa-CSS.css' %}">
+</head>
+<body>
+
+    <header class="cabecalho">
+        <div class="cabecalho-conteudo">
+            <a href="{% url 'home' %}" class="voltar" aria-label="Voltar">
+                ←
+            </a>
+
+            <div class="logo">
+                <span>⌂</span>
+                <h1>Localiza<br>PUC</h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <h2 class="titulo">Mapa da PUC-Rio</h2>
+        <p class="subtitulo">
+            Explore os prédios e encontre seu caminho pelo campus.
+        </p>
+
+        <div class="filtros">
+            <span class="filtro">Entrada</span>
+            <span class="filtro">Elevador</span>
+            <span class="filtro">Escada</span>
+            <span class="filtro">Banheiro</span>
+        </div>
+
+        <section class="cartao-mapa">
+            <img
+                src="{% static 'IMG/Mapa-IMG.png' %}"
+                alt="Mapa ilustrativo do campus da PUC-Rio"
+                class="imagem-mapa"
+            >
+        </section>
+
+        <section class="informacoes">
+            <h2>Visualização geral do campus</h2>
+
+            <p>
+                Explore a localização dos prédios ou utilize a pesquisa
+                para encontrar uma sala pelo nome ou código.
+            </p>
+
+            <a href="{% url 'search' %}" class="botao-busca">
+                Buscar sala
+            </a>
+        </section>
+
+        <nav class="navegacao">
+            <a href="{% url 'home' %}">⌂ Início</a>
+            <a href="{% url 'mapa' %}" class="ativo">▣ Mapa</a>
+        </nav>
+
+    </main>
+
+</body>
+</html>

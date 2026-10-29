@@ -1,0 +1,231 @@
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background-color: #050605;
+    color: #d3e2d4;
+    font-family: Arial, sans-serif;
+}
+
+.cabecalho {
+    background-color: #050605;
+    padding: 24px 20px;
+}
+
+.cabecalho-conteudo {
+    max-width: 910px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.voltar {
+    color: #c9ddd0;
+    font-size: 32px;
+    text-decoration: none;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo h1 {
+    font-size: 28px;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.container {
+    max-width: 950px;
+    margin: 35px auto;
+    padding: 0 20px 50px;
+}
+
+.titulo-pagina {
+    font-size: 26px;
+    margin-bottom: 10px;
+}
+
+.subtitulo {
+    color: #a29b8d;
+    font-size: 15px;
+    margin-bottom: 25px;
+}
+
+.busca {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: #191408;
+    border: 1px solid #34473a;
+    border-radius: 16px;
+    padding: 10px 15px;
+}
+
+.icone-busca {
+    font-size: 24px;
+    color: #c9ddd0;
+}
+
+.busca input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: white;
+    font-size: 16px;
+}
+
+.busca input::placeholder {
+    color: #a29b8d;
+}
+
+.busca button {
+    background-color: #b9d8c3;
+    color: #050605;
+    border: none;
+    padding: 11px 20px;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.busca button:hover {
+    background-color: #d3e2d4;
+}
+
+.filtros {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 20px 0;
+}
+
+.filtro {
+    white-space: nowrap;
+    background-color: #191408;
+    color: #d3e2d4;
+    padding: 10px 15px;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+.filtro.ativo {
+    background-color: #b9d8c3;
+    color: black;
+}
+
+.resultados h2 {
+    margin-bottom: 18px;
+    font-size: 22px;
+}
+
+.resultado {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background-color: #191408;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 12px;
+    color: #d3e2d4;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+a.resultado:hover {
+    background-color: #2b2517;
+}
+
+.icone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    background-color: #0c140f;
+    border-radius: 12px;
+    font-size: 22px;
+}
+
+.texto {
+    flex: 1;
+    min-width: 0;
+}
+
+.texto h3 {
+    font-size: 17px;
+    margin: 0;
+}
+
+.texto p {
+    font-size: 13px;
+    color: #a29b8d;
+    margin: 7px 0 0;
+}
+
+.seta {
+    font-size: 26px;
+    color: #b9d8c3;
+}
+
+.botao-mapa {
+    display: block;
+    text-align: center;
+    background-color: #b9d8c3;
+    color: #050605;
+    padding: 17px;
+    border-radius: 16px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 25px;
+}
+
+.botao-mapa:hover {
+    background-color: #d3e2d4;
+}
+
+@media (max-width: 600px) {
+    .cabecalho {
+        padding: 18px;
+    }
+
+    .container {
+        margin-top: 15px;
+        padding: 0 18px 35px;
+    }
+
+    .titulo-pagina {
+        font-size: 23px;
+    }
+
+    .resultado {
+        padding: 15px;
+        gap: 12px;
+    }
+
+    .busca {
+        padding: 9px 11px;
+        gap: 8px;
+    }
+
+    .busca button {
+        padding: 10px 12px;
+    }
+
+    .texto h3 {
+        font-size: 15px;
+    }
+
+    .texto p {
+        font-size: 12px;
+    }
+}
