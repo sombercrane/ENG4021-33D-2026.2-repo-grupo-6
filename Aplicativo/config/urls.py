@@ -24,7 +24,7 @@ urlpatterns = [
     path('mapa/', views.mapa, name='mapa'),
     path('pesquisa/', views.pesquisa, name='pesquisa'),
     path('search/', views.search, name='search'),
-    path('pesquisa-auditorios/', views.pesquisa_auditorios, name='pesquisa-auditorios'),
+    path('pesquisa_auditorios/', views.pesquisa_auditorios, name='pesquisa_auditorios'),
     path('laboratorios/', views.laboratorios, name='laboratorios'),
     path('kennedy/', views.kennedy, name='kennedy'),
     path('auditorios/', views.auditorios, name='auditorios'),
@@ -34,4 +34,7 @@ urlpatterns = [
     path('laboratorio-fisica/', views.laboratorio_fisica, name='laboratorio_fisica'),
     path('laboratorio-design/', views.laboratorio_design, name='laboratorio_design'),    
     path('iag/', views.iag, name='iag'),
+    path('pesquisa-sala/', views.pesquisa_sala, name='pesquisa_sala'),
+    path('auditorio-rdc/', views.auditorio_rdc, name='auditorio_rdc'),
+    path('auditorio-kennedy/', views.auditorio_kennedy, name='auditorio_kennedy'),
 ]
