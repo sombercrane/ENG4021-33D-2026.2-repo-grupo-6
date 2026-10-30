@@ -1,6 +1,9 @@
 from django.shortcuts import render
 from django.core.paginator import Paginator
 from django.db.models import Q
+
+from .models import Predio, Espaco
+from .forms import PesquisaEspacoForm, PesquisaAuditorioForm
 from .models import Espaco
 from .models import Predio
 from .forms import (
@@ -83,7 +86,17 @@ def laboratorios(request):
 
 
 def kennedy(request):
-    return render(request, 'kennedy.html')
+    form = PesquisaEspacoForm(request.GET or None)
+    espacos = Espaco.objects.filter(andar__predio__sigla='K')
+
+    termo = form['busca'].value() if form.is_bound else None
+    if termo:
+        espacos = espacos.filter(Q(nome__icontains=termo) | Q(codigo__icontains=termo))
+
+    return render(request, 'kennedy.html', {
+        'form': form,
+    'espacos': espacos,
+    })
 
 
 def auditorios(request):
