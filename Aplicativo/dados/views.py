@@ -117,6 +117,9 @@ def laboratorio_fisica(request):
 def laboratorio_design(request):
     return render(request, 'laboratorio_de_design.html')
 
+def laboratorio_leme(request):
+    return render(request, 'laboratorio_leme.html')
+
 
 def pesquisa_auditorios(request):
     form = PesquisaAuditorioForm(request.GET or None)

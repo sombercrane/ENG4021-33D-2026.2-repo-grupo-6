@@ -1,0 +1,165 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f4f5f7;
+    color: #292929;
+}
+
+.topo {
+    background-color: #003b71;
+    color: white;
+    height: 75px;
+    padding: 0 8%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    color: white;
+    font-size: 25px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.topo span {
+    font-size: 15px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 25px;
+}
+
+.voltar {
+    color: #003b71;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.apresentacao {
+    margin: 35px 0;
+}
+
+.identificacao {
+    color: #b28b35;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.apresentacao h1 {
+    font-size: 36px;
+    color: #003b71;
+    margin: 12px 0;
+}
+
+.apresentacao p {
+    color: #666;
+    font-size: 16px;
+    line-height: 1.7;
+    max-width: 700px;
+}
+
+.informacoes {
+    display: flex;
+    gap: 35px;
+    align-items: center;
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+}
+
+.imagem {
+    flex: 1;
+}
+
+.imagem img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 9px;
+}
+
+.detalhes {
+    flex: 1;
+}
+
+.detalhes h2 {
+    color: #003b71;
+    margin-bottom: 15px;
+    font-size: 23px;
+}
+
+.detalhes p {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.item {
+    padding: 13px 0;
+    border-bottom: 1px solid #e5e5e5;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.item strong {
+    color: #003b71;
+    font-size: 14px;
+}
+
+.item span {
+    color: #666;
+    font-size: 14px;
+}
+
+.aviso {
+    background-color: #e8eef5;
+    padding: 25px;
+    margin-top: 30px;
+    border-radius: 10px;
+    border-left: 5px solid #003b71;
+}
+
+.aviso h2 {
+    color: #003b71;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.aviso p {
+    color: #555;
+    line-height: 1.6;
+}
+
+footer {
+    background-color: #003b71;
+    color: white;
+    text-align: center;
+    padding: 22px;
+    margin-top: 60px;
+}
+
+@media (max-width: 700px) {
+    .informacoes {
+        flex-direction: column;
+    }
+
+    .imagem img {
+        height: 220px;
+    }
+
+    .apresentacao h1 {
+        font-size: 28px;
+    }
+}
