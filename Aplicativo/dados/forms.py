@@ -24,3 +24,27 @@ class PesquisaAuditorioForm(forms.Form):
             "class": "campo-busca"
         })
     )
+
+
+class PesquisaLaboratorioForm(forms.Form):
+    busca = forms.CharField(
+        required=False,
+        max_length=150,
+        label="Pesquisar laboratório",
+        widget=forms.TextInput(attrs={
+            "placeholder": "Digite o nome ou código do laboratório",
+            "class": "campo-busca"
+        })
+    )
+
+# Formulario de pesquisa de predios
+class PesquisaPredioForm(forms.Form):
+    busca = forms.CharField(
+        required=False,
+        max_length=150,
+        label="Pesquisar prédio",
+        widget=forms.TextInput(attrs={
+            "placeholder": "Digite o nome ou sigla do prédio",
+            "class": "campo-busca"
+        })
+    )

@@ -1,3 +1,4 @@
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -9,33 +10,33 @@
     <link rel="stylesheet" href="{% static 'css/pesquisa-auditorios.css' %}">
 </head>
 
-
 <body>
     <header>
-        <a href="search.html" class="voltar">Voltar</a>
+        <a href="{% url 'search' %}" class="voltar">Voltar</a>
         <div class="topo">
             <span class="logo">⌂</span>
             <h1>Localiza<br>PUC</h1>
         </div>
     </header>
 
-<main>
-  <form method="GET" action="{% url 'pesquisa-auditorios' %}" class="busca">
-    <span>⌕</span>
-    {{ form.busca }}
-</form>
+    <main>
+        <form method="GET" action="{% url 'pesquisa_auditorios' %}" class="busca">
+            <span>⌕</span>
+            {{ form.busca }}
+            <button type="submit">Buscar</button>
+        </form>
 
-<div class="filtros">
-    <a href="search.html"><button>Todos</button></a>
-    <a href="search.html"><button>Salas</button></a>
-    <a href="search.html"><button>Laboratórios</button></a>
-    <a href="pesquisa-auditorios.html"><button class="ativo">Auditórios</button></a>
-    <a href="search.html"><button>Prédios</button></a>
-</div>
+        <div class="filtros">
+            <a href="{% url 'search' %}">Todos</a>
+            <a href="{% url 'pesquisa_sala' %}">Salas</a>
+            <a href="{% url 'laboratorios' %}">Laboratórios</a>
+            <a href="{% url 'pesquisa_auditorios' %}" class="ativo">Auditórios</a>
+            <a href="{% url 'predios' %}">Prédios</a>
+        </div>
 
-h2>Sugestões</h2>
+        <h2>Sugestões</h2>
 
-<a href="rdc.html">
+        <a href="{% url 'auditorio_rdc' %}">
             <div class="resultado">
                 <div class="icone">▭</div>
                 <div class="texto">
@@ -46,7 +47,7 @@ h2>Sugestões</h2>
             </div>
         </a>
 
-        <a href="HTML Tela Prédio IAG.html">
+        <a href="{% url 'iag' %}">
             <div class="resultado">
                 <div class="icone">▭</div>
                 <div class="texto">
@@ -57,7 +58,7 @@ h2>Sugestões</h2>
             </div>
         </a>
 
-        <a href="kennedy.html">
+        <a href="{% url 'auditorio_kennedy' %}">
             <div class="resultado">
                 <div class="icone">▭</div>
                 <div class="texto">
@@ -67,25 +68,6 @@ h2>Sugestões</h2>
                 <span class="seta">›</span>
             </div>
         </a>
-
     </main>
-
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</body>
-
