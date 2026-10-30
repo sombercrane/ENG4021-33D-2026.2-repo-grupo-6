@@ -13,15 +13,21 @@
 <body>
 
     <header>
-        <div class="topo">
-            <span class="logo">⌂</span>
+        
+        <div class="autenticacao">
+        {% if user.is_authenticated %}
+            <span>Olá, {{ user.username }}!</span>
 
-            <h1>
-                Localiza<br>
-                PUC
-            </h1>
-        </div>
-    </header>
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit">Sair</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}">Entrar</a>
+            <a href="{% url 'cadastro' %}">Criar conta</a>
+        {% endif %}
+    </div>
+
 
 
     <main>

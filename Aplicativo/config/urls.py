@@ -34,4 +34,7 @@ urlpatterns = [
     path('laboratorio-fisica/', views.laboratorio_fisica, name='laboratorio_fisica'),
     path('laboratorio-design/', views.laboratorio_design, name='laboratorio_design'),    
     path('iag/', views.iag, name='iag'),
+    path('cadastro/', views.cadastro, name='cadastro'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
 ]

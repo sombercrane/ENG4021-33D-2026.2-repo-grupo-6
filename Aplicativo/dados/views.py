@@ -1,5 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib import messages
 
 from .models import Predio
 from .forms import PesquisaEspacoForm, PesquisaAuditorioForm
@@ -78,3 +81,41 @@ def pesquisa_sala(request):
     return render(request, 'Pesquisa-Sala-HTML.html', {
         'form': form
     })
+
+def cadastro(request):
+    if request.method == 'POST':
+        formulario = UserCreationForm(request.POST)
+
+        if formulario.is_valid():
+            usuario = formulario.save()
+            login(request, usuario)
+            return redirect('home')
+    else:
+        formulario = UserCreationForm()
+
+    return render(request, 'cadastro.html', {
+        'formulario': formulario
+    })
+
+
+def login_view(request):
+    if request.method == 'POST':
+        formulario = AuthenticationForm(request, data=request.POST)
+
+        if formulario.is_valid():
+            usuario = formulario.get_user()
+            login(request, usuario)
+            return redirect('home')
+    else:
+        formulario = AuthenticationForm()
+
+    return render(request, 'login.html', {
+        'formulario': formulario
+    })
+
+
+def logout_view(request):
+    if request.method == 'POST':
+        logout(request)
+
+    return redirect('home')
