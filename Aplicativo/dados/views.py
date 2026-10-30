@@ -4,7 +4,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from django.db.models import Q
-
+from django.conf import settings
 from .models import Predio, Espaco
 from .forms import PesquisaEspacoForm, PesquisaAuditorioForm
 from .models import Espaco
@@ -22,9 +22,13 @@ def home(request):
     return render(request, 'home.html')
 
 
-
 def mapa(request):
-    return render(request, 'Mapa-HTML.html')
+    predios = Predio.objects.exclude(latitude__isnull=True).exclude(longitude__isnull=True)
+
+    return render(request, 'Mapa-HTML.html', {
+        'predios': predios,
+        'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY,
+    })
 
 
 def search(request):
@@ -124,8 +128,7 @@ def pesquisa_auditorios(request):
         'form': form
     })
 
-
-def pesquisa_sala(request):
+def pesquisa_sala(request): 
     form = PesquisaEspacoForm(request.GET or None)
     return render(request, 'Pesquisa-Sala-HTML.html', {
         'form': form
@@ -170,7 +173,6 @@ def logout_view(request):
     return redirect('home')
 def auditorio_rdc(request):
     return render(request, 'audrdc.html')
-
 
 def auditorio_kennedy(request):
     return render(request, 'HTML aud kennedy')

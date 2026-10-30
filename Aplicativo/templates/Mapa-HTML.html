@@ -38,11 +38,58 @@
         </div>
 
         <section class="cartao-mapa">
-            <img
-                src="{% static 'IMG/Mapa-IMG.png' %}"
-                alt="Mapa ilustrativo do campus da PUC-Rio"
-                class="imagem-mapa"
-            >
+                        {% if google_maps_api_key %}
+                <div id="mapa-interativo" class="imagem-mapa"></div>
+
+                <script>
+                    function iniciarMapaPUC() {
+                        const predios = [
+                            {% for predio in predios %}
+                            {
+                                nome: '{{ predio.nome|escapejs }}',
+                                sigla: '{{ predio.sigla|escapejs }}',
+                                lat: {{ predio.latitude }},
+                                lng: {{ predio.longitude }}
+                    },
+                    {% endfor %}
+                        ];
+
+                        const campus = { lat: -22.9793, lng: -43.23245 };
+
+                        const mapa = new google.maps.Map(document.getElementById('mapa-interativo'), {
+                            zoom: 17,
+                            center: campus
+                        });
+
+                        predios.forEach(function (predio) {
+                            const marcador = new google.maps.Marker({
+                                position: { lat: predio.lat, lng: predio.lng },
+                                map: mapa,
+                                title: predio.nome
+                            });
+
+                            const infoWindow = new google.maps.InfoWindow({
+                                content: '<strong>' + predio.sigla + '</strong><br>' + predio.nome
+                            });
+
+                            marcador.addListener('click', function () {
+                                infoWindow.open(mapa, marcador);
+                            });
+                        });
+                    }
+                </script>
+                <script
+                    src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=iniciarMapaPUC"
+                    async
+                    defer
+                ></script>
+            {% else %}
+                <img
+                    src="{% static 'IMG/Mapa-IMG.png' %}"
+                    alt="Mapa ilustrativo do campus da PUC-Rio"
+                    class="imagem-mapa"
+                >
+            {% endif %}
         </section>
 
         <section class="informacoes">
