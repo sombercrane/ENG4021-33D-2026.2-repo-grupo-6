@@ -1,10 +1,10 @@
 from django.contrib import admin
-from .models import Predio
+from .models import Predio, Andar, TipoEspaco, Espaco
 
 # Register your models here.
 
-from .models import Predio, Andar
 
 admin.site.register(Predio)
 admin.site.register(Andar)
-
+admin.site.register(TipoEspaco)
+admin.site.register(Espaco)
