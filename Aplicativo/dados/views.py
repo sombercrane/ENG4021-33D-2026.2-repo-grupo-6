@@ -1,16 +1,20 @@
 from django.shortcuts import render
 from django.core.paginator import Paginator
-
+from django.db.models import Q
+from .models import Espaco
 from .models import Predio
-from .forms import PesquisaEspacoForm, PesquisaAuditorioForm
+from .forms import (
+    PesquisaEspacoForm,
+    PesquisaAuditorioForm,
+    PesquisaPredioForm,
+    PesquisaLaboratorioForm
+)
+
 
 
 def home(request):
     return render(request, 'home.html')
 
-
-def pesquisa(request):
-    return render(request, 'Pesquisa-Sala-HTML.html')
 
 
 def mapa(request):
@@ -24,26 +28,58 @@ def search(request):
     })
 
 
+
 def predios(request):
+    formulario = PesquisaPredioForm(request.GET or None)
+
     lista = Predio.objects.all().order_by('nome')
+
+    if formulario.is_valid():
+        busca = formulario.cleaned_data['busca']
+
+        if busca:
+            lista = lista.filter(
+                Q(nome__icontains=busca) |
+                Q(sigla__icontains=busca)
+            )
+
     paginas = Paginator(lista, 5)
     predios = paginas.get_page(request.GET.get('page'))
 
     return render(request, 'pesquisa_predio.html', {
+        'formulario': formulario,
         'predios': predios
     })
 
 
 def iag(request):
-    return render(request, 'iag.html')
-
+    return render(request, 'HTML Tela Prédio IAG.html')
 
 def leme(request):
     return render(request, 'HTML Tela Prédio Leme.html')
 
 
+
 def laboratorios(request):
-    return render(request, 'pesquisa_laboratorio.html')
+    formulario = PesquisaLaboratorioForm(request.GET or None)
+
+    laboratorios = Espaco.objects.filter(
+        tipo__nome__icontains='laboratório'
+    ).select_related('andar__predio', 'tipo').order_by('nome')
+
+    if formulario.is_valid():
+        busca = formulario.cleaned_data['busca']
+
+        if busca:
+            laboratorios = laboratorios.filter(
+                Q(nome__icontains=busca) |
+                Q(codigo__icontains=busca)
+            )
+
+    return render(request, 'pesquisa_laboratorio.html', {
+        'formulario': formulario,
+        'laboratorios': laboratorios
+    })
 
 
 def kennedy(request):
@@ -78,3 +114,10 @@ def pesquisa_sala(request):
     return render(request, 'Pesquisa-Sala-HTML.html', {
         'form': form
     })
+
+def auditorio_rdc(request):
+    return render(request, 'audrdc.html')
+
+
+def auditorio_kennedy(request):
+    return render(request, 'HTML aud kennedy')
