@@ -1,0 +1,75 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratório do Leme | PUC-Rio</title>
+    <link rel="stylesheet" href="{% static 'css/laboratorio_leme.css' %}">
+</head>
+<body>
+
+    <header class="topo">
+        <a href="/" class="logo">PUC-Rio</a>
+        <span>Mapa Inteligente</span>
+    </header>
+
+    <main class="container">
+        <a href="javascript:history.back()" class="voltar">← Voltar</a>
+
+        <section class="apresentacao">
+            <span class="identificacao">PRÉDIO LEME</span>
+            <h1>Laboratório do Leme</h1>
+            <p>
+                Encontre informações sobre os laboratórios localizados
+                no prédio Leme e consulte os espaços disponíveis para
+                atividades acadêmicas e práticas.
+            </p>
+        </section>
+
+        <section class="informacoes">
+            <div class="imagem">
+                <img src="{% static 'IMG/laboratorio_leme.jpg' %}"
+                     alt="Laboratório do Prédio Leme">
+            </div>
+
+            <div class="detalhes">
+                <h2>Informações do laboratório</h2>
+                <p>
+                    O espaço é destinado ao desenvolvimento de atividades
+                    práticas, estudos e experiências acadêmicas.
+                </p>
+
+                <div class="item">
+                    <strong>Localização</strong>
+                    <span>Prédio Leme – PUC-Rio</span>
+                </div>
+
+                <div class="item">
+                    <strong>Tipo de ambiente</strong>
+                    <span>Laboratório acadêmico</span>
+                </div>
+
+                <div class="item">
+                    <strong>Finalidade</strong>
+                    <span>Ensino e atividades práticas</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="aviso">
+            <h2>Precisa encontrar o laboratório?</h2>
+            <p>
+                Utilize o mapa inteligente para consultar a localização
+                dos ambientes dentro do campus da PUC-Rio.
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p>PUC-Rio | Mapa Inteligente</p>
+    </footer>
+
+</body>
+</html>
