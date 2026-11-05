@@ -1,0 +1,29 @@
+{% extends "base.html" %} {% block titulo %}{{ espaco.nome }} | LocalizaPUC{% endblock %} {% block conteudo %}
+← Voltar para a pesquisa
+
+{{ espaco.tipo.nome }}
+{{ espaco.nome }}
+
+Código
+    {{ espaco.codigo }}
+Prédio
+    {{ espaco.andar.predio.nome }}
+Andar
+    {{ espaco.andar.nome }}
+Acessibilidade
+    {{ espaco.acessivel|yesno:"Sim,Não" }}
+
+Sobre o espaço
+{% if espaco.descricao %}
+
+{{ espaco.descricao|linebreaksbr }}
+{% else %}
+
+Descrição ainda não cadastrada.
+{% endif %}
+{% if espaco.observacoes %}
+Observações
+
+{{ espaco.observacoes|linebreaksbr }}
+{% endif %}
+{% endblock %} 
