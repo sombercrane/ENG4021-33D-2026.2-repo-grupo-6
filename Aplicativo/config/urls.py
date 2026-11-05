@@ -30,6 +30,7 @@ urlpatterns = [
     path('auditorios/', views.auditorios, name='auditorios'),
     path('rdc/', views.rdc, name='rdc'),
     path('predios/', views.predios, name='predios'),
+    path('predio/<int:identificador>/', views.consultar_predio, name='consultar_predio'),
     path('leme/', views.leme, name='leme'),
     path('laboratorio-fisica/', views.laboratorio_fisica, name='laboratorio_fisica'),
     path('laboratorio-design/', views.laboratorio_design, name='laboratorio_design'),    
