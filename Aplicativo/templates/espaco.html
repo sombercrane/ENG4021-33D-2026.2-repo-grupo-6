@@ -4,8 +4,9 @@
 {{ espaco.tipo.nome }}
 {{ espaco.nome }}
 
-Código
-    {{ espaco.codigo }}
+Código: {{ espaco.codigo }}
+Localização e acesso
+
 Prédio
     {{ espaco.andar.predio.nome }}
 Andar
@@ -19,7 +20,7 @@ Sobre o espaço
 {{ espaco.descricao|linebreaksbr }}
 {% else %}
 
-Descrição ainda não cadastrada.
+Sem descrição disponível.
 {% endif %}
 {% if espaco.observacoes %}
 Observações
