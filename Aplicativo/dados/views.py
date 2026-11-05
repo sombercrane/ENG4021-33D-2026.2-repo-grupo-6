@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
@@ -176,3 +177,10 @@ def auditorio_rdc(request):
 
 def auditorio_kennedy(request):
     return render(request, 'HTML aud kennedy')
+
+
+def detalhe_espaco(request, pk):
+    espacos = Espaco.objects.select_related("andar__predio", "tipo")
+    espaco = get_object_or_404(espacos, pk=pk)
+
+    return render(request, "espaco.html", {"espaco": espaco})
