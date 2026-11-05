@@ -1,0 +1,46 @@
+{% extends "base.html" %} {% load static %} {% block titulo %}{{ espaco.nome }} | LocalizaPUC{% endblock %} {% block css_extra %} {% endblock %} {% block conteudo %}
+← Voltar para a pesquisa
+
+{{ espaco.tipo.nome }}
+{{ espaco.nome }}
+
+Código: {{ espaco.codigo }}
+Localização e acesso
+
+Prédio
+    {{ espaco.andar.predio.nome }}
+Andar
+    {{ espaco.andar.nome }}
+Acessibilidade
+    {{ espaco.acessivel|yesno:"Sim,Não" }}
+
+{% if espaco.andar.predio.endereco %}
+Endereço do prédio
+
+{{ espaco.andar.predio.endereco }}
+{% endif %} {% if espaco.andar.descricao %}
+Referência do andar
+
+{{ espaco.andar.descricao|linebreaksbr }}
+{% endif %}
+Sobre o espaço
+{% if espaco.descricao %}
+
+{{ espaco.descricao|linebreaksbr }}
+{% else %}
+
+Sem descrição disponível.
+{% endif %}
+{% if espaco.observacoes %}
+Observações
+
+{{ espaco.observacoes|linebreaksbr }}
+{% endif %} {% if outros_espacos %}
+Outros espaços neste andar
+
+    {% for outro in outros_espacos %}
+    {{ outro.nome }} {{ outro.codigo }} · {{ outro.tipo.nome }} ›
+    {% endfor %} 
+
+{% endif %}
+{% endblock %} 
