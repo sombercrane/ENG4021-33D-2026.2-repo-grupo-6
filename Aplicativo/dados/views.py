@@ -62,11 +62,30 @@ def predios(request):
     })
 
 
-def iag(request):
-    return render(request, 'HTML Tela Prédio IAG.html')
 
-def leme(request):
-    return render(request, 'HTML Tela Prédio Leme.html')
+def predio_por_sigla(request, sigla):
+    formulario = PesquisaEspacoForm(request.GET or None)
+
+    predio = Predio.objects.filter(sigla__iexact=sigla).first()
+
+    if predio is None:
+        return render(request, '404.html', status=404)
+
+    andares = predio.andares.prefetch_related('espacos__tipo').order_by('numero')
+
+    if formulario.is_valid():
+        busca = formulario.cleaned_data.get('busca')
+
+        if busca:
+            andares = andares.filter(
+                espacos__nome__icontains=busca
+            ).distinct()
+
+    return render(request, 'base_predio.html', {
+        'predio': predio,
+        'andares': andares,
+        'formulario': formulario,
+    })
 
 
 
@@ -92,26 +111,10 @@ def laboratorios(request):
     })
 
 
-def kennedy(request):
-    form = PesquisaEspacoForm(request.GET or None)
-    espacos = Espaco.objects.filter(andar__predio__sigla='K')
-
-    termo = form['busca'].value() if form.is_bound else None
-    if termo:
-        espacos = espacos.filter(Q(nome__icontains=termo) | Q(codigo__icontains=termo))
-
-    return render(request, 'kennedy.html', {
-        'form': form,
-    'espacos': espacos,
-    })
-
 
 def auditorios(request):
     return render(request, 'pesquisa-auditorios.html')
 
-
-def rdc(request):
-    return render(request, 'rdc.html')
 
 
 def laboratorio_fisica(request):
