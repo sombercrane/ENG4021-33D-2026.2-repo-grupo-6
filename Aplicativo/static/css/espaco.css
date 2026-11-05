@@ -1,0 +1,128 @@
+
+    
+  
+.espaco-detalhe {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 28px;
+    border: 1px solid #34473a;
+    border-radius: 16px;
+    background-color: #102014;
+    color: #d3e2d4;
+}
+
+.espaco-voltar {
+    display: inline-block;
+    color: #b9d8c3;
+    font-size: 14px;
+    line-height: 1.5;
+    text-decoration: none;
+}
+
+.espaco-voltar:hover {
+    text-decoration: underline;
+}
+
+.espaco-voltar:focus-visible {
+    outline: 2px solid #b9d8c3;
+    outline-offset: 4px;
+    border-radius: 3px;
+}
+
+.espaco-cabecalho {
+    margin-top: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #34473a;
+}
+
+.espaco-tipo {
+    display: inline-block;
+    margin: 0 0 12px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background-color: #203929;
+    color: #c6dccd;
+    font-size: 13px;
+    font-weight: bold;
+    line-height: 1.5;
+}
+
+.espaco-cabecalho h1 {
+    margin: 0;
+    color: inherit;
+    font-size: 28px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.espaco-codigo {
+    margin: 10px 0 0;
+    color: #b7c5b9;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.espaco-codigo strong {
+    color: #d3e2d4;
+}
+
+.espaco-detalhe > section {
+    padding-top: 24px;
+}
+
+.espaco-detalhe > section + section {
+    margin-top: 24px;
+    border-top: 1px solid #34473a;
+}
+
+.espaco-detalhe h2 {
+    margin: 0 0 14px;
+    color: inherit;
+    font-size: 17px;
+    line-height: 1.4;
+}
+
+.espaco-dados {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+}
+
+.espaco-dados > div {
+    box-sizing: border-box;
+    flex: 1 1 180px;
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid #263d2e;
+    border-radius: 10px;
+    background-color: #0a160e;
+}
+
+.espaco-dados dt {
+    margin-bottom: 7px;
+    color: #b7c5b9;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.espaco-dados dd {
+    margin: 0;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.espaco-detalhe > section > p {
+    margin: 0;
+    color: #d3e2d4;
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
