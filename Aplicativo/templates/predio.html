@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ predio.nome }}</title>
+</head>
+<body>
+
+    <header>
+        <h1>{{ predio.nome }}</h1>
+        <h2>{{ predio.sigla }}</h2>
+    </header>
+
+    <main>
+        <section>
+            <h3>Informações do prédio</h3>
+
+            <p>{{ predio.descricao }}</p>
+            <p><strong>Endereço:</strong> {{ predio.endereco }}</p>
+
+            {% if predio.imagem_mapa %}
+                <img src="{{ predio.imagem_mapa.url }}"
+                     alt="Mapa do prédio {{ predio.nome }}"
+                     width="500">
+            {% endif %}
+        </section>
+
+        <section>
+            <h3>Andares do prédio</h3>
+
+            {% for andar in andares %}
+                <article>
+                    <h4>{{ andar.nome }}</h4>
+                    <p>{{ andar.descricao }}</p>
+
+                    {% if andar.imagem_mapa %}
+                        <img src="{{ andar.imagem_mapa.url }}"
+                             alt="Mapa do {{ andar.nome }}"
+                             width="400">
+                    {% endif %}
+
+                    <h5>Espaços disponíveis</h5>
+
+                    {% for espaco in andar.espacos.all %}
+                        <div>
+                            <p><strong>{{ espaco.codigo }}</strong> - {{ espaco.nome }}</p>
+                            <p>Tipo: {{ espaco.tipo.nome }}</p>
+                            <p>{{ espaco.descricao }}</p>
+
+                            {% if espaco.acessivel %}
+                                <p>Espaço acessível</p>
+                            {% endif %}
+                        </div>
+                    {% empty %}
+                        <p>Nenhum espaço cadastrado neste andar.</p>
+                    {% endfor %}
+                </article>
+            {% empty %}
+                <p>Nenhum andar cadastrado neste prédio.</p>
+            {% endfor %}
+        </section>
+    </main>
+
+    <footer>
+        <a href="{% url 'predios' %}">Voltar para a lista de prédios</a>
+    </footer>
+
+</body>
+</html>
