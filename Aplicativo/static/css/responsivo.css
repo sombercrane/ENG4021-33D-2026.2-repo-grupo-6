@@ -1,0 +1,440 @@
+/* Carregar depois do CSS de cada tela. Regras comuns de adaptacao de layout. */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body[class*="tela-"] {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+body[class*="tela-"] input,
+body[class*="tela-"] select,
+body[class*="tela-"] textarea {
+    max-width: 100%;
+    min-width: 0;
+}
+
+body[class*="tela-"] button,
+body[class*="tela-"] input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]) {
+    min-height: 44px;
+}
+
+body[class*="tela-"] button {
+    white-space: normal;
+}
+
+.tela-home .autenticacao {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.tela-home .autenticacao a,
+.tela-home .autenticacao button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 12px;
+}
+
+.tela-home .autenticacao a {
+    color: inherit;
+}
+
+.tela-home .autenticacao span {
+    min-width: 0;
+}
+
+.tela-home .card,
+.tela-busca .texto,
+.tela-predio .texto {
+    min-width: 0;
+}
+
+.tela-pesquisa .pagina {
+    width: 100%;
+    max-width: 960px;
+    height: auto;
+    min-height: 100vh;
+    min-height: 100svh;
+    max-height: none;
+    margin: 0 auto;
+    padding: clamp(16px, 3vw, 28px);
+    overflow-y: visible;
+}
+
+.tela-pesquisa .pagina input {
+    width: 100%;
+}
+
+.tela-pesquisa .filtros {
+    line-height: 1.8;
+}
+
+.tela-pesquisa .filtros a,
+.tela-pesquisa .paginacao a,
+.tela-mapa .navegacao a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 8px;
+}
+
+.tela-pesquisa .paginacao {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+.tela-mapa img.imagem-mapa {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+/* O mapa da API e um div: precisa de altura, ao contrario da imagem alternativa. */
+.tela-mapa #mapa-interativo {
+    width: 100%;
+    height: clamp(300px, 58vh, 560px);
+    height: clamp(300px, 58svh, 560px);
+    min-height: 300px;
+}
+
+/* Os controles internos da API conservam as dimensoes definidas pelo servico. */
+.tela-mapa #mapa-interativo button {
+    min-height: 0;
+}
+
+.tela-mapa .filtros,
+.tela-mapa .navegacao {
+    flex-wrap: wrap;
+}
+
+.tela-auth {
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: 24px 16px;
+}
+
+.tela-auth .container {
+    width: 100%;
+    min-width: 0;
+    margin: auto;
+    padding: clamp(20px, 4vw, 35px);
+}
+
+.tela-auth .helptext,
+.tela-auth .errorlist {
+    overflow-wrap: anywhere;
+    line-height: 1.5;
+}
+
+.tela-auth ul {
+    padding-left: 20px;
+}
+
+.tela-destino,
+.tela-auditorio {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.tela-auditorio .sub,
+.tela-auditorio .caixas,
+.tela-auditorio .botoes,
+.tela-auditorio nav {
+    flex-wrap: wrap;
+}
+
+.tela-auditorio .sub {
+    gap: 12px;
+}
+
+.tela-auditorio .caixa {
+    flex: 1 1 120px;
+    min-width: 0;
+}
+
+.tela-auditorio .botoes button {
+    flex: 1 1 160px;
+}
+
+/* A ilustracao pode ser deslocada dentro da propria area, sem alargar a pagina. */
+.tela-auditorio #mapa {
+    overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+    .tela-home header,
+    .tela-home main {
+        padding: 16px;
+    }
+
+    .tela-busca .cabecalho-conteudo,
+    .tela-predio .topo {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .tela-busca .filtros,
+    .tela-predio .filtros {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .tela-busca .resultado {
+        min-width: 0;
+    }
+
+    .tela-busca .texto {
+        flex: 1;
+    }
+
+    .tela-predio main {
+        padding: 16px;
+    }
+
+    .tela-predio .conteudo {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .tela-predio .conteudo > .mapa,
+    .tela-predio .conteudo > .informacoes {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .tela-predio .mapa-local {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 12px;
+    }
+
+    .tela-predio .mapa-local .predio {
+        flex: 1 1 80px;
+        width: auto;
+        min-width: 0;
+        padding: 8px;
+    }
+
+    .tela-predio .texto {
+        flex: 1;
+        width: auto;
+    }
+
+    .tela-laboratorio header,
+    .tela-design .topo {
+        height: auto;
+        min-height: 90px;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .tela-design .titulo-mapa {
+        display: block;
+        width: 100%;
+        margin-left: 0;
+        text-align: left;
+    }
+
+    .tela-laboratorio .filtros,
+    .tela-laboratorio .categorias {
+        flex-wrap: wrap;
+        height: auto;
+        gap: 8px;
+        padding: 16px;
+        overflow: visible;
+    }
+
+    .tela-design .mapa {
+        height: 320px;
+        margin: 0 16px;
+    }
+
+    .tela-design .predio {
+        padding: 12px;
+        font-size: 12px;
+    }
+
+    .tela-design .destino-mapa {
+        left: 10%;
+        right: 10%;
+        top: 60%;
+        padding: 8px;
+        text-align: center;
+    }
+
+    .tela-design .destino {
+        margin: 16px;
+        padding: 16px;
+    }
+
+    .tela-design .informacoes,
+    .tela-fisica .dados,
+    .tela-laboratorio .botoes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .tela-design .info,
+    .tela-fisica .dado {
+        flex: 1 1 120px;
+        min-width: 0;
+    }
+
+    .tela-laboratorio .botoes button {
+        flex: 1 1 180px;
+    }
+
+    .tela-fisica .titulo {
+        height: auto;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .tela-fisica .titulo h2 {
+        font-size: 24px;
+    }
+
+    .tela-fisica .campus {
+        font-size: 16px;
+    }
+
+    .tela-fisica .nome-local {
+        top: 12px;
+        left: 12px;
+        max-width: calc(100% - 84px);
+        padding: 10px;
+        border-radius: 12px;
+        font-size: 18px;
+    }
+
+    .tela-fisica .controle {
+        top: 12px;
+        right: 12px;
+        width: 48px;
+        height: 56px;
+    }
+
+    .tela-fisica .controle button {
+        width: 44px;
+        height: 44px;
+        font-size: 24px;
+    }
+
+    .tela-fisica .informacoes {
+        padding: 18px 16px 24px;
+    }
+
+    .tela-fisica .subtitulo,
+    .tela-fisica .dado p,
+    .tela-fisica .distancia,
+    .tela-fisica .botoes button {
+        font-size: 16px;
+    }
+
+    .tela-fisica .destino {
+        font-size: 26px;
+    }
+
+    .tela-fisica .dado {
+        padding: 14px;
+    }
+
+    .tela-fisica .dado strong {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tela-home .linha-categorias {
+        flex-wrap: wrap;
+    }
+
+    .tela-home .linha-categorias > a {
+        flex: 1 1 100%;
+    }
+
+    .tela-busca .busca {
+        flex-wrap: wrap;
+    }
+
+    .tela-busca .busca input {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .tela-busca .busca button {
+        flex: 1 1 100%;
+    }
+
+    .tela-predio .mapa-local {
+        flex-direction: column;
+    }
+
+    .tela-predio .mapa-local .predio {
+        flex: 0 1 auto;
+        width: 100%;
+    }
+
+    .tela-predio .mapa-local .rota {
+        transform: rotate(90deg);
+    }
+
+    .tela-laboratorio .categorias button {
+        padding: 10px 14px;
+        font-size: 16px;
+    }
+
+    body[class*="tela-"] input,
+    body[class*="tela-"] select,
+    body[class*="tela-"] textarea {
+        font-size: 16px;
+    }
+
+    .tela-destino .caixa {
+        display: block;
+        width: 100%;
+        margin: 0 0 12px;
+    }
+
+    .tela-destino #verde,
+    .tela-destino #branco {
+        width: 100%;
+        margin: 6px 0;
+    }
+
+    .espaco-detalhe {
+        padding: 18px;
+        border-radius: 12px;
+    }
+
+    .espaco-cabecalho h1 {
+        font-size: 24px;
+    }
+
+    .espaco-dados > div {
+        flex-basis: 100%;
+    }
+
+    .espaco-relacionado {
+        gap: 12px;
+        padding: 12px;
+    }
+}
