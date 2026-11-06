@@ -3,15 +3,9 @@ from django.shortcuts import (
     redirect,
 )
 from django.core.paginator import Paginator
-from django.contrib.auth import (
-    login,
-    authenticate,
-    logout,
-)
-from django.contrib.auth.forms import (
-    UserCreationForm,
-    AuthenticationForm,
-)
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from django.db.models import Q
 from django.conf import settings
@@ -251,6 +245,22 @@ def auditorio_rdc(request):
 def auditorio_kennedy(request):
     return render(request, 'HTML aud kennedy')
 
+
+def detalhe_espaco(request, pk):
+    espacos = Espaco.objects.select_related("andar__predio", "tipo")
+    espaco = get_object_or_404(espacos, pk=pk)
+
+    outros_espacos = (
+        Espaco.objects.filter(andar_id=espaco.andar_id)
+        .exclude(pk=espaco.pk)
+        .select_related("tipo")
+        .order_by("nome", "pk")[:4]
+    )
+
+    return render(request, "espaco.html", {
+        "espaco": espaco,
+        "outros_espacos": outros_espacos,
+    })
 TIPOS = {
     "sala": "sala",
     "laboratorio": "laboratório",
