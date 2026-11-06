@@ -319,3 +319,5 @@ def detalhe_predio(request, id_predio):
             "voltar": request.GET.urlencode(),
         }
     )
+def teste_base(request):
+    return render(request, 'teste_base.html')

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block titulo %}Teste dos componentes{% endblock %}
+
+{% block conteudo %}
+<div class="cabecalho-pagina">
+    <h1>Componentes compartilhados</h1>
+    <p>Teste do CSS comum do Localiza PUC.</p>
+</div>
+
+<article class="cartao">
+    <h2>Cartão de exemplo</h2>
+
+    <label for="busca">Buscar um local</label>
+    <input
+        class="campo"
+        id="busca"
+        type="search"
+        placeholder="Nome ou código"
+    >
+
+    <p>
+        <button class="botao" type="button">Pesquisar</button>
+        <button class="botao botao-secundario" type="button">
+            Limpar
+        </button>
+        <button class="botao" type="button" disabled>
+            Desativado
+        </button>
+    </p>
+
+    <a class="link-voltar" href="{% url 'home' %}">← Voltar ao início</a>
+</article>
+{% endblock %}
