@@ -37,6 +37,12 @@ def mapa(request):
             settings.GOOGLE_MAPS_API_KEY,
     })
 
+def pesquisa(request):
+    predios = Predio.objects.all()
+
+    return render(request, 'pesquisa.html', {
+        'predios': predios
+    })
 
 def search(request):
     formulario = PesquisaEspacoForm(request.GET)
