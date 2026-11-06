@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+  content="width=device-width,
+  initial-scale=1">
+<title>Detalhes - LocalizaPUC</title>
+<style>
+body {
+  font-family: Arial;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 20px;
+}
+.caixa {
+  background: #efe9dd;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.caixa small {
+  display: block;
+  color: #6b6b5e;
+}
+a {
+  color: #2f4a34;
+}
+</style>
+</head>
+<body>
+
+<p>
+  <a href="{% url 'pesquisa' %}?{{ voltar }}">
+    ← Voltar aos resultados
+  </a>
+</p>
+
+{% if espaco %}
+  <h1>{{ espaco.nome }}</h1>
+  <div class="caixa">
+    <small>Código</small>
+    {{ espaco.codigo }}
+  </div>
+  <div class="caixa">
+    <small>Tipo</small>
+    {{ espaco.tipo.nome }}
+  </div>
+  <div class="caixa">
+    <small>Prédio</small>
+    {{ espaco.andar.predio.nome }}
+  </div>
+  <div class="caixa">
+    <small>Andar</small>
+    {{ espaco.andar.nome }}
+  </div>
+  <div class="caixa">
+    <small>Acessível</small>
+    {% if espaco.acessivel %}
+      Sim
+    {% else %}
+      Não
+    {% endif %}
+  </div>
+  {% if espaco.descricao %}
+    <div class="caixa">
+      <small>Descrição</small>
+      {{ espaco.descricao }}
+    </div>
+  {% endif %}
+{% else %}
+  <h1>{{ predio.nome }}</h1>
+  <div class="caixa">
+    <small>Sigla</small>
+    {{ predio.sigla }}
+  </div>
+  <div class="caixa">
+    <small>Endereço</small>
+    {{ predio.endereco }}
+  </div>
+  {% if predio.descricao %}
+    <div class="caixa">
+      <small>Descrição</small>
+      {{ predio.descricao }}
+    </div>
+  {% endif %}
+{% endif %}
+
+</body>
+</html>
