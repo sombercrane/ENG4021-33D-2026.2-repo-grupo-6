@@ -253,3 +253,108 @@ body {
         padding: 18px;
     }
 }
+    font-family: Arial, sans-serif;
+    background-color: #101820;
+    color: #f1f1f1;
+}
+
+.cabecalho {
+    background-color: #172b24;
+    padding: 30px;
+    text-align: center;
+    border-bottom: 3px solid #4caf50;
+}
+
+.cabecalho h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.cabecalho p {
+    color: #c7d5cc;
+}
+
+.voltar {
+    display: inline-block;
+    color: #4caf50;
+    text-decoration: none;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.voltar:hover {
+    color: #81c784;
+}
+
+.conteudo {
+    width: 90%;
+    max-width: 1100px;
+    margin: 30px auto;
+}
+
+.informacoes,
+.andar {
+    background-color: #1b2730;
+    padding: 25px;
+    margin-bottom: 25px;
+    border-radius: 10px;
+    border: 1px solid #34434d;
+}
+
+.informacoes h2,
+.andares h2 {
+    color: #4caf50;
+    margin-bottom: 20px;
+}
+
+.informacoes p {
+    margin-bottom: 10px;
+}
+
+.andar h3 {
+    color: #81c784;
+    margin-bottom: 15px;
+}
+
+.espacos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.espaco {
+    background-color: #263640;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #4caf50;
+}
+
+.espaco h4 {
+    margin-bottom: 10px;
+    color: #ffffff;
+}
+
+.espaco p {
+    color: #c7d5cc;
+    margin-bottom: 5px;
+}
+
+@media (max-width: 600px) {
+    .cabecalho {
+        padding: 20px;
+    }
+
+    .cabecalho h1 {
+        font-size: 24px;
+    }
+
+    .conteudo {
+        width: 95%;
+    }
+
+    .informacoes,
+    .andar {
+        padding: 15px;
+    }
+}
