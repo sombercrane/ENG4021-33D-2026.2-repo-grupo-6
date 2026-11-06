@@ -1,7 +1,4 @@
-from django.shortcuts import (
-    render,
-    redirect,
-)
+from django.shortcuts import get_object_or_404, render, redirect
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import login, authenticate, logout
@@ -77,6 +74,15 @@ def predios(request):
         'predios': predios
     })
 
+def consultar_predio(request, identificador):
+    predio = get_object_or_404(Predio, id_predio=identificador)
+
+    andares = predio.andares.all()
+
+    return render(request, 'predio.html', {
+        'predio': predio,
+        'andares': andares
+    })
 
 
 def predio_por_sigla(request, sigla):
