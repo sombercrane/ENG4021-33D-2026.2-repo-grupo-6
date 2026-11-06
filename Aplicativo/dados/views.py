@@ -183,4 +183,14 @@ def detalhe_espaco(request, pk):
     espacos = Espaco.objects.select_related("andar__predio", "tipo")
     espaco = get_object_or_404(espacos, pk=pk)
 
-    return render(request, "espaco.html", {"espaco": espaco})
+    outros_espacos = (
+        Espaco.objects.filter(andar_id=espaco.andar_id)
+        .exclude(pk=espaco.pk)
+        .select_related("tipo")
+        .order_by("nome", "pk")[:4]
+    )
+
+    return render(request, "espaco.html", {
+        "espaco": espaco,
+        "outros_espacos": outros_espacos,
+    })
