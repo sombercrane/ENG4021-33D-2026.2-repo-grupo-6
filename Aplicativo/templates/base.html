@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Localiza PUC{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+
+    {% block css_extra %}{% endblock %}
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+    <a class="site-pular" href="#conteudo">Ir para o conteúdo</a>
+
+    {% block header %}
+    <header class="site-cabecalho">
+        <a class="site-marca" href="{% url 'home' %}">
+            Localiza PUC
+        </a>
+
+        <nav class="site-navegacao" aria-label="Navegação principal">
+            <a href="{% url 'home' %}">Início</a>
+            <a href="{% url 'search' %}">Pesquisa</a>
+            <a href="{% url 'mapa' %}">Mapa</a>
+        </nav>
+
+        {% block header_extra %}{% endblock %}
+    </header>
+    {% endblock %}
+
+    {% block navigation %}{% endblock %}
+
+    <main id="conteudo" class="site-conteudo">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block footer %}{% endblock %}
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

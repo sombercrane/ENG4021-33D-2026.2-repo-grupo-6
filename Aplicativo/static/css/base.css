@@ -1,0 +1,50 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #050605;
+    color: #d3e2d4;
+}
+
+.site-cabecalho {
+    padding: 20px;
+    background-color: #102014;
+}
+
+.site-marca {
+    color: #d3e2d4;
+    font-size: 27px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.site-navegacao {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.site-navegacao a {
+    color: #d3e2d4;
+}
+
+.site-conteudo {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.site-pular {
+    position: absolute;
+    left: -10000px;
+}
+
+.site-pular:focus {
+    position: static;
+    display: block;
+    padding: 10px;
+    background-color: #d3e2d4;
+    color: #050605;
+}
