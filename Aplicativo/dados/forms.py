@@ -1,50 +1,46 @@
 from django import forms
 
+CATEGORIAS = [
+    ("todos", "Todos"),
+    ("sala", "Salas"),
+    ("laboratorio", "Laboratórios"),
+    ("auditorio", "Auditórios"),
+    ("predio", "Prédios"),
+]
 
-class PesquisaEspacoForm(forms.Form):
+
+class PesquisaForm(forms.Form):
     busca = forms.CharField(
         required=False,
         max_length=150,
-        label="Pesquisar espaço",
+        label="Pesquisar",
         widget=forms.TextInput(attrs={
-            "placeholder": "Buscar sala, prédio ou código",
-            "class": "campo-busca"
-        })
+            "placeholder":
+                "Buscar sala, prédio ou código",
+            "class": "campo-busca",
+        }),
     )
-
-
-#Formulário Auditórios 
-class PesquisaAuditorioForm(forms.Form):
-    busca = forms.CharField(
+    categoria = forms.ChoiceField(
+        choices=CATEGORIAS,
         required=False,
-        max_length=150,
-        label="Pesquisar auditório",
-        widget=forms.TextInput(attrs={
-            "placeholder": "Auditórios",
-            "class": "campo-busca"
-        })
+        initial="todos",
     )
 
+    def clean_busca(self):
+        busca = self.cleaned_data["busca"]
+        busca = busca.strip()
+        if busca and len(busca) < 2:
+            raise forms.ValidationError(
+                "Digite pelo menos 2 letras."
+            )
+        return busca
 
-class PesquisaLaboratorioForm(forms.Form):
-    busca = forms.CharField(
-        required=False,
-        max_length=150,
-        label="Pesquisar laboratório",
-        widget=forms.TextInput(attrs={
-            "placeholder": "Digite o nome ou código do laboratório",
-            "class": "campo-busca"
-        })
-    )
+    def clean_categoria(self):
+        cat = self.cleaned_data["categoria"]
+        return cat or "todos"
 
-# Formulario de pesquisa de predios
-class PesquisaPredioForm(forms.Form):
-    busca = forms.CharField(
-        required=False,
-        max_length=150,
-        label="Pesquisar prédio",
-        widget=forms.TextInput(attrs={
-            "placeholder": "Digite o nome ou sigla do prédio",
-            "class": "campo-busca"
-        })
-    )
+
+PesquisaEspacoForm = PesquisaForm
+PesquisaAuditorioForm = PesquisaForm
+PesquisaPredioForm = PesquisaForm
+PesquisaLaboratorioForm = PesquisaForm

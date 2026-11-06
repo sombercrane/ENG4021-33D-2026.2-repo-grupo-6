@@ -1,0 +1,58 @@
+{% comment %}
+Componente reutilizável para apresentar uma imagem cadastrada (ex.: predio.imagem_mapa,
+andar.imagem_mapa), com tratamento para quando o registro não tem imagem.
+
+Uso:
+    {% include "componentes/imagem_cadastrada.html" with imagem=predio.imagem_mapa alt=predio.nome %}
+
+Parâmetros:
+    imagem (obrigatório): o campo ImageField do model (ex.: predio.imagem_mapa).
+    alt (opcional): texto alternativo da imagem. Padrão: "Imagem não disponível".
+{% endcomment %}
+<div class="imagem-cadastrada">
+    {% if imagem %}
+        <img src="{{ imagem.url }}" alt="{{ alt|default:'Imagem não disponível' }}">
+    {% else %}
+        <div class="imagem-cadastrada__vazia" role="img" aria-label="Sem imagem cadastrada">
+            <span class="imagem-cadastrada__icone" aria-hidden="true">&#128247;</span>
+            <span class="imagem-cadastrada__texto">Sem imagem cadastrada</span>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .imagem-cadastrada {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        overflow: hidden;
+        border-radius: 8px;
+        background: #f0f0f0;
+    }
+
+    .imagem-cadastrada img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .imagem-cadastrada__vazia {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        color: #8a8a8a;
+        background: #f0f0f0;
+    }
+
+    .imagem-cadastrada__icone {
+        font-size: 1.75rem;
+    }
+
+    .imagem-cadastrada__texto {
+        font-size: 0.8rem;
+    }
+</style>
