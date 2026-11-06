@@ -1,46 +1,89 @@
-{% extends "base.html" %} {% load static %} {% block titulo %}{{ espaco.nome }} | LocalizaPUC{% endblock %} {% block css_extra %} {% endblock %} {% block conteudo %}
-← Voltar para a pesquisa
 
-{{ espaco.tipo.nome }}
-{{ espaco.nome }}
+{% extends "base.html" %}
+{% load static %}
 
-Código: {{ espaco.codigo }}
-Localização e acesso
+{% block titulo %}{{ espaco.nome }} | LocalizaPUC{% endblock %}
 
-Prédio
-    {{ espaco.andar.predio.nome }}
-Andar
-    {{ espaco.andar.nome }}
-Acessibilidade
-    {{ espaco.acessivel|yesno:"Sim,Não" }}
+{% block css_extra %}
+{% endblock %}
 
-{% if espaco.andar.predio.endereco %}
-Endereço do prédio
+{% block conteudo %}
+<article class="espaco-detalhe" aria-labelledby="nome-espaco">
+    <nav aria-label="Navegação do espaço">
+        <a href="{% url 'search' %}" class="espaco-voltar">← Voltar para a pesquisa</a>
+    </nav>
 
-{{ espaco.andar.predio.endereco }}
-{% endif %} {% if espaco.andar.descricao %}
-Referência do andar
+    <div class="espaco-cabecalho">
+        <p class="espaco-tipo">{{ espaco.tipo.nome }}</p>
+        <h1 id="nome-espaco">{{ espaco.nome }}</h1>
+        <p class="espaco-codigo">Código: <strong>{{ espaco.codigo }}</strong></p>
+    </div>
 
-{{ espaco.andar.descricao|linebreaksbr }}
-{% endif %}
-Sobre o espaço
-{% if espaco.descricao %}
+    <section aria-labelledby="titulo-localizacao">
+        <h2 id="titulo-localizacao">Localização e acesso</h2>
+        <dl class="espaco-dados">
+            <div>
+                <dt>Prédio</dt>
+                <dd>{{ espaco.andar.predio.nome }}</dd>
+            </div>
+            <div>
+                <dt>Andar</dt>
+                <dd>{{ espaco.andar.nome }}</dd>
+            </div>
+            <div>
+                <dt>Acessibilidade</dt>
+                <dd>{{ espaco.acessivel|yesno:"Sim,Não" }}</dd>
+            </div>
+        </dl>
 
-{{ espaco.descricao|linebreaksbr }}
-{% else %}
+        {% if espaco.andar.predio.endereco %}
+            <div class="espaco-endereco">
+                <h3>Endereço do prédio</h3>
+                <p>{{ espaco.andar.predio.endereco }}</p>
+            </div>
+        {% endif %}
 
-Sem descrição disponível.
-{% endif %}
-{% if espaco.observacoes %}
-Observações
+        {% if espaco.andar.descricao %}
+            <div class="espaco-referencia">
+                <h3>Referência do andar</h3>
+                <p>{{ espaco.andar.descricao|linebreaksbr }}</p>
+            </div>
+        {% endif %}
+    </section>
 
-{{ espaco.observacoes|linebreaksbr }}
-{% endif %} {% if outros_espacos %}
-Outros espaços neste andar
+    <section aria-labelledby="titulo-descricao">
+        <h2 id="titulo-descricao">Sobre o espaço</h2>
+        {% if espaco.descricao %}
+            <p>{{ espaco.descricao|linebreaksbr }}</p>
+        {% else %}
+            <p>Sem descrição disponível.</p>
+        {% endif %}
+    </section>
 
-    {% for outro in outros_espacos %}
-    {{ outro.nome }} {{ outro.codigo }} · {{ outro.tipo.nome }} ›
-    {% endfor %} 
+    {% if espaco.observacoes %}
+        <section aria-labelledby="titulo-observacoes">
+            <h2 id="titulo-observacoes">Observações</h2>
+            <p>{{ espaco.observacoes|linebreaksbr }}</p>
+        </section>
+    {% endif %}
 
-{% endif %}
-{% endblock %} 
+    {% if outros_espacos %}
+        <section aria-labelledby="titulo-outros-espacos">
+            <h2 id="titulo-outros-espacos">Outros espaços neste andar</h2>
+            <ul class="espaco-relacionados">
+                {% for outro in outros_espacos %}
+                    <li>
+                        <a href="{% url 'detalhe_espaco' outro.pk %}" class="espaco-relacionado">
+                            <span class="espaco-relacionado-texto">
+                                <strong>{{ outro.nome }}</strong>
+                                <span>{{ outro.codigo }} · {{ outro.tipo.nome }}</span>
+                            </span>
+                            <span aria-hidden="true">›</span>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+</article>
+{% endblock %}
