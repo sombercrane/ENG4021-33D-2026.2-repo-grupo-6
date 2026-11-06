@@ -70,8 +70,8 @@ class Espaco(models.Model):
     nome = models.CharField(max_length=150)
     codigo = models.CharField(max_length=50)
     descricao = models.TextField(blank=True)
-    posicao_x = models.FloatField()
-    posicao_y = models.FloatField()
+    posicao_x = models.FloatField(null=True, blank=True)
+    posicao_y = models.FloatField(null=True, blank=True)
     acessivel = models.BooleanField(default=False)
     observacoes = models.TextField(blank=True)
 
