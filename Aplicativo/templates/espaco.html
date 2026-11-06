@@ -5,7 +5,9 @@
 {% block titulo %}{{ espaco.nome }} | LocalizaPUC{% endblock %}
 
 {% block css_extra %}
+<link rel="stylesheet" href="{% static 'css/espaco.css' %}">
 {% endblock %}
+
 
 {% block conteudo %}
 <article class="espaco-detalhe" aria-labelledby="nome-espaco">
