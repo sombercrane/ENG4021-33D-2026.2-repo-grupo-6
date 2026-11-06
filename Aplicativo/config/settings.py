@@ -125,6 +125,10 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
+# Imagens cadastradas pelo admin (ex.: imagem_mapa de Predio e Andar).
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
