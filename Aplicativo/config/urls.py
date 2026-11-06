@@ -17,6 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from dados import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -41,3 +43,8 @@ urlpatterns = [
     path('auditorio-rdc/', views.auditorio_rdc, name='auditorio_rdc'),
     path('auditorio-kennedy/', views.auditorio_kennedy, name='auditorio_kennedy'),
 ]
+
+# Serve as imagens cadastradas (media/) apenas em desenvolvimento.
+# Em producao, isso deve ser feito pelo servidor web (nginx, etc.), nao pelo Django.
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
