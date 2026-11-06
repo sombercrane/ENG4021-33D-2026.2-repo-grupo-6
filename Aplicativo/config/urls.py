@@ -51,6 +51,7 @@ urlpatterns = [
     path('auditorio-rdc/', views.auditorio_rdc, name='auditorio_rdc'),
     path('auditorio-kennedy/', views.auditorio_kennedy, name='auditorio_kennedy'),
     path("espaco/<int:pk>/", views.detalhe_espaco, name="detalhe_espaco"),
+    path('predio/<int:id_predio>/',views.detalhe_predio, name='detalhe_predio'),
 ]
 
 # Serve as imagens cadastradas (media/) apenas em desenvolvimento.
