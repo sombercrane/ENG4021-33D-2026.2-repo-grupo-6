@@ -1,0 +1,84 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Auditório Kennedy</title>
+<link rel="stylesheet"
+  href="{% static 'css/kennedy.css' %}">
+</head>
+<body>
+
+<header>
+  <h1>Localiza PUC</h1>
+  <div class="sub">
+    <h2>Mapa da PUC-Rio</h2>
+    <button>Ver campus inteiro</button>
+  </div>
+</header>
+
+<nav>
+  <button>Entrada</button>
+  <button>Elevador</button>
+  <button>Escada</button>
+  <button>Banheiro</button>
+</nav>
+
+<div id="mapa">
+  <p class="nome">Auditório Kennedy</p>
+  <div class="predio marrom"
+    style="top: 50px; left: 80px;">
+    IAG
+  </div>
+  <div class="predio escuro alvo"
+    style="top: 110px; left: 190px;">
+    K
+  </div>
+  <div class="predio oliva"
+    style="top: 190px; left: 0;">
+    L
+  </div>
+</div>
+
+<main>
+  <p>Destino selecionado</p>
+  <h3>Auditório Kennedy</h3>
+
+  <div class="caixas">
+    <div class="caixa">
+      <p>Prédio</p>
+      <b>Kennedy</b>
+    </div>
+    <div class="caixa">
+      <p>Andar</p>
+      <b>2º andar</b>
+    </div>
+    <div class="caixa">
+      <p>Espaço</p>
+      <b>KEN-201</b>
+    </div>
+  </div>
+
+  <p class="dist">
+    Distância e tempo estimado
+    até o destino: 166 m ·
+    2 min a pé
+  </p>
+
+  <div class="botoes">
+    <button id="verde">
+      Ver detalhes
+    </button>
+    <button id="branco">
+      Ver andares
+    </button>
+  </div>
+</main>
+
+<footer>
+  <span>Início</span>
+  <span>Mapa</span>
+</footer>
+
+</body>
+</html>

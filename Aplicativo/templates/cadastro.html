@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+</head>
+<body>
+    <main class="container">
+        <h1>Criar conta</h1>
+        <p>Cadastre-se para acessar a plataforma.</p>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            {{ formulario.as_p }}
+
+            <button type="submit">Cadastrar</button>
+        </form>
+
+        <p>Já possui uma conta?
+            <a href="{% url 'login' %}">Fazer login</a>
+        </p>
+        
+        <a href="{% url 'home' %}">Voltar para o início</a>
+    </main>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+  content="width=device-width,
+  initial-scale=1">
+<title>Pesquisa - LocalizaPUC</title>
+<style>
+body {
+  font-family: Arial;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 20px;
+}
+.campo-busca, select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+}
+button {
+  width: 100%;
+  padding: 12px;
+  background: #2f4a34;
+  color: white;
+  border: none;
+  border-radius: 20px;
+}
+.erro {
+  color: #b00020;
+  font-size: 14px;
+}
+.item {
+  display: block;
+  background: #efe9dd;
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 10px;
+  color: #1f2e24;
+  text-decoration: none;
+}
+.item small {
+  display: block;
+  color: #6b6b5e;
+}
+.paginas {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+</style>
+</head>
+<body>
+
+<h1>Pesquisar</h1>
+
+<form method="get">
+  {{ formulario.busca }}
+  <div class="erro">
+    {{ formulario.busca.errors }}
+  </div>
+  {{ formulario.categoria }}
+  <button type="submit">Buscar</button>
+</form>
+
+{% if pagina is not None %}
+  {% if pagina.paginator.count == 0 %}
+    <p>Nenhum resultado encontrado.</p>
+  {% else %}
+    <p>
+      {{ pagina.paginator.count }}
+      resultado(s)
+    </p>
+
+    {% if categoria == "predio" %}
+      {% for p in pagina %}
+        <a class="item"
+          href="{% url 'detalhe_predio' p.id_predio %}?{{ atual }}">
+          <b>{{ p.nome }}</b>
+          <small>{{ p.sigla }}</small>
+        </a>
+      {% endfor %}
+    {% else %}
+      {% for e in pagina %}
+        <a class="item"
+          href="{% url 'detalhe_espaco' e.id_espaco %}?{{ atual }}">
+          <b>{{ e.nome }}</b>
+          <small>
+            {{ e.codigo }} ·
+            {{ e.andar.predio.sigla }} ·
+            {{ e.andar.nome }}
+          </small>
+        </a>
+      {% endfor %}
+    {% endif %}
+
+    <div class="paginas">
+      {% if pagina.has_previous %}
+        <a href="?{{ filtros }}&page={{ pagina.previous_page_number }}">
+          Anterior
+        </a>
+      {% else %}
+        <span></span>
+      {% endif %}
+      <span>
+        {{ pagina.number }} de
+        {{ pagina.paginator.num_pages }}
+      </span>
+      {% if pagina.has_next %}
+        <a href="?{{ filtros }}&page={{ pagina.next_page_number }}">
+          Próxima
+        </a>
+      {% else %}
+        <span></span>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endif %}
+
+</body>
+</html>

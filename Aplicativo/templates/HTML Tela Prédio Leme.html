@@ -1,0 +1,61 @@
+#LEME
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Leme</title>
+<link rel="stylesheet" href="{% static 'css/predio-leme.css' %}">
+</head>
+<body>
+
+<header>
+  <h1>Localiza PUC</h1>
+  <h2>Mapa da PUC-Rio</h2>
+  <a href="home.html"><button>Ver campus inteiro</button></a>
+</header>
+
+<nav>
+  <a href="home.html"><button>Entrada</button></a>
+  <a href="search.html"><button>Elevador</button></a>
+  <a href="search.html"></a><button>Escada</button></a>
+  <a href="search.html"><button>Banheiro</button></a>
+</nav>
+
+<div id="mapa">
+  <h3>Prédio Leme</h3>
+</div>
+
+<main>
+  <p>Destino selecionado</p>
+  <h1>Prédio Leme</h1>
+
+  <div class="caixa">
+    <p>Prédio</p>
+    <b>Leme</b>
+  </div>
+  <div class="caixa">
+    <p>Andar</p>
+    <b>Térreo</b>
+  </div>
+  <div class="caixa">
+    <p>Espaço</p>
+    <b>L</b>
+  </div>
+
+  <p>
+    Distância e tempo estimado
+    até o destino: 109 m ·
+    1 min a pé
+  </p>
+
+  <button id="verde">
+    Ver detalhes
+  </button>
+  <button id="branco">
+    Ver andares
+  </button>
+</main>
+
+</body>
+</html>

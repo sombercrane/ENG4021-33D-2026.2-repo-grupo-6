@@ -1,0 +1,133 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Laboratório de Física</title>
+
+    <link rel="stylesheet" href="{% static 'css/fisica.css' %}">
+</head>
+
+<body>
+
+    <header>
+
+        <a href="#" class="voltar">‹</a>
+
+        <div class="logo">
+            <span>⌖</span>
+        </div>
+
+        <h1>Localiza<br>PUC</h1>
+
+    </header>
+
+    <section class="titulo">
+
+        <h2>Mapa da PUC-Rio</h2>
+
+        <a href="#" class="campus">
+            Ver campus inteiro
+        </a>
+
+    </section>
+
+    <nav class="categorias">
+
+        <button>↪ <span>Entrada</span></button>
+
+        <button>↕ <span>Elevador</span></button>
+
+        <button>⌁ <span>Escada</span></button>
+
+        <button>♙ <span>Banheiro</span></button>
+
+    </nav>
+
+    <main>
+
+        <div class="mapa">
+
+            <div class="predio predio-1">
+                RDC
+            </div>
+
+            <div class="predio predio-2">
+                K
+            </div>
+
+            <div class="marcador">
+                📍
+            </div>
+
+            <div class="rota"></div>
+
+            <div class="nome-local">
+                Laboratório de Física
+            </div>
+
+        </div>
+
+        <div class="controle">
+            <button>⌖</button>
+        </div>
+
+    </main>
+
+    <section class="informacoes">
+
+        <div class="barra"></div>
+
+        <p class="subtitulo">
+            Destino selecionado
+        </p>
+
+        <h2 class="destino">
+            <span>📍</span>
+            Laboratório de Física
+        </h2>
+
+        <div class="dados">
+
+            <div class="dado">
+                <p>Prédio</p>
+                <strong>Leme</strong>
+            </div>
+
+            <div class="dado">
+                <p>Andar</p>
+                <strong>2º andar</strong>
+            </div>
+
+            <div class="dado">
+                <p>Espaço</p>
+                <strong>L252</strong>
+            </div>
+
+        </div>
+
+        <p class="distancia">
+            Distância e tempo estimado até o destino:
+            <strong>109 m · 1 min a pé</strong>
+        </p>
+
+        <div class="botoes">
+
+            <button class="detalhes">
+                Ver detalhes
+            </button>
+
+            <button class="andares">
+                Ver andares
+            </button>
+
+        </div>
+
+    </section>
+
+</body>
+</html>
+```
