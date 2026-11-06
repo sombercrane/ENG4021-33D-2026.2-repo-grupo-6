@@ -1,0 +1,154 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #050605;
+    color: #d3e2d4;
+}
+
+.site-cabecalho {
+    padding: 20px;
+    background-color: #102014;
+}
+
+.site-marca {
+    color: #d3e2d4;
+    font-size: 27px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.site-navegacao {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.site-navegacao a {
+    color: #d3e2d4;
+}
+
+.site-conteudo {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.site-pular {
+    position: absolute;
+    left: -10000px;
+}
+
+.site-pular:focus {
+    position: static;
+    display: block;
+    padding: 10px;
+    background-color: #d3e2d4;
+    color: #050605;
+}
+/* Botões */
+.botao {
+    display: inline-block;
+    box-sizing: border-box;
+    padding: 12px 18px;
+    border: 1px solid #b9d8c3;
+    border-radius: 10px;
+    background-color: #b9d8c3;
+    color: #102014;
+    font: inherit;
+    font-weight: bold;
+    line-height: 1.5;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.botao:hover {
+    background-color: #c6dccd;
+}
+
+.botao-secundario {
+    background-color: transparent;
+    color: #b9d8c3;
+}
+
+.botao-secundario:hover {
+    background-color: #203929;
+}
+
+.botao:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Campos de texto e seleção */
+.campo {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #34473a;
+    border-radius: 10px;
+    background-color: #050605;
+    color: #d3e2d4;
+    font: inherit;
+    line-height: 1.5;
+}
+
+.campo::placeholder {
+    color: #b7c5b9;
+}
+
+/* Cartões */
+.cartao {
+    box-sizing: border-box;
+    padding: 24px;
+    border: 1px solid #34473a;
+    border-radius: 16px;
+    background-color: #102014;
+    color: #d3e2d4;
+}
+
+/* Cabeçalhos do conteúdo */
+.cabecalho-pagina {
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #34473a;
+}
+
+.cabecalho-pagina h1 {
+    margin: 0;
+    font-size: 28px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.cabecalho-pagina p {
+    margin: 10px 0 0;
+    color: #b7c5b9;
+    line-height: 1.5;
+}
+
+/* Links de navegação dentro do conteúdo */
+.link-voltar {
+    display: inline-block;
+    color: #b9d8c3;
+    font-size: 14px;
+    line-height: 1.5;
+    text-decoration: none;
+}
+
+.link-voltar:hover {
+    text-decoration: underline;
+}
+
+/* Destaque ao navegar com o teclado */
+.botao:focus-visible,
+.campo:focus-visible,
+.link-voltar:focus-visible,
+.site-navegacao a:focus-visible,
+.site-marca:focus-visible {
+    outline: 2px solid #b9d8c3;
+    outline-offset: 4px;
+}

@@ -176,3 +176,6 @@ def auditorio_rdc(request):
 
 def auditorio_kennedy(request):
     return render(request, 'HTML aud kennedy')
+
+def teste_base(request):
+    return render(request, 'teste_base.html')
