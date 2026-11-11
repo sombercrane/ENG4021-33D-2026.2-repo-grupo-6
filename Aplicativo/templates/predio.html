@@ -1,0 +1,163 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ predio.nome }} - Mapa PUC-Rio</title>
+
+    <link rel="stylesheet" href="{% static 'css/predio.css' %}">
+</head>
+
+<body>
+
+    <header class="cabecalho">
+        <a href="/" class="logo">PUC-Rio | Mapa</a>
+        <nav>
+            <a href="/">Início</a>
+            <a href="/pesquisa/">Pesquisar espaços</a>
+        </nav>
+    </header>
+
+    <main class="container">
+
+        <section class="informacoes-predio">
+
+            <div class="texto-predio">
+                <span class="sigla">{{ predio.sigla }}</span>
+
+                <h1>{{ predio.nome }}</h1>
+
+                <p class="descricao">
+                    {{ predio.descricao|default:"Informações sobre o prédio." }}
+                </p>
+
+                {% if predio.endereco %}
+                    <p class="endereco">
+                        <strong>Endereço:</strong> {{ predio.endereco }}
+                    </p>
+                {% endif %}
+            </div>
+
+            {% if predio.imagem_mapa %}
+                <div class="imagem-predio">
+                    <img src="{{ predio.imagem_mapa.url }}"
+                         alt="Mapa do {{ predio.nome }}">
+                </div>
+            {% endif %}
+
+        </section>
+
+        <section class="secao-andares">
+
+            <div class="titulo-secao">
+                <h2>Andares do prédio</h2>
+                <p>Confira os andares e os espaços disponíveis.</p>
+            </div>
+
+            {% for andar in andares %}
+
+                <article class="card-andar">
+
+                    <div class="cabecalho-andar">
+                        <div>
+                            <span class="numero-andar">
+                                {{ andar.numero }}º andar
+                            </span>
+
+                            <h3>{{ andar.nome }}</h3>
+                        </div>
+                    </div>
+
+                    {% if andar.descricao %}
+                        <p class="descricao-andar">
+                            {{ andar.descricao }}
+                        </p>
+                    {% endif %}
+
+                    {% if andar.imagem_mapa %}
+                        <div class="mapa-andar">
+                            <img src="{{ andar.imagem_mapa.url }}"
+                                 alt="Mapa do andar {{ andar.numero }}">
+                        </div>
+                    {% endif %}
+
+                    <div class="lista-espacos">
+
+                        <h4>Espaços deste andar</h4>
+
+                        {% for espaco in andar.espacos.all %}
+
+                            <div class="card-espaco">
+
+                                <div class="info-espaco">
+                                    <span class="tipo-espaco">
+                                        {{ espaco.tipo }}
+                                    </span>
+
+                                    <h5>{{ espaco.nome }}</h5>
+
+                                    {% if espaco.codigo %}
+                                        <p>
+                                            <strong>Código:</strong>
+                                            {{ espaco.codigo }}
+                                        </p>
+                                    {% endif %}
+
+                                    {% if espaco.descricao %}
+                                        <p>{{ espaco.descricao }}</p>
+                                    {% endif %}
+
+                                    <p class="acessibilidade">
+                                        {% if espaco.acessivel %}
+                                            <span class="acessivel">
+                                                Acessível
+                                            </span>
+                                        {% else %}
+                                            <span class="nao-acessivel">
+                                                Acessibilidade não indicada
+                                            </span>
+                                        {% endif %}
+                                    </p>
+
+                                    {% if espaco.observacoes %}
+                                        <p class="observacoes">
+                                            {{ espaco.observacoes }}
+                                        </p>
+                                    {% endif %}
+                                </div>
+
+                            </div>
+
+                        {% empty %}
+
+                            <p class="mensagem-vazia">
+                                Nenhum espaço cadastrado neste andar.
+                            </p>
+
+                        {% endfor %}
+
+                    </div>
+
+                </article>
+
+            {% empty %}
+
+                <p class="mensagem-vazia">
+                    Nenhum andar cadastrado para este prédio.
+                </p>
+
+            {% endfor %}
+
+        </section>
+
+    </main>
+
+    <footer class="rodape">
+        <p>PUC-Rio - Mapa Inteligente do Campus</p>
+    </footer>
+
+</body>
+</html>

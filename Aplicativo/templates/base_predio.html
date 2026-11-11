@@ -1,0 +1,56 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ predio.nome }} - Mapa PUC-Rio</title>
+
+    <link rel="stylesheet" href="{% static 'css/predio.css' %}">
+</head>
+
+<body>
+    <header class="cabecalho">
+        <a href="{% url 'home' %}" class="voltar">← Voltar</a>
+        <h1>{{ predio.nome }}</h1>
+        <p>{{ predio.descricao }}</p>
+    </header>
+
+    <main class="conteudo">
+        <section class="informacoes">
+            <h2>Informações do prédio</h2>
+
+            <p><strong>Nome:</strong> {{ predio.nome }}</p>
+            <p><strong>Sigla:</strong> {{ predio.sigla }}</p>
+            <p><strong>Endereço:</strong> {{ predio.endereco }}</p>
+        </section>
+
+        <section class="andares">
+            <h2>Andares</h2>
+
+            {% for andar in andares %}
+                <div class="andar">
+                    <h3>{{ andar.nome }}</h3>
+                    <p>{{ andar.descricao }}</p>
+
+                    <div class="espacos">
+                        {% for espaco in andar.espacos.all %}
+                            <div class="espaco">
+                                <h4>{{ espaco.nome }}</h4>
+                                <p>Código: {{ espaco.codigo }}</p>
+                                <p>{{ espaco.tipo.nome }}</p>
+                            </div>
+                        {% empty %}
+                            <p>Nenhum espaço cadastrado neste andar.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% empty %}
+                <p>Nenhum andar cadastrado para este prédio.</p>
+            {% endfor %}
+        </section>
+    </main>
+</body>
+</html>
