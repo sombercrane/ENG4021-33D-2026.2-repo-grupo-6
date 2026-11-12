@@ -1,3 +1,4 @@
+from itertools import chain
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
@@ -6,7 +7,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
-from .models import Predio, Espaco
+from .models import Predio, Espaco, Ponto
 from .forms import (
     PesquisaForm,
     PesquisaEspacoForm,
@@ -25,13 +26,38 @@ def mapa(request):
         Predio.objects
         .filter(latitude__range=(-90, 90), longitude__range=(-180, 180))
         .order_by('nome')
-        .values('nome', 'sigla', 'latitude', 'longitude')
+        .values('id_predio', 'nome', 'sigla', 'latitude', 'longitude')
     )
 
-    return render(request, 'Mapa-HTML.html', {
-        'predios_mapa': list(predios),
-    })
+    predios_por_id = {}
+    for predio in predios:
+        predio_id = predio.pop('id_predio')
+        predio['locais'] = []
+        predios_por_id[predio_id] = predio
 
+    ids_predios = list(predios_por_id)
+
+    espacos = (
+        Espaco.objects.filter(andar__predio_id__in=ids_predios)
+        .order_by('nome')
+        .values_list('andar__predio_id', 'nome', 'tipo__nome', 'andar__nome')
+    )
+    pontos = (
+        Ponto.objects.filter(andar__predio_id__in=ids_predios)
+        .order_by('nome')
+        .values_list('andar__predio_id', 'nome', 'tipo_ponto__nome', 'andar__nome')
+    )
+
+    for predio_id, nome, tipo, andar in chain(espacos, pontos):
+        predios_por_id[predio_id]['locais'].append({
+            'nome': nome,
+            'tipo': tipo,
+            'andar': andar,
+        })
+
+    return render(request, 'Mapa-HTML.html', {
+        'predios_mapa': list(predios_por_id.values()),
+    })
 
 def pesquisa(request):
     predios = Predio.objects.all()
