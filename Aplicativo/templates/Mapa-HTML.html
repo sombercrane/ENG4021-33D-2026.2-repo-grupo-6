@@ -8,6 +8,17 @@
     <title>Mapa - LocalizaPUC</title>
     <link rel="stylesheet" href="{% static 'css/Mapa-CSS.css' %}">
     <link rel="stylesheet" href="{% static 'css/responsivo.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin="anonymous">
+<link rel="stylesheet" href="{% static 'css/mapa-leaflet.css' %}">
+
+<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin="anonymous"></script>
+<script defer src="{% static 'js/mapa-leaflet.js' %}"></script>
+    
+    
 </head>
 <body class="tela-mapa">
 
@@ -38,60 +49,11 @@
             <span class="filtro">Banheiro</span>
         </div>
 
-        <section class="cartao-mapa">
-                        {% if google_maps_api_key %}
-                <div id="mapa-interativo" class="imagem-mapa"></div>
-
-                <script>
-                    function iniciarMapaPUC() {
-                        const predios = [
-                            {% for predio in predios %}
-                            {
-                                nome: '{{ predio.nome|escapejs }}',
-                                sigla: '{{ predio.sigla|escapejs }}',
-                                lat: {{ predio.latitude }},
-                                lng: {{ predio.longitude }}
-                    },
-                    {% endfor %}
-                        ];
-
-                        const campus = { lat: -22.9793, lng: -43.23245 };
-
-                        const mapa = new google.maps.Map(document.getElementById('mapa-interativo'), {
-                            zoom: 17,
-                            center: campus
-                        });
-
-                        predios.forEach(function (predio) {
-                            const marcador = new google.maps.Marker({
-                                position: { lat: predio.lat, lng: predio.lng },
-                                map: mapa,
-                                title: predio.nome
-                            });
-
-                            const infoWindow = new google.maps.InfoWindow({
-                                content: '<strong>' + predio.sigla + '</strong><br>' + predio.nome
-                            });
-
-                            marcador.addListener('click', function () {
-                                infoWindow.open(mapa, marcador);
-                            });
-                        });
-                    }
-                </script>
-                <script
-                    src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=iniciarMapaPUC"
-                    async
-                    defer
-                ></script>
-            {% else %}
-                <img
-                    src="{% static 'IMG/Mapa-IMG.png' %}"
-                    alt="Mapa ilustrativo do campus da PUC-Rio"
-                    class="imagem-mapa"
-                >
-            {% endif %}
-        </section>
+            <section class="cartao-mapa">
+                 {% include 'mapa/leaflet.html' %}
+            </section>
+                           
+        
 
         <section class="informacoes">
             <h2>Visualização geral do campus</h2>
