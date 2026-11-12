@@ -9,3 +9,40 @@
     height: auto;
     border-radius: 12px;
 }
+
+.mapa-marcador {
+    --cor-pin: #53635b;
+    display: grid;
+    justify-items: center;
+    align-items: start;
+}
+
+.mapa-marcador--predio { --cor-pin: #24609a; }
+.mapa-marcador--banheiro { --cor-pin: #ad4a00; }
+.mapa-marcador--auditorio { --cor-pin: #6d3a97; }
+.mapa-marcador--sala { --cor-pin: #205c91; }
+.mapa-marcador--laboratorio { --cor-pin: #12646a; }
+.mapa-marcador--biblioteca { --cor-pin: #695129; }
+.mapa-marcador--restaurante { --cor-pin: #973747; }
+.mapa-marcador--entrada { --cor-pin: #345949; }
+.mapa-marcador--elevador { --cor-pin: #485d9e; }
+.mapa-marcador--escada { --cor-pin: #775139; }
+
+.mapa-pin {
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    width: 28px;
+    height: 28px;
+    color: white;
+    background: var(--cor-pin);
+    border: 2px solid white;
+    border-radius: 50% 50% 50% 0;
+    box-shadow: 0 2px 5px #12251b66;
+    transform: rotate(-45deg);
+}
+
+.mapa-pin > span {
+    font: 700 10px/1 Arial, sans-serif;
+    transform: rotate(45deg);
+}
