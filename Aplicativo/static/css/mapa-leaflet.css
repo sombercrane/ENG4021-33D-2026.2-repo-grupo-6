@@ -1,0 +1,11 @@
+.mapa-leaflet {
+    width: 100%;
+    height: clamp(300px, 58vh, 560px);
+    border-radius: 12px;
+}
+
+.mapa-fallback {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+}

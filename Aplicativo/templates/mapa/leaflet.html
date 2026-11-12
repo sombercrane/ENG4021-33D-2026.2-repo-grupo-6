@@ -1,0 +1,10 @@
+{% load static %}
+
+<div id="mapa-interativo" class="mapa-leaflet" role="region"
+     aria-label="Mapa interativo do campus da PUC-Rio" hidden></div>
+
+<img id="mapa-estatico" class="mapa-fallback"
+     src="{% static 'IMG/Mapa-IMG.png' %}"
+     alt="Mapa ilustrativo do campus da PUC-Rio">
+
+{{ predios_mapa|json_script:"mapa-dados" }}

@@ -5,7 +5,6 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from django.db.models import Q
-from django.conf import settings
 from django.shortcuts import get_object_or_404
 from .models import Predio, Espaco
 from .forms import (
@@ -24,15 +23,15 @@ def home(request):
 def mapa(request):
     predios = (
         Predio.objects
-        .exclude(latitude__isnull=True)
-        .exclude(longitude__isnull=True)
+        .filter(latitude__range=(-90, 90), longitude__range=(-180, 180))
+        .order_by('nome')
+        .values('nome', 'sigla', 'latitude', 'longitude')
     )
 
     return render(request, 'Mapa-HTML.html', {
-        'predios': predios,
-        'google_maps_api_key':
-            settings.GOOGLE_MAPS_API_KEY,
+        'predios_mapa': list(predios),
     })
+
 
 def pesquisa(request):
     predios = Predio.objects.all()
