@@ -1,79 +1,69 @@
-
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa - LocalizaPUC</title>
-    <link rel="stylesheet" href="{% static 'css/Mapa-CSS.css' %}">
-    <link rel="stylesheet" href="{% static 'css/responsivo.css' %}">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin="anonymous">
-<link rel="stylesheet" href="{% static 'css/mapa-leaflet.css' %}">
 
-<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-        crossorigin="anonymous"></script>
-<script defer src="{% static 'js/mapa-leaflet.js' %}"></script>
-    
-    
-</head>
-<body class="tela-mapa">
+{% block titulo %}
+Mapa - LocalizaPUC
+{% endblock %}
 
-    <header class="cabecalho">
-        <div class="cabecalho-conteudo">
-            <a href="{% url 'home' %}" class="voltar" aria-label="Voltar">
-                ←
-            </a>
+{% block body_class %}
+tela-mapa
+{% endblock %}
 
-            <div class="logo">
-                <span>⌂</span>
-                <h1>Localiza<br>PUC</h1>
-            </div>
-        </div>
-    </header>
+{% block css_extra %}
+<link rel="stylesheet"
+  href="{% static 'css/Mapa-CSS.css' %}">
+<link rel="stylesheet"
+  href="{% static 'css/responsivo.css' %}">
+<link rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+  crossorigin="anonymous">
+<link rel="stylesheet"
+  href="{% static 'css/mapa-leaflet.css' %}">
+{% endblock %}
 
-    <main class="container">
+{% block extra_head %}
+<script defer
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  crossorigin="anonymous"></script>
+<script defer
+  src="{% static 'js/mapa-leaflet.js' %}"></script>
+{% endblock %}
 
-        <h2 class="titulo">Mapa da PUC-Rio</h2>
-        <p class="subtitulo">
-            Explore os prédios e encontre seu caminho pelo campus.
-        </p>
+{% block conteudo %}
+<div class="container">
 
-        <div class="filtros">
-            <span class="filtro">Entrada</span>
-            <span class="filtro">Elevador</span>
-            <span class="filtro">Escada</span>
-            <span class="filtro">Banheiro</span>
-        </div>
+  <h2 class="titulo">Mapa da PUC-Rio</h2>
+  <p class="subtitulo">
+    Explore os prédios e encontre
+    seu caminho pelo campus.
+  </p>
 
-            <section class="cartao-mapa">
-                 {% include 'mapa/leaflet.html' %}
-            </section>
-                           
-        
+  <div class="filtros">
+    <span class="filtro">Entrada</span>
+    <span class="filtro">Elevador</span>
+    <span class="filtro">Escada</span>
+    <span class="filtro">Banheiro</span>
+  </div>
 
-        <section class="informacoes">
-            <h2>Visualização geral do campus</h2>
+  <section class="cartao-mapa">
+    {% include 'mapa/leaflet.html' %}
+  </section>
 
-            <p>
-                Explore a localização dos prédios ou utilize a pesquisa
-                para encontrar uma sala pelo nome ou código.
-            </p>
+  <section class="informacoes">
+    <h2>Visualização geral do campus</h2>
+    <p>
+      Explore a localização dos prédios
+      ou utilize a pesquisa para
+      encontrar uma sala pelo nome
+      ou código.
+    </p>
+    <a href="{% url 'search' %}"
+      class="botao-busca">
+      Buscar sala
+    </a>
+  </section>
 
-            <a href="{% url 'search' %}" class="botao-busca">
-                Buscar sala
-            </a>
-        </section>
-
-        <nav class="navegacao">
-            <a href="{% url 'home' %}">⌂ Início</a>
-            <a href="{% url 'mapa' %}" class="ativo">▣ Mapa</a>
-        </nav>
-
-    </main>
-
-</body>
-</html>
+</div>
+{% endblock %}
