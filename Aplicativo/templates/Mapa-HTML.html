@@ -20,6 +20,8 @@ tela-mapa
   crossorigin="anonymous">
 <link rel="stylesheet"
   href="{% static 'css/mapa-leaflet.css' %}">
+<link rel="stylesheet"
+  href="{% static 'css/mapa-layout.css' %}">
 {% endblock %}
 
 {% block extra_head %}
@@ -47,22 +49,113 @@ tela-mapa
     <span class="filtro">Banheiro</span>
   </div>
 
-  <section class="cartao-mapa">
-    {% include 'mapa/leaflet.html' %}
-  </section>
+  <div class="mapa-layout">
+
+    <aside class="mapa-busca"
+      aria-label="Busca">
+      <h3>Buscar no campus</h3>
+      <form method="get"
+        action="{% url 'pesquisa' %}">
+        <label for="mapa-busca">
+          Nome, código ou sigla
+        </label>
+        <input id="mapa-busca"
+          class="campo"
+          type="text"
+          name="busca"
+          maxlength="150"
+          placeholder="Buscar sala, prédio ou código">
+
+        <label for="mapa-categoria">
+          Categoria
+        </label>
+        <select id="mapa-categoria"
+          class="campo"
+          name="categoria">
+          <option value="todos">Todos</option>
+          <option value="sala">Salas</option>
+          <option value="laboratorio">
+            Laboratórios
+          </option>
+          <option value="auditorio">
+            Auditórios
+          </option>
+          <option value="predio">Prédios</option>
+        </select>
+
+        <button type="submit" class="botao">
+          Buscar
+        </button>
+      </form>
+    </aside>
+
+    <div class="mapa-coluna">
+
+      <section class="cartao-mapa">
+        {% include 'mapa/leaflet.html' %}
+      </section>
+
+      <section class="legenda"
+        aria-label="Legenda dos marcadores">
+        <h3>Legenda</h3>
+        <ul class="legenda-lista">
+          <li>
+            <span class="mapa-marcador mapa-marcador--predio"><span class="mapa-pin"><span>PR</span></span></span>
+            Prédio
+          </li>
+          <li>
+            <span class="mapa-marcador mapa-marcador--sala"><span class="mapa-pin"><span>SA</span></span></span>
+            Sala
+          </li>
+          <li>
+            <span class="mapa-marcador mapa-marcador--laboratorio"><span class="mapa-pin"><span>LB</span></span></span>
+            Laboratório
+          </li>
+          <li>
+            <span class="mapa-marcador mapa-marcador--auditorio"><span class="mapa-pin"><span>AU</span></span></span>
+            Auditório
+          </li>
+          <li>
+            <span class="mapa-marcador mapa-marcador--biblioteca"><span class="mapa-pin"><span>BI</span></span></span>
+            Biblioteca
+          </li>
+          <li>
+            <span class="mapa-marcador mapa-marcador--restaurante"><span class="mapa-pin"><span>RE</span></span></span>
+            Restaurante
+          </li>
+          <li>
+            <span class="mapa-marcador mapa-marcador--banheiro"><span class="mapa-pin"><span>WC</span></span></span>
+            Banheiro
+          </li>
+          <li>
+            <span class="mapa-marcador mapa-marcador--entrada"><span class="mapa-pin"><span>EN</span></span></span>
+            Entrada
+          </li>
+          <li>
+            <span class="mapa-marcador mapa-marcador--elevador"><span class="mapa-pin"><span>EL</span></span></span>
+            Elevador
+          </li>
+          <li>
+            <span class="mapa-marcador mapa-marcador--escada"><span class="mapa-pin"><span>ES</span></span></span>
+            Escada
+          </li>
+          <li>
+            <span class="mapa-marcador"><span class="mapa-pin"><span>&bull;</span></span></span>
+            Outro
+          </li>
+        </ul>
+      </section>
+
+    </div>
+  </div>
 
   <section class="informacoes">
     <h2>Visualização geral do campus</h2>
     <p>
       Explore a localização dos prédios
-      ou utilize a pesquisa para
-      encontrar uma sala pelo nome
-      ou código.
+      ou utilize a busca para encontrar
+      uma sala pelo nome ou código.
     </p>
-    <a href="{% url 'search' %}"
-      class="botao-busca">
-      Buscar sala
-    </a>
   </section>
 
 </div>
