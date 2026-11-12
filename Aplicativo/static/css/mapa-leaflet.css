@@ -46,3 +46,45 @@
     font: 700 10px/1 Arial, sans-serif;
     transform: rotate(45deg);
 }
+
+.mapa-marcador--ativo .mapa-pin {
+    outline: 2px solid #162f23;
+    transform: rotate(-45deg) scale(1.12);
+}
+
+.mapa-local {
+    min-width: 150px;
+    color: #22372c;
+    overflow-wrap: anywhere;
+}
+
+.mapa-local h3 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+}
+
+.mapa-local dl {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 4px 10px;
+    margin: 0;
+}
+
+.mapa-local dt {
+    font-weight: 700;
+}
+
+.mapa-local dd {
+    margin: 0;
+}
+
+.mapa-local-escolha:not([hidden]) {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.mapa-local-escolha select {
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+}

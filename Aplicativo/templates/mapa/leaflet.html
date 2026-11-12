@@ -7,4 +7,24 @@
      src="{% static 'IMG/Mapa-IMG.png' %}"
      alt="Mapa ilustrativo do campus da PUC-Rio">
 
+<template id="mapa-cartao-local">
+    <section class="mapa-local">
+        <label class="mapa-local-escolha" hidden>
+            Locais neste pin
+            <select></select>
+        </label>
+
+        <h3 data-nome></h3>
+
+        <dl>
+            <dt>Tipo</dt>
+            <dd data-tipo></dd>
+            <dt>Prédio</dt>
+            <dd data-predio></dd>
+            <dt>Andar</dt>
+            <dd data-andar></dd>
+        </dl>
+    </section>
+</template>
+
 {{ predios_mapa|json_script:"mapa-dados" }}
