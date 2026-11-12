@@ -12,7 +12,41 @@
     }).addTo(mapa);
 
     const predios = JSON.parse(document.getElementById('mapa-dados').textContent);
+    const modeloCartao = document.getElementById('mapa-cartao-local');
 
+function criarCartao(predio, locais) {
+    const cartao = modeloCartao.content.firstElementChild.cloneNode(true);
+    const titulo = cartao.querySelector('[data-nome]');
+    const tipo = cartao.querySelector('[data-tipo]');
+    const andar = cartao.querySelector('[data-andar]');
+
+    cartao.querySelector('[data-predio]').textContent = predio.nome;
+
+    function mostrarLocal(local) {
+        titulo.textContent = local.nome;
+        tipo.textContent = local.tipo;
+        andar.textContent = local.andar || '—';
+    }
+
+    if (locais.length > 1) {
+        const seletor = cartao.querySelector('select');
+
+        locais.forEach((local, indice) => {
+            const descricao = local.andar
+                ? `${local.nome} — ${local.andar}`
+                : local.nome;
+            seletor.add(new Option(descricao, indice));
+        });
+
+        seletor.closest('label').hidden = false;
+        seletor.addEventListener('change', () => {
+            mostrarLocal(locais[seletor.selectedIndex]);
+        });
+    }
+
+    mostrarLocal(locais[0]);
+    return cartao;
+}
    const siglas = {
     predio: 'PR',
     banheiro: 'WC',
@@ -72,13 +106,24 @@ for (const predio of predios) {
             ? locais[0].nome
             : `${locais[0].tipo} — ${predio.nome}`;
 
-        const conteudo = document.createElement('span');
-        conteudo.textContent = nome;
+            const marcador = L.marker([predio.latitude, predio.longitude], {
+        icon: icone,
+        title: nome,
+    })
+        .bindPopup(() => criarCartao(predio, locais), {maxWidth: 270})
+        .addTo(mapa);
 
-        L.marker([predio.latitude, predio.longitude], {icon: icone, title: nome})
-            .bindPopup(conteudo)
-            .addTo(mapa);
+    const pin = marcador.getElement();
+    pin.setAttribute('aria-label', nome);
+    pin.setAttribute('aria-expanded', 'false');
+
+marcador.on('popupopen popupclose', (evento) => {
+    const ativo = evento.type === 'popupopen';
+    pin.classList.toggle('mapa-marcador--ativo', ativo);
+    pin.setAttribute('aria-expanded', String(ativo));
+    marcador.setZIndexOffset(ativo ? 1000 : 0);
     });
+});
 }
 
     document.getElementById('mapa-estatico').hidden = true;
