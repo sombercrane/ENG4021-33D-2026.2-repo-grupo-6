@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from .models import Predio, Espaco, Ponto
+from django.http import JsonResponse
 from .forms import (
     PesquisaForm,
     PesquisaEspacoForm,
@@ -367,3 +368,42 @@ def detalhe_predio(request, id_predio):
     })
 def teste_base(request):
     return render(request, 'teste_base.html')
+
+def dados_mapa(request):
+    espacos = Espaco.objects.select_related(
+        "andar__predio", "tipo"
+    ).all()
+
+    pontos = Ponto.objects.select_related(
+        "andar__predio", "tipo_ponto"
+    ).all()
+
+    dados = []
+
+    for espaco in espacos:
+        dados.append({
+            "id": espaco.id_espaco,
+            "nome": espaco.nome,
+            "codigo": espaco.codigo,
+            "tipo": espaco.tipo.nome,
+            "predio": espaco.andar.predio.sigla,
+            "andar": espaco.andar.nome,
+            "posicao_x": espaco.posicao_x,
+            "posicao_y": espaco.posicao_y,
+            "acessivel": espaco.acessivel,
+            "categoria": "espaco",
+        })
+
+    for ponto in pontos:
+        dados.append({
+            "id": ponto.id_ponto,
+            "nome": ponto.nome,
+            "tipo": ponto.tipo_ponto.nome,
+            "predio": ponto.andar.predio.sigla,
+            "andar": ponto.andar.nome,
+            "posicao_x": ponto.posicao_x,
+            "posicao_y": ponto.posicao_y,
+            "categoria": "ponto",
+        })
+
+    return JsonResponse(dados, safe=False)

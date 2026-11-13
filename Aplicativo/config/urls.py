@@ -35,7 +35,7 @@ urlpatterns = [
     path('search/', views.search, name='search'),
     path('pesquisa_auditorios/', views.pesquisa_auditorios, name='pesquisa_auditorios'),
     path('laboratorios/', views.laboratorios, name='laboratorios'),
-    path('kennedy/', views.predio_por_sigla, {'sigla': 'K'}, name='kennedy'),
+    path('kennedy/', views.predio_por_sigla, {'sigla': 'Kennedy'}, name='kennedy'),
     path('auditorios/', views.auditorios, name='auditorios'),
     path('rdc/', views.predio_por_sigla, {'sigla': 'RDC'}, name='rdc'),
     path('predios/', views.predios, name='predios'),
@@ -52,6 +52,7 @@ urlpatterns = [
     path("espaco/<int:pk>/", views.detalhe_espaco, name="detalhe_espaco"),
     path('predio/<int:id_predio>/',views.detalhe_predio, name='detalhe_predio'),
     path('teste-base/',views.teste_base,name='teste_base'),
+    path('api/dados-mapa/', views.dados_mapa, name='dados_mapa'),
 ]
 
 # Serve as imagens cadastradas (media/) apenas em desenvolvimento.
