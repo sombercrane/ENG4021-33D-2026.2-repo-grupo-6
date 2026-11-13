@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Predio, Andar, TipoEspaco, Espaco
+from .models import Predio, Andar, TipoEspaco, Espaco, TipoPonto, Ponto
 
 # Register your models here.
 
@@ -34,3 +34,15 @@ class EspacoAdmin(admin.ModelAdmin):
         "andar__predio__nome",
         "andar__predio__sigla",
     )
+
+@admin.register(TipoPonto)
+class TipoPontoAdmin(admin.ModelAdmin):
+    list_display = ("nome", "icone", "cor")
+    search_fields = ("nome", "descricao")
+
+
+@admin.register(Ponto)
+class PontoAdmin(admin.ModelAdmin):
+    list_display = ("nome", "andar", "tipo_ponto", "posicao_x", "posicao_y")
+    list_filter = ("tipo_ponto", "andar__predio")
+    search_fields = ("nome", "descricao", "andar__nome", "andar__predio__nome")
