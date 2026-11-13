@@ -15,6 +15,7 @@ from .forms import (
     PesquisaAuditorioForm,
     PesquisaPredioForm,
     PesquisaLaboratorioForm,
+    PesquisaMapaForm,
 )
 
 
@@ -59,6 +60,9 @@ def mapa(request):
 
     return render(request, 'Mapa-HTML.html', {
         'predios_mapa': list(predios_por_id.values()),
+        'formulario': PesquisaMapaForm(
+            request.GET or None, auto_id='mapa-%s'
+        ),
     })
 
 def pesquisa(request):
