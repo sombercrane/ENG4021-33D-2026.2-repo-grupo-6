@@ -91,6 +91,16 @@ tela-mapa
 
     <div class="mapa-coluna">
 
+      <section class="mapa-localizacao"
+        aria-label="Sua localização">
+        <button id="localizacao-botao"
+          type="button" class="botao">
+          Usar minha localização
+        </button>
+        <p id="localizacao-aviso"
+          role="status" aria-live="polite"></p>
+      </section>
+
       <section class="cartao-mapa">
         {% include 'mapa/leaflet.html' %}
       </section>
@@ -159,4 +169,88 @@ tela-mapa
   </section>
 
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(() => {
+  const botao = document.getElementById('localizacao-botao');
+  const aviso = document.getElementById('localizacao-aviso');
+  if (!botao || !aviso) return;
+
+  const OPCOES = {
+    enableHighAccuracy: true,
+    timeout: 10000,
+    maximumAge: 60000,
+  };
+
+  function mostrar(mensagem, estado) {
+    aviso.textContent = mensagem;
+    aviso.dataset.estado = estado;
+  }
+
+  function emitir(detalhe) {
+    document.dispatchEvent(
+      new CustomEvent('localizacao:atualizada',
+        {detail: detalhe})
+    );
+  }
+
+  function aoObterPosicao(posicao) {
+    const {latitude, longitude, accuracy} = posicao.coords;
+    botao.disabled = false;
+    mostrar(
+      'Localização obtida (precisão de cerca de '
+        + Math.round(accuracy) + ' m).',
+      'permitida'
+    );
+    emitir({
+      estado: 'permitida',
+      latitude: latitude,
+      longitude: longitude,
+      precisao: accuracy,
+    });
+  }
+
+  function aoFalhar(erro) {
+    botao.disabled = false;
+
+    if (erro.code === erro.PERMISSION_DENIED) {
+      mostrar(
+        'Permissão de localização negada. '
+          + 'Você pode liberar nas configurações do navegador.',
+        'negada'
+      );
+      emitir({estado: 'negada'});
+      return;
+    }
+
+    mostrar(
+      erro.code === erro.TIMEOUT
+        ? 'A localização demorou demais para responder.'
+        : 'Não foi possível determinar sua posição agora.',
+      'indisponivel'
+    );
+    emitir({estado: 'indisponivel'});
+  }
+
+  if (!('geolocation' in navigator)) {
+    botao.disabled = true;
+    mostrar(
+      'Seu navegador não permite obter a localização.',
+      'indisponivel'
+    );
+    emitir({estado: 'indisponivel'});
+    return;
+  }
+
+  botao.addEventListener('click', () => {
+    botao.disabled = true;
+    mostrar('Buscando sua localização…', 'carregando');
+    navigator.geolocation.getCurrentPosition(
+      aoObterPosicao, aoFalhar, OPCOES
+    );
+  });
+})();
+</script>
 {% endblock %}
