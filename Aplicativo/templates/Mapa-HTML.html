@@ -99,6 +99,17 @@ tela-mapa
         </button>
         <p id="localizacao-aviso"
           role="status" aria-live="polite"></p>
+
+        <div id="entrada-referencia" hidden>
+          <label for="entrada-select">
+            Estou na entrada…
+          </label>
+          <select id="entrada-select" class="campo">
+            <option value="">Escolha uma entrada</option>
+          </select>
+          <p id="origem-aviso"
+            role="status" aria-live="polite"></p>
+        </div>
       </section>
 
       <section class="cartao-mapa">
@@ -251,6 +262,103 @@ tela-mapa
       aoObterPosicao, aoFalhar, OPCOES
     );
   });
+})();
+</script>
+<script>
+(() => {
+  const ENTRADAS = [
+    {
+      nome: 'Entrada 1 (Av. Padre Leonel Franca)',
+      latitude: -22.9791274,
+      longitude: -43.2319012,
+    },
+    {
+      nome: 'Entrada 2 (Marquês de São Vicente)',
+      latitude: -22.9773516,
+      longitude: -43.2314211,
+    },
+  ];
+  const CENTRO_CAMPUS = {latitude: -22.9793, longitude: -43.23245};
+  const RAIO_CAMPUS_M = 500;
+
+  const caixa = document.getElementById('entrada-referencia');
+  const seletor = document.getElementById('entrada-select');
+  const aviso = document.getElementById('localizacao-aviso');
+  const avisoOrigem = document.getElementById('origem-aviso');
+  if (!caixa || !seletor || !aviso || !avisoOrigem) return;
+
+  function distanciaMetros(a, b) {
+    const R = 6371000;
+    const rad = (graus) => graus * Math.PI / 180;
+    const dLat = rad(b.latitude - a.latitude);
+    const dLng = rad(b.longitude - a.longitude);
+    const h = Math.sin(dLat / 2) ** 2
+      + Math.cos(rad(a.latitude)) * Math.cos(rad(b.latitude))
+        * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+
+  function definirOrigem(origem) {
+    window.origemMapa = origem;
+    document.dispatchEvent(
+      new CustomEvent('origem:atualizada', {detail: origem})
+    );
+  }
+
+  ENTRADAS.forEach((entrada, indice) => {
+    seletor.add(new Option(entrada.nome, indice));
+  });
+
+  seletor.addEventListener('change', () => {
+    const entrada = ENTRADAS[seletor.value];
+    if (!entrada) {
+      avisoOrigem.textContent = '';
+      definirOrigem(null);
+      return;
+    }
+    avisoOrigem.textContent = 'Referência: ' + entrada.nome + '.';
+    definirOrigem({
+      tipo: 'entrada',
+      nome: entrada.nome,
+      latitude: entrada.latitude,
+      longitude: entrada.longitude,
+    });
+  });
+
+  function mostrarSeletor() {
+    caixa.hidden = false;
+    seletor.dispatchEvent(new Event('change'));
+  }
+
+  document.addEventListener('localizacao:atualizada', (evento) => {
+    const dados = evento.detail;
+
+    if (dados.estado === 'permitida') {
+      if (distanciaMetros(dados, CENTRO_CAMPUS) <= RAIO_CAMPUS_M) {
+        caixa.hidden = true;
+        seletor.value = '';
+        avisoOrigem.textContent = '';
+        definirOrigem({
+          tipo: 'gps',
+          nome: 'Sua localização',
+          latitude: dados.latitude,
+          longitude: dados.longitude,
+        });
+        return;
+      }
+      aviso.textContent = 'Você parece estar fora do campus. '
+        + 'Escolha uma entrada como referência.';
+      aviso.dataset.estado = 'fora';
+    }
+
+    mostrarSeletor();
+  });
+
+  // Sem suporte a geolocalização: o aviso do botão é emitido antes
+  // deste bloco carregar, então o seletor já aparece desde o início.
+  if (!('geolocation' in navigator)) {
+    mostrarSeletor();
+  }
 })();
 </script>
 {% endblock %}
