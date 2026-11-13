@@ -2,6 +2,7 @@ from itertools import chain
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
@@ -33,6 +34,7 @@ def mapa(request):
     for predio in predios:
         predio_id = predio.pop('id_predio')
         predio['locais'] = []
+        predio['url'] = reverse('detalhe_predio', kwargs={'id_predio': predio_id})
         predios_por_id[predio_id] = predio
 
     ids_predios = list(predios_por_id)
@@ -99,40 +101,12 @@ def predios(request):
         'predios': predios
     })
 
-def consultar_predio(request, identificador):
-    predio = get_object_or_404(Predio, id_predio=identificador)
-
-    andares = predio.andares.all()
-
-    return render(request, 'predio.html', {
-        'predio': predio,
-        'andares': andares
-    })
 
 
 def predio_por_sigla(request, sigla):
-    formulario = PesquisaEspacoForm(request.GET or None)
+    predio = get_object_or_404(Predio, sigla__iexact=sigla)
+    return redirect('detalhe_predio', id_predio=predio.pk)
 
-    predio = Predio.objects.filter(sigla__iexact=sigla).first()
-
-    if predio is None:
-        return render(request, '404.html', status=404)
-
-    andares = predio.andares.prefetch_related('espacos__tipo').order_by('numero')
-
-    if formulario.is_valid():
-        busca = formulario.cleaned_data.get('busca')
-
-        if busca:
-            andares = andares.filter(
-                espacos__nome__icontains=busca
-            ).distinct()
-
-    return render(request, 'base_predio.html', {
-        'predio': predio,
-        'andares': andares,
-        'formulario': formulario,
-    })
 def iag(request):
     return render(
         request, 'HTML Tela Prédio IAG.html'
@@ -378,14 +352,14 @@ def detalhe_espaco(request, id_espaco):
 
 
 def detalhe_predio(request, id_predio):
-    predio = get_object_or_404(
-        Predio, pk=id_predio
-    )
-    return render(
-        request, "detalhe_pesquisa.html", {
-            "predio": predio,
-            "voltar": request.GET.urlencode(),
-        }
-    )
+    predio = get_object_or_404(Predio, pk=id_predio)
+    andares = predio.andares.prefetch_related(
+        'espacos__tipo'
+    ).order_by('numero', 'pk')
+
+    return render(request, 'base_predio.html', {
+        'predio': predio,
+        'andares': andares,
+    })
 def teste_base(request):
     return render(request, 'teste_base.html')

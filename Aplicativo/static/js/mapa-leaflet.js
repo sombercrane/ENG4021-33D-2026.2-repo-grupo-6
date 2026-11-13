@@ -21,7 +21,7 @@ function criarCartao(predio, locais) {
     const andar = cartao.querySelector('[data-andar]');
 
     cartao.querySelector('[data-predio]').textContent = predio.nome;
-
+    cartao.querySelector('[data-ver-predio]').href = predio.url;
     function mostrarLocal(local) {
         titulo.textContent = local.nome;
         tipo.textContent = local.tipo;
