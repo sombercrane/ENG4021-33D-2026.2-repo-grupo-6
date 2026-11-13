@@ -1,0 +1,90 @@
+.tela-mapa .site-conteudo {
+    max-width: 1200px;
+}
+
+.tela-mapa .container {
+    max-width: none;
+    margin: 0;
+    padding: 0 0 35px;
+}
+
+.mapa-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+.mapa-busca,
+.mapa-coluna {
+    min-width: 0;
+}
+
+.mapa-busca {
+    background-color: #101d15;
+    border-radius: 18px;
+    padding: 20px;
+}
+
+.mapa-busca h3 {
+    margin: 0 0 14px;
+    font-size: 18px;
+}
+
+.mapa-busca label {
+    display: block;
+    margin: 12px 0 6px;
+    color: #b7c5b9;
+    font-size: 14px;
+}
+
+.mapa-busca .botao {
+    width: 100%;
+    margin-top: 16px;
+}
+
+@media (min-width: 900px) {
+    .mapa-layout {
+        grid-template-columns:
+            300px minmax(0, 1fr);
+        align-items: start;
+    }
+
+    .mapa-busca {
+        position: sticky;
+        top: 16px;
+    }
+}
+
+.legenda {
+    background-color: #101d15;
+    border-radius: 18px;
+    margin-top: 20px;
+    padding: 20px;
+}
+
+.legenda h3 {
+    margin: 0 0 14px;
+    font-size: 18px;
+}
+
+.legenda-lista {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.legenda-lista li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.legenda .mapa-marcador {
+    flex: none;
+    width: 32px;
+    height: 32px;
+}
