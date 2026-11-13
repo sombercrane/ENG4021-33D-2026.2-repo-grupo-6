@@ -59,29 +59,23 @@ tela-mapa
         <label for="mapa-busca">
           Nome, código ou sigla
         </label>
-        <input id="mapa-busca"
-          class="campo"
-          type="text"
-          name="busca"
-          maxlength="150"
-          placeholder="Buscar sala, prédio ou código">
+        {{ formulario.busca }}
+        {{ formulario.busca.errors }}
 
         <label for="mapa-categoria">
           Categoria
         </label>
-        <select id="mapa-categoria"
-          class="campo"
-          name="categoria">
-          <option value="todos">Todos</option>
-          <option value="sala">Salas</option>
-          <option value="laboratorio">
-            Laboratórios
-          </option>
-          <option value="auditorio">
-            Auditórios
-          </option>
-          <option value="predio">Prédios</option>
-        </select>
+        {{ formulario.categoria }}
+
+        <label for="mapa-predio">
+          Prédio
+        </label>
+        {{ formulario.predio }}
+
+        <label for="mapa-andar">
+          Andar
+        </label>
+        {{ formulario.andar }}
 
         <button type="submit" class="botao">
           Buscar
