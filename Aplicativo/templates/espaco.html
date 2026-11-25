@@ -13,6 +13,8 @@
         <a href="{% url 'mapa' %}" class="espaco-voltar">← Voltar ao mapa</a>
         <a href="{% url 'detalhe_predio' espaco.andar.predio_id %}?andar={{ espaco.andar_id }}"
            class="link-voltar">Ver andar</a>
+        <a href="{% url 'rota_predio' espaco.andar.predio_id %}?destino=espaco-{{ espaco.pk }}"
+           class="link-voltar">Traçar rota</a>
     </nav>
 
     <div class="espaco-cabecalho">

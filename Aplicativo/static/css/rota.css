@@ -1,0 +1,31 @@
+.rota-cabecalho h1 {
+    margin-top: 12px;
+}
+
+.rota-formulario {
+    display: grid;
+    gap: 16px;
+}
+
+.rota-formulario label {
+    display: block;
+    margin-bottom: 6px;
+}
+
+.rota-formulario .botao {
+    justify-self: start;
+}
+
+.rota-formulario .errorlist {
+    color: #ffd3be;
+    margin: 6px 0 0;
+}
+
+.rota-resultado {
+    margin-top: 20px;
+    overflow-wrap: anywhere;
+}
+
+.rota-resultado h2 {
+    margin-top: 0;
+}

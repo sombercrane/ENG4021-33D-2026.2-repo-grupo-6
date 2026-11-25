@@ -1,6 +1,9 @@
 
 # Create your models here.
+from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import F, Q
 
 
 class Predio(models.Model):
@@ -74,6 +77,15 @@ class Espaco(models.Model):
     posicao_y = models.FloatField(null=True, blank=True)
     acessivel = models.BooleanField(default=False)
     observacoes = models.TextField(blank=True)
+    ponto_acesso = models.ForeignKey(
+        "Ponto",
+        on_delete=models.SET_NULL,
+        related_name="espacos_atendidos",
+        null=True,
+        blank=True,
+        verbose_name="ponto de acesso",
+        help_text="Ponto da rota que dá acesso ao espaço. Deve estar no mesmo andar.",
+    )
 
     class Meta:
         verbose_name = "espaço"
@@ -81,6 +93,13 @@ class Espaco(models.Model):
 
     def __str__(self):
         return f"{self.codigo} - {self.nome}"
+
+    def clean(self):
+        super().clean()
+        if self.ponto_acesso_id and not Ponto.objects.filter(
+            pk=self.ponto_acesso_id, andar_id=self.andar_id,
+        ).exists():
+            raise ValidationError({"ponto_acesso": "Escolha um ponto no mesmo andar do espaço."})
 
 
 class TipoPonto(models.Model):
@@ -118,7 +137,57 @@ class Ponto(models.Model):
     descricao = models.TextField(blank=True)
 
     def __str__(self):
-        return self.nome
+        return f"{self.nome} — {self.andar}"
+
+
+class Conexao(models.Model):
+    class Tipo(models.TextChoices):
+        CORREDOR = "corredor", "Corredor"
+        PASSAGEM = "passagem", "Passagem"
+        ESCADA = "escada", "Escada"
+        ELEVADOR = "elevador", "Elevador"
+        RAMPA = "rampa", "Rampa"
+
+    TIPOS_ENTRE_ANDARES = (Tipo.ESCADA, Tipo.ELEVADOR, Tipo.RAMPA)
+
+    origem = models.ForeignKey(Ponto, on_delete=models.CASCADE, related_name="conexoes_de_saida")
+    destino = models.ForeignKey(Ponto, on_delete=models.CASCADE, related_name="conexoes_de_chegada")
+    tipo = models.CharField("tipo de trecho", max_length=12, choices=Tipo.choices)
+    nome = models.CharField(
+        "nome do trecho", max_length=150, blank=True,
+        help_text="Identifique o trecho, por exemplo Corredor leste ou Elevador B.",
+    )
+    distancia_m = models.PositiveIntegerField("distância em metros", validators=[MinValueValidator(1)])
+    bidirecional = models.BooleanField(
+        default=True,
+        help_text="Quando desmarcado, o trecho só pode ser percorrido da origem ao destino.",
+    )
+
+    class Meta:
+        verbose_name = "conexão interna"
+        verbose_name_plural = "conexões internas"
+        constraints = [
+            models.CheckConstraint(condition=~Q(origem=F("destino")), name="conexao_pontos_distintos"),
+            models.CheckConstraint(condition=Q(distancia_m__gt=0), name="conexao_distancia_positiva"),
+        ]
+
+    def __str__(self):
+        return f"{self.origem} → {self.destino}"
+
+    def clean(self):
+        super().clean()
+        if not self.origem_id or not self.destino_id:
+            return
+
+        try:
+            origem, destino = self.origem.andar, self.destino.andar
+        except Ponto.DoesNotExist:
+            return  # A validação da chave estrangeira informa o ponto inválido.
+
+        if origem.predio_id != destino.predio_id:
+            raise ValidationError({"destino": "Os dois pontos devem pertencer ao mesmo prédio."})
+        if origem.pk != destino.pk and self.tipo not in self.TIPOS_ENTRE_ANDARES:
+            raise ValidationError({"tipo": "Use escada, elevador ou rampa para ligar andares."})
 
 
 class Administrador(models.Model):
