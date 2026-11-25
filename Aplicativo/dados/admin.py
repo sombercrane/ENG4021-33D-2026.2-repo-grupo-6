@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Andar, Conexao, Espaco, Ponto, Predio, TipoEspaco, TipoPonto
+from .models import AcessoExterno, Andar, Conexao, Espaco, Ponto, Predio, TipoEspaco, TipoPonto
 
 # Register your models here.
 
@@ -59,3 +59,12 @@ class ConexaoAdmin(admin.ModelAdmin):
     list_select_related = ("origem__andar__predio", "destino__andar__predio")
     autocomplete_fields = ("origem", "destino")
     search_fields = ("nome", "origem__nome", "destino__nome")
+
+
+@admin.register(AcessoExterno)
+class AcessoExternoAdmin(admin.ModelAdmin):
+    list_display = ("ponto", "latitude", "longitude")
+    list_filter = ("ponto__andar__predio",)
+    list_select_related = ("ponto__andar__predio",)
+    autocomplete_fields = ("ponto",)
+    search_fields = ("ponto__nome", "ponto__andar__predio__nome")
