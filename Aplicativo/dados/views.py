@@ -277,6 +277,8 @@ def detalhe_espaco(request, pk):
         "espaco": espaco,
         "outros_espacos": outros_espacos,
     })
+
+
 TIPOS = {
     "sala": "sala",
     "laboratorio": "laboratório",
@@ -339,21 +341,6 @@ def pesquisa(request):
         "filtros": filtros.urlencode(),
         "atual": request.GET.urlencode(),
     })
-
-
-def detalhe_espaco(request, id_espaco):
-    espaco = get_object_or_404(
-        Espaco.objects.select_related(
-            "andar__predio", "tipo"
-        ),
-        pk=id_espaco,
-    )
-    return render(
-        request, "detalhe_pesquisa.html", {
-            "espaco": espaco,
-            "voltar": request.GET.urlencode(),
-        }
-    )
 
 
 def detalhe_predio(request, id_predio):
