@@ -4,7 +4,7 @@ from heapq import heappop, heappush
 
 from django.db.models import F, Q
 
-from .models import Conexao, Ponto
+from .models import Conexao, Espaco, Ponto
 
 
 @dataclass(frozen=True)
@@ -14,8 +14,10 @@ class Trecho:
     destino: Ponto
 
 
-def calcular_rota_interna(origem, destino):
+def calcular_rota_interna(origem, destino, *, acessivel=False):
     """Retorna os trechos mais curtos, ou None se a cobertura for insuficiente."""
+    if acessivel and isinstance(destino, Espaco) and not destino.acessivel:
+        return None
     chegada = destino if isinstance(destino, Ponto) else destino.ponto_acesso
     if chegada is None or chegada.andar_id != destino.andar_id:
         return None
@@ -24,7 +26,8 @@ def calcular_rota_interna(origem, destino):
     if chegada.andar.predio_id != predio_id:
         return None
     if origem.pk == chegada.pk:
-        return []
+        # Sem trechos, só um espaço marcado como acessível confirma a chegada.
+        return None if acessivel and isinstance(destino, Ponto) else []
 
     conexoes = (
         Conexao.objects.filter(origem__andar__predio_id=predio_id, destino__andar__predio_id=predio_id)
@@ -32,6 +35,9 @@ def calcular_rota_interna(origem, destino):
         .select_related("origem__andar", "destino__andar")
         .order_by("pk")
     )
+    if acessivel:
+        conexoes = conexoes.filter(acessibilidade_verificada=True, tipo__in=Conexao.TIPOS_ACESSIVEIS)
+
     vizinhos = defaultdict(list)
     for conexao in conexoes:
         vizinhos[conexao.origem_id].append(Trecho(conexao, conexao.origem, conexao.destino))

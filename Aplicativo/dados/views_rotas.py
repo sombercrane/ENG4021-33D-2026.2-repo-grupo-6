@@ -15,13 +15,14 @@ from .rotas_externas import (
 )
 
 
-def contexto_percurso(origem, destino):
-    trechos = calcular_rota_interna(origem, destino)
+def contexto_percurso(origem, destino, *, acessivel):
+    trechos = calcular_rota_interna(origem, destino, acessivel=acessivel)
     return {
         "origem": origem,
         "destino": destino,
         "trechos": trechos,
         "distancia_m": sum(trecho.conexao.distancia_m for trecho in trechos) if trechos is not None else None,
+        "acessivel": acessivel,
     }
 
 
@@ -31,12 +32,15 @@ def rota_predio(request, id_predio):
     formulario = RotaInternaForm(
         predio,
         request.GET if "origem" in request.GET else None,
-        initial={"destino": request.GET.get("destino")},
+        initial={
+            "destino": request.GET.get("destino"),
+            "acessivel": request.GET.get("acessivel") == "on",
+        },
     )
     contexto = {"predio": predio, "formulario": formulario}
     if formulario.is_valid():
         contexto.update(
-            contexto_percurso(formulario.cleaned_data["origem"], formulario.cleaned_data["destino"])
+            contexto_percurso(**formulario.cleaned_data)
         )
 
     return render(request, "predios/rota.html", contexto)
@@ -61,7 +65,7 @@ def rota_externa_predio(request, id_predio):
 def contexto_rota_externa(predio, dados):
     destino, acesso = dados["destino"], dados["chegada"]
     coordenadas = (acesso.latitude, acesso.longitude) if acesso else (predio.latitude, predio.longitude)
-    contexto = {"destino": destino, "acesso": acesso}
+    contexto = {"destino": destino, "acesso": acesso, "acessivel": dados["acessivel"]}
     if not coordenadas_validas(*coordenadas):
         return {**contexto, "erro_externo": "Ainda não há coordenadas de chegada para este prédio."}
 
@@ -78,5 +82,5 @@ def contexto_rota_externa(predio, dados):
         if separacao > DISTANCIA_MAXIMA_DA_CHEGADA_M:
             contexto["distancia_da_chegada"] = round(separacao)
         else:
-            contexto.update(contexto_percurso(acesso.ponto, destino))
+            contexto.update(contexto_percurso(acesso.ponto, destino, acessivel=dados["acessivel"]))
     return contexto

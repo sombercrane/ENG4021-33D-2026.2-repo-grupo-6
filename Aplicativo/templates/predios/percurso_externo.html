@@ -5,6 +5,7 @@
     {% else %}
     <div class="rota-google">
         <p>{{ rota_externa.distancia_m }} m · {{ rota_externa.duracao_min }} min</p>
+        {% if acessivel %}<p>A acessibilidade do trecho externo não pôde ser confirmada.</p>{% endif %}
         <p>O trajeto a pé pode incluir vias sem calçada ou passagem de pedestres.</p>
         {% if rota_externa.instrucoes %}
         <details>
@@ -28,7 +29,8 @@
     {% endif %}
 
     {% if not origem %}
+    {% if acessivel %}<p>Os dados cadastrados não permitem confirmar um percurso interno acessível a partir desta chegada.</p>{% endif %}
     <p>Andar do destino · <a href="{% url 'detalhe_predio' predio.pk %}?andar={{ destino.andar_id }}">{{ destino.andar.nome }}</a></p>
-    <p><a href="{% url 'rota_predio' predio.pk %}?destino={{ formulario.destino.value|urlencode }}">Planejar apenas o trajeto interno</a></p>
+    <p><a href="{% url 'rota_predio' predio.pk %}?destino={{ formulario.destino.value|urlencode }}{% if acessivel %}&amp;acessivel=on{% endif %}">Planejar apenas o trajeto interno</a></p>
     {% endif %}
 </section>

@@ -149,6 +149,7 @@ class Conexao(models.Model):
         RAMPA = "rampa", "Rampa"
 
     TIPOS_ENTRE_ANDARES = (Tipo.ESCADA, Tipo.ELEVADOR, Tipo.RAMPA)
+    TIPOS_ACESSIVEIS = (Tipo.CORREDOR, Tipo.PASSAGEM, Tipo.ELEVADOR, Tipo.RAMPA)
 
     origem = models.ForeignKey(Ponto, on_delete=models.CASCADE, related_name="conexoes_de_saida")
     destino = models.ForeignKey(Ponto, on_delete=models.CASCADE, related_name="conexoes_de_chegada")
@@ -162,6 +163,10 @@ class Conexao(models.Model):
         default=True,
         help_text="Quando desmarcado, o trecho só pode ser percorrido da origem ao destino.",
     )
+    acessibilidade_verificada = models.BooleanField(
+        default=False,
+        help_text="Marque após verificar a largura, os desníveis e as condições de passagem em todo o trecho.",
+    )
 
     class Meta:
         verbose_name = "conexão interna"
@@ -169,6 +174,10 @@ class Conexao(models.Model):
         constraints = [
             models.CheckConstraint(condition=~Q(origem=F("destino")), name="conexao_pontos_distintos"),
             models.CheckConstraint(condition=Q(distancia_m__gt=0), name="conexao_distancia_positiva"),
+            models.CheckConstraint(
+                condition=~Q(tipo="escada", acessibilidade_verificada=True),
+                name="conexao_escada_sem_acessibilidade",
+            ),
         ]
 
     def __str__(self):
@@ -176,6 +185,8 @@ class Conexao(models.Model):
 
     def clean(self):
         super().clean()
+        if self.tipo == self.Tipo.ESCADA and self.acessibilidade_verificada:
+            raise ValidationError({"acessibilidade_verificada": "Uma escada não é um trecho sem degraus."})
         if not self.origem_id or not self.destino_id:
             return
 

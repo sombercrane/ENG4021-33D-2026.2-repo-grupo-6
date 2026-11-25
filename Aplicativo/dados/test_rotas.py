@@ -133,3 +133,57 @@ class RotasInternasTests(TestCase):
         self.assertNotContains(resposta, "Percurso interno")
         resposta = self.client.get(self.url, {"origem": self.entrada.pk, "destino": "ponto-999999"})
         self.assertIn("destino", resposta.context["formulario"].errors)
+
+    def test_rota_acessivel_prefere_rampa_e_elevador_a_escada_mais_curta(self):
+        self.sala_segundo.acessivel = True
+        self.sala_segundo.save(update_fields=["acessivel"])
+        self.corredor.acessibilidade_verificada = True
+        self.corredor.save(update_fields=["acessibilidade_verificada"])
+        elevador_terreo = self.criar_ponto(self.terreo, "Elevador B no térreo")
+        elevador_segundo = self.criar_ponto(self.segundo, "Elevador B no segundo")
+        rampa = Conexao.objects.create(
+            origem=self.hall, destino=elevador_terreo, tipo=Conexao.Tipo.RAMPA,
+            nome="Rampa principal", distancia_m=20, acessibilidade_verificada=True,
+        )
+        elevador = Conexao.objects.create(
+            origem=elevador_terreo, destino=elevador_segundo, tipo=Conexao.Tipo.ELEVADOR,
+            nome="Elevador B", distancia_m=10, acessibilidade_verificada=True,
+        )
+        passagem = Conexao.objects.create(
+            origem=elevador_segundo, destino=self.porta_segundo, tipo=Conexao.Tipo.PASSAGEM,
+            distancia_m=5, acessibilidade_verificada=True,
+        )
+        Conexao.objects.create(
+            origem=self.hall, destino=self.porta_segundo, tipo=Conexao.Tipo.ELEVADOR, distancia_m=2,
+        )
+        resposta = self.client.get(self.url, {
+            "origem": self.entrada.pk, "destino": f"espaco-{self.sala_segundo.pk}", "acessivel": "on",
+        })
+        self.assertEqual(
+            [trecho.conexao for trecho in resposta.context["trechos"]], [self.corredor, rampa, elevador, passagem],
+        )
+        self.assertContains(resposta, "Percurso interno acessível")
+        self.assertContains(resposta, "Rampa principal")
+        self.assertContains(resposta, "Elevador B")
+        self.assertNotContains(resposta, "Escada A")
+
+    def test_sem_trechos_verificados_informa_cobertura_insuficiente(self):
+        self.sala_segundo.acessivel = True
+        self.sala_segundo.save(update_fields=["acessivel"])
+        resposta = self.client.get(self.url, {
+            "origem": self.entrada.pk, "destino": f"espaco-{self.sala_segundo.pk}", "acessivel": "on",
+        })
+        self.assertContains(resposta, "não permitem confirmar um percurso interno acessível")
+        self.assertContains(resposta, "Andar do destino")
+        self.assertNotContains(resposta, 'class="rota-etapas"')
+
+    def test_nao_confirma_acessibilidade_da_sala_sem_verificacao(self):
+        self.passagem.acessibilidade_verificada = True
+        self.passagem.save(update_fields=["acessibilidade_verificada"])
+        self.assertIsNone(calcular_rota_interna(self.hall, self.sala_terreo, acessivel=True))
+
+    def test_escada_nao_pode_ser_cadastrada_como_acessivel(self):
+        self.escada.acessibilidade_verificada = True
+        with self.assertRaises(ValidationError) as erro:
+            self.escada.full_clean()
+        self.assertIn("acessibilidade_verificada", erro.exception.message_dict)

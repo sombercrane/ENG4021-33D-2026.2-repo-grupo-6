@@ -136,3 +136,29 @@ class IntegracaoRotaExternaTests(TestCase):
         })
         self.assertContains(resposta, "Origem inválida")
         calcular.assert_not_called()
+
+    @patch("dados.views_rotas.calcular_rota_externa")
+    def test_acessibilidade_e_verificada_apenas_no_trecho_interno(self, calcular):
+        calcular.return_value = self.resultado_externo
+        self.sala.acessivel = True
+        self.sala.save(update_fields=["acessivel"])
+        self.conexao.acessibilidade_verificada = True
+        self.conexao.save(update_fields=["acessibilidade_verificada"])
+        resposta = self.client.post(self.url, {
+            **self.selecao, "chegada": self.acesso.pk, "calcular": "1", "acessivel": "on",
+        })
+        self.assertContains(resposta, "Percurso interno acessível")
+        self.assertContains(resposta, "A acessibilidade do trecho externo não pôde ser confirmada.")
+        self.assertContains(resposta, "Elevador norte")
+
+    @patch("dados.views_rotas.calcular_rota_externa")
+    def test_mantem_opcao_acessivel_no_link_quando_nao_ha_acesso(self, calcular):
+        calcular.return_value = self.resultado_externo
+        self.acesso.delete()
+        resposta = self.client.post(self.url, {**self.selecao, "calcular": "1", "acessivel": "on"})
+        self.assertContains(resposta, "não permitem confirmar um percurso interno acessível")
+        self.assertContains(resposta, "&amp;acessivel=on")
+        resposta_interna = self.client.get(reverse("rota_predio", args=[self.predio.pk]), {
+            "acessivel": "on", "destino": self.selecao["destino"],
+        })
+        self.assertTrue(resposta_interna.context["formulario"]["acessivel"].value())

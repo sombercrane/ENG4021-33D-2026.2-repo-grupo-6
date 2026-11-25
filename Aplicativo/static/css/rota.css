@@ -4,12 +4,25 @@
 
 .rota-formulario {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 16px;
 }
 
 .rota-formulario label {
     display: block;
     margin-bottom: 6px;
+}
+
+.rota-formulario .rota-checkbox {
+    display: flex;
+    align-items: start;
+    gap: 8px;
+    margin-bottom: 0;
+}
+
+.rota-checkbox input {
+    margin-top: 3px;
+    accent-color: #b9d8c3;
 }
 
 .rota-formulario .botao {
