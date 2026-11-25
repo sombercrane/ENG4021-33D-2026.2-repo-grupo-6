@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from .models import Predio, Espaco, Ponto
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from .forms import (
     PesquisaForm,
     PesquisaEspacoForm,
@@ -345,14 +345,30 @@ def pesquisa(request):
 
 def detalhe_predio(request, id_predio):
     predio = get_object_or_404(Predio, pk=id_predio)
-    andares = predio.andares.prefetch_related(
-        'espacos__tipo'
-    ).order_by('numero', 'pk')
+    andares = list(predio.andares.order_by('numero', 'pk'))
+    andar = None
+    andar_id = request.GET.get('andar')
+    if andar_id:
+        andar = next((item for item in andares if str(item.pk) == andar_id), None)
+        if andar is None:
+            raise Http404('Andar não encontrado neste prédio.')
+    elif andares:
+        andar = next((item for item in andares if item.numero == 0), andares[0])
+
+    espacos = pontos = ()
+    if andar:
+        espacos = andar.espacos.select_related('tipo').order_by('nome', 'pk')
+        pontos = andar.pontos.select_related('tipo_ponto').order_by('nome', 'pk')
 
     return render(request, 'base_predio.html', {
         'predio': predio,
         'andares': andares,
+        'andar': andar,
+        'espacos': espacos,
+        'pontos': pontos,
     })
+
+
 def teste_base(request):
     return render(request, 'teste_base.html')
 
