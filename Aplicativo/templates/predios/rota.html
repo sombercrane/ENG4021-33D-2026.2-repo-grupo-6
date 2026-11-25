@@ -25,15 +25,5 @@
     <button type="submit" class="botao">Calcular trajeto</button>
 </form>
 
-{% if destino %}
-<section class="cartao rota-resultado" aria-labelledby="rota-titulo">
-    <h2 id="rota-titulo">Percurso interno</h2>
-    <p>De {{ origem.nome }} ({{ origem.andar.nome }}) até {{ destino.nome }} ({{ destino.andar.nome }}).</p>
-    {% if distancia_m is not None %}
-    <p>{{ distancia_m }} m de percurso interno.</p>
-    {% else %}
-    <p>As conexões cadastradas ainda não ligam esses pontos.</p>
-    {% endif %}
-</section>
-{% endif %}
+{% include 'predios/percurso_interno.html' %}
 {% endblock %}
