@@ -1,9 +1,14 @@
 {% load static %}
 
-<div id="mapa-interativo" class="mapa-leaflet" role="region"
-     aria-label="Mapa interativo do campus da PUC-Rio" hidden></div>
+<div id="mapa-interativo"
+     class="mapa-leaflet"
+     role="region"
+     aria-label="Mapa interativo do campus da PUC-Rio"
+     data-rota-url="{% url 'rota_a_pe' %}"
+     hidden></div>
 
-<img id="mapa-estatico" class="mapa-fallback"
+<img id="mapa-estatico"
+     class="mapa-fallback"
      src="{% static 'IMG/Mapa-IMG.png' %}"
      alt="Mapa ilustrativo do campus da PUC-Rio">
 
@@ -25,6 +30,13 @@
             <dd data-andar></dd>
         </dl>
         <a data-ver-predio href="#">Ver prédio</a>
+
+        <button type="button" data-rota class="botao">
+            Rota a pé
+        </button>
+        <p data-rota-aviso
+           role="status"
+           aria-live="polite"></p>
     </section>
 </template>
 

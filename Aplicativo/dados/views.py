@@ -488,3 +488,127 @@ def remover_aula(request, pk):
         "aula": aula,
         "confirmar_remocao": True,
     })
+
+    import json
+import os
+import urllib.error
+import urllib.request
+
+from django.conf import settings
+
+ROTAS_URL = (
+    "https://routes.googleapis.com/"
+    "directions/v2:computeRoutes"
+)
+
+
+def _numero(valor, minimo, maximo):
+    try:
+        numero = float(valor)
+    except (TypeError, ValueError):
+        return None
+    if minimo <= numero <= maximo:
+        return numero
+    return None
+
+
+def rota_a_pe(request):
+    lat = _numero(
+        request.GET.get("origem_lat"), -90, 90
+    )
+    lng = _numero(
+        request.GET.get("origem_lng"), -180, 180
+    )
+    try:
+        id_predio = int(request.GET.get("predio", ""))
+    except ValueError:
+        id_predio = None
+
+    predio = (
+        Predio.objects.filter(pk=id_predio).first()
+        if id_predio else None
+    )
+
+    if (
+        lat is None
+        or lng is None
+        or predio is None
+        or predio.latitude is None
+        or predio.longitude is None
+    ):
+        return JsonResponse(
+            {"estado": "invalido"}, status=400
+        )
+
+    chave = (
+        os.environ.get("GOOGLE_ROUTES_API_KEY")
+        or getattr(settings, "GOOGLE_MAPS_API_KEY", "")
+    )
+    if not chave:
+        return JsonResponse({"estado": "sem_chave"})
+
+    corpo = {
+        "origin": {"location": {"latLng": {
+            "latitude": lat,
+            "longitude": lng,
+        }}},
+        "destination": {"location": {"latLng": {
+            "latitude": float(predio.latitude),
+            "longitude": float(predio.longitude),
+        }}},
+        "travelMode": "WALK",
+        "languageCode": "pt-BR",
+        "units": "METRIC",
+    }
+    campos = (
+        "routes.duration,"
+        "routes.distanceMeters,"
+        "routes.polyline.encodedPolyline"
+    )
+    pedido = urllib.request.Request(
+        ROTAS_URL,
+        data=json.dumps(corpo).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": chave,
+            "X-Goog-FieldMask": campos,
+        },
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(
+            pedido, timeout=10
+        ) as resposta:
+            dados = json.loads(
+                resposta.read().decode("utf-8")
+            )
+    except (
+        urllib.error.URLError, TimeoutError, ValueError
+    ):
+        return JsonResponse(
+            {"estado": "falha"}, status=502
+        )
+
+    rotas = dados.get("routes") or []
+    if not rotas:
+        return JsonResponse({"estado": "sem_rota"})
+
+    rota = rotas[0]
+    texto = str(rota.get("duration", "0s")).rstrip("s")
+    try:
+        segundos = round(float(texto))
+    except ValueError:
+        segundos = 0
+
+    return JsonResponse({
+        "estado": "ok",
+        "duracao_segundos": segundos,
+        "minutos": max(1, round(segundos / 60)),
+        "distancia_metros": rota.get(
+            "distanceMeters", 0
+        ),
+        "polilinha": rota.get("polyline", {}).get(
+            "encodedPolyline", ""
+        ),
+    })
