@@ -54,8 +54,8 @@ class PontoAdmin(admin.ModelAdmin):
 
 @admin.register(Conexao)
 class ConexaoAdmin(admin.ModelAdmin):
-    list_display = ("origem", "destino", "tipo", "distancia_m", "bidirecional")
-    list_filter = ("origem__andar__predio", "tipo", "bidirecional")
+    list_display = ("origem", "destino", "tipo", "distancia_m", "bidirecional", "acessibilidade_verificada")
+    list_filter = ("origem__andar__predio", "tipo", "bidirecional", "acessibilidade_verificada")
     list_select_related = ("origem__andar__predio", "destino__andar__predio")
     autocomplete_fields = ("origem", "destino")
     search_fields = ("nome", "origem__nome", "destino__nome")

@@ -22,8 +22,12 @@
     {{ formulario.non_field_errors }}
     {% for campo in formulario.visible_fields %}
     <div>
+        {% if campo.widget_type == 'checkbox' %}
+        <label class="rota-checkbox" for="{{ campo.id_for_label }}">{{ campo }} {{ campo.label }}</label>
+        {% else %}
         <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
         {{ campo }}
+        {% endif %}
         {{ campo.errors }}
     </div>
     {% endfor %}

@@ -161,6 +161,7 @@ class AulaForm(forms.ModelForm):
 
 class DestinoRotaForm(forms.Form):
     destino = forms.ChoiceField(label="Destino", widget=forms.Select(attrs={"class": "campo"}))
+    acessivel = forms.BooleanField(label="Usar percurso interno acessível", required=False)
 
     def __init__(self, predio, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -193,7 +194,7 @@ class DestinoRotaForm(forms.Form):
 
 
 class RotaInternaForm(DestinoRotaForm):
-    field_order = ("origem", "destino")
+    field_order = ("origem", "destino", "acessivel")
     origem = forms.ModelChoiceField(
         queryset=Ponto.objects.none(),
         label="Ponto de partida",
@@ -208,6 +209,7 @@ class RotaInternaForm(DestinoRotaForm):
 
 
 class RotaExternaForm(DestinoRotaForm):
+    field_order = ("chegada", "destino", "acessivel")
     origem_latitude = forms.FloatField(min_value=-90, max_value=90, widget=forms.HiddenInput)
     origem_longitude = forms.FloatField(min_value=-180, max_value=180, widget=forms.HiddenInput)
     chegada = forms.ModelChoiceField(

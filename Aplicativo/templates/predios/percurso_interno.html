@@ -1,8 +1,12 @@
 {% if origem and destino %}
 <section class="cartao rota-resultado" aria-labelledby="rota-titulo">
-    <h2 id="rota-titulo">Percurso interno</h2>
+    <h2 id="rota-titulo">Percurso interno{% if acessivel and distancia_m is not None %} acessível{% endif %}</h2>
     {% if distancia_m is None %}
+    {% if acessivel %}
+    <p>Os dados cadastrados não permitem confirmar um percurso interno acessível até {{ destino.nome }}.</p>
+    {% else %}
     <p>As conexões cadastradas ainda não ligam {{ origem.nome }} a {{ destino.nome }}.</p>
+    {% endif %}
     <p>Andar do destino · <a href="{% url 'detalhe_predio' predio.pk %}?andar={{ destino.andar_id }}">{{ destino.andar.nome }}</a></p>
     {% elif not trechos %}
     <p>Você já está no ponto de acesso a {{ destino.nome }} ({{ destino.andar.nome }}).</p>
