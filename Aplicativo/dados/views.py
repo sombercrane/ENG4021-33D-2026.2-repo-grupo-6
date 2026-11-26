@@ -341,19 +341,7 @@ def pesquisa(request):
     })
 
 
-def detalhe_espaco(request, id_espaco):
-    espaco = get_object_or_404(
-        Espaco.objects.select_related(
-            "andar__predio", "tipo"
-        ),
-        pk=id_espaco,
-    )
-    return render(
-        request, "detalhe_pesquisa.html", {
-            "espaco": espaco,
-            "voltar": request.GET.urlencode(),
-        }
-    )
+
 
 
 def detalhe_predio(request, id_predio):
