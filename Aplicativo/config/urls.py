@@ -54,6 +54,10 @@ urlpatterns = [
     path('predio/<int:id_predio>/rota/', views_rotas.rota_predio, name='rota_predio'),
     path('teste-base/',views.teste_base,name='teste_base'),
     path('api/dados-mapa/', views.dados_mapa, name='dados_mapa'),
+    path('grade/', views.minha_grade, name='minha_grade'),
+    path('grade/nova/', views.cadastrar_aula, name='cadastrar_aula'),
+    path('grade/<int:pk>/editar/', views.editar_aula, name='editar_aula'),
+    path('grade/<int:pk>/remover/', views.remover_aula, name='remover_aula'),
 ]
 
 # Serve as imagens cadastradas (media/) apenas em desenvolvimento.

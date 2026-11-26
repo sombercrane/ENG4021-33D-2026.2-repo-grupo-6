@@ -7,6 +7,10 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
+from .models import Aula
+from django.db import transaction
+from .forms import AulaForm
 from django.shortcuts import get_object_or_404
 from .models import Predio, Espaco, Ponto
 from django.http import Http404, JsonResponse
@@ -410,3 +414,77 @@ def dados_mapa(request):
         })
 
     return JsonResponse(dados, safe=False)
+
+@login_required(login_url="login")
+def minha_grade(request):
+    aulas = (
+        Aula.objects.filter(usuario=request.user)
+        .select_related("sala__andar__predio", "sala__tipo")
+    )
+    return render(request, "grade.html", {
+        "aulas": aulas,
+        "formulario": AulaForm(),
+        "titulo": "Cadastrar aula",
+    })
+
+@login_required(login_url="login")
+def cadastrar_aula(request):
+    formulario = AulaForm(
+        request.POST if request.method == "POST" else None
+    )
+
+    if request.method == "POST" and formulario.is_valid():
+        dados = formulario.cleaned_data
+
+        with transaction.atomic():
+            for dia in dados["dias_semana"]:
+                Aula.objects.create(
+                    usuario=request.user,
+                    disciplina=dados["disciplina"],
+                    dia_semana=dia,
+                    horario_inicio=dados["horario_inicio"],
+                    horario_fim=dados["horario_fim"],
+                    sala=dados["sala"],
+                )
+
+        return redirect("minha_grade")
+
+    return render(request, "grade.html", {
+        "formulario": formulario,
+        "titulo": "Cadastrar aula",
+    })
+
+@login_required(login_url="login")
+def editar_aula(request, pk):
+    aula = get_object_or_404(
+        Aula, pk=pk, usuario=request.user
+    )
+    formulario = AulaForm(
+        request.POST if request.method == "POST" else None,
+        instance=aula,
+    )
+
+    if request.method == "POST" and formulario.is_valid():
+        formulario.save()
+        return redirect("minha_grade")
+
+    return render(request, "grade.html", {
+        "formulario": formulario,
+        "titulo": "Editar aula",
+    })
+
+
+@login_required(login_url="login")
+def remover_aula(request, pk):
+    aula = get_object_or_404(
+        Aula, pk=pk, usuario=request.user
+    )
+
+    if request.method == "POST":
+        aula.delete()
+        return redirect("minha_grade")
+
+    return render(request, "grade.html", {
+        "aula": aula,
+        "confirmar_remocao": True,
+    })
