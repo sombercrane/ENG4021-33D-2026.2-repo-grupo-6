@@ -29,3 +29,31 @@
 .rota-resultado h2 {
     margin-top: 0;
 }
+
+.rota-resultado a {
+    color: #b9d8c3;
+}
+
+.rota-etapas {
+    margin: 0;
+    padding-inline-start: 24px;
+}
+
+.rota-etapas li {
+    padding: 12px 0;
+    border-bottom: 1px solid #34473a;
+}
+
+.rota-etapas li:last-child {
+    border-bottom: 0;
+}
+
+.rota-etapas span {
+    display: block;
+    margin-top: 4px;
+    color: #b7c5b9;
+}
+
+.rota-etapas p {
+    margin: 6px 0 0;
+}

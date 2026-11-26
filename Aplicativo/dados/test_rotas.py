@@ -107,6 +107,25 @@ class RotasInternasTests(TestCase):
         self.assertContains(resposta, "24 m de percurso interno.")
         self.assertEqual(resposta.context["destino"], self.sala_segundo)
 
+    def test_instrucoes_na_ordem_do_percurso(self):
+        resposta = self.client.get(self.url, {"origem": self.entrada.pk, "destino": f"espaco-{self.sala_segundo.pk}"})
+        self.assertContains(resposta, "Térreo → Segundo andar")
+        html = resposta.content.decode()
+        etapas = ("Início em Entrada leste", "Corredor leste", "Escada A", "Corredor do segundo", "Chegada em Sala de estudos")
+        posicoes = [html.index(etapa) for etapa in etapas]
+        self.assertEqual(posicoes, sorted(posicoes))
+
+    def test_instrucao_de_descida_em_percurso_invertido(self):
+        resposta = self.client.get(self.url, {"origem": self.porta_segundo.pk, "destino": f"ponto-{self.entrada.pk}"})
+        self.assertContains(resposta, "Segundo andar → Térreo")
+
+    def test_sem_cobertura_informa_andar_e_link_do_destino(self):
+        sala = self.criar_sala(self.segundo, "Sala sem acesso mapeado", "202")
+        resposta = self.client.get(self.url, {"origem": self.entrada.pk, "destino": f"espaco-{sala.pk}"})
+        self.assertContains(resposta, "Andar do destino")
+        self.assertContains(resposta, f'?andar={self.segundo.pk}')
+        self.assertNotContains(resposta, 'class="rota-etapas"')
+
     def test_destino_pre_selecionado_e_id_invalido(self):
         destino = f"espaco-{self.sala_segundo.pk}"
         resposta = self.client.get(self.url, {"destino": destino})

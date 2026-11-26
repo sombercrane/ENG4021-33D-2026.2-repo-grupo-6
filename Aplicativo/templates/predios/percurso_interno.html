@@ -1,0 +1,34 @@
+{% if origem and destino %}
+<section class="cartao rota-resultado" aria-labelledby="rota-titulo">
+    <h2 id="rota-titulo">Percurso interno</h2>
+    {% if distancia_m is None %}
+    <p>As conexões cadastradas ainda não ligam {{ origem.nome }} a {{ destino.nome }}.</p>
+    <p>Andar do destino · <a href="{% url 'detalhe_predio' predio.pk %}?andar={{ destino.andar_id }}">{{ destino.andar.nome }}</a></p>
+    {% elif not trechos %}
+    <p>Você já está no ponto de acesso a {{ destino.nome }} ({{ destino.andar.nome }}).</p>
+    {% else %}
+    <p>{{ distancia_m }} m de percurso interno.</p>
+    <ol class="rota-etapas">
+        <li>
+            <strong>Início em {{ origem.nome }}</strong>
+            <span>{{ origem.andar.nome }}</span>
+        </li>
+        {% for trecho in trechos %}
+        <li>
+            <strong>{{ trecho.conexao.get_tipo_display }}{% if trecho.conexao.nome %} · {{ trecho.conexao.nome }}{% endif %}</strong>
+            {% if trecho.origem.andar_id != trecho.destino.andar_id %}
+            <span>{{ trecho.origem.andar.nome }} → {{ trecho.destino.andar.nome }}</span>
+            {% else %}
+            <span>{{ trecho.destino.andar.nome }}</span>
+            {% endif %}
+            <p>Siga até {{ trecho.destino.nome }} · {{ trecho.conexao.distancia_m }} m</p>
+        </li>
+        {% endfor %}
+        <li>
+            <strong>Chegada em {{ destino.nome }}</strong>
+            <span>{{ destino.andar.nome }}</span>
+        </li>
+    </ol>
+    {% endif %}
+</section>
+{% endif %}
