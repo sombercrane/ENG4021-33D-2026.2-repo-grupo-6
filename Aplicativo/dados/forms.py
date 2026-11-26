@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Andar, Predio
+from .models import Andar, Predio, Aula, Espaco
 
 CATEGORIAS = [
     ("todos", "Todos"),
@@ -80,3 +80,79 @@ PesquisaEspacoForm = PesquisaForm
 PesquisaAuditorioForm = PesquisaForm
 PesquisaPredioForm = PesquisaForm
 PesquisaLaboratorioForm = PesquisaForm
+
+class AulaForm(forms.ModelForm):
+    dias_semana = forms.TypedMultipleChoiceField(
+        choices=Aula.DIAS_SEMANA,
+        coerce=int,
+        widget=forms.CheckboxSelectMultiple,
+        label="Dias da semana",
+    )
+
+    class Meta:
+        model = Aula
+        fields = [
+            "disciplina",
+            "dias_semana",
+            "dia_semana",
+            "horario_inicio",
+            "horario_fim",
+            "sala",
+        ]
+        labels = {
+            "disciplina": "Disciplina",
+            "dia_semana": "Dia da semana",
+            "horario_inicio": "Horário de início",
+            "horario_fim": "Horário de término",
+            "sala": "Sala ou espaço da aula",
+        }
+        widgets = {
+            "horario_inicio": forms.TimeInput(
+                format="%H:%M",
+                attrs={
+                    "type": "text",
+                    "placeholder": "Ex.: 08:00",
+                    "pattern": "([01][0-9]|2[0-3]):[0-5][0-9]",
+                    "maxlength": "5",
+                },
+            ),
+            "horario_fim": forms.TimeInput(
+                format="%H:%M",
+                attrs={
+                    "type": "text",
+                    "placeholder": "Ex.: 14:30",
+                    "pattern": "([01][0-9]|2[0-3]):[0-5][0-9]",
+                    "maxlength": "5",
+                },
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance.pk:
+            self.fields.pop("dias_semana")
+        else:
+            self.fields.pop("dia_semana")
+
+        for nome in ("horario_inicio", "horario_fim"):
+            self.fields[nome].input_formats = ["%H:%M"]
+            self.fields[nome].help_text = (
+                "Use o formato de 24 horas: HH:MM."
+            )
+
+        for nome, campo in self.fields.items():
+            if nome != "dias_semana":
+                campo.widget.attrs["class"] = "campo"
+
+        self.fields["sala"].queryset = (
+            Espaco.objects.select_related("andar__predio", "tipo")
+            .order_by("andar__predio__nome", "codigo", "nome")
+        )
+        self.fields["sala"].empty_label = "Selecione o espaço"
+        self.fields["sala"].label_from_instance = (
+            lambda e: (
+                f"{e.codigo} — {e.nome} — "
+                f"{e.andar.predio.sigla} / {e.andar.nome}"
+            )
+        )
