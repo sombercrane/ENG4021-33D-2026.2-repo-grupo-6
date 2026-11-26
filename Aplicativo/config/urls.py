@@ -23,7 +23,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from dados import views
+from dados import views, views_rotas
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -51,6 +51,7 @@ urlpatterns = [
     path('auditorio-kennedy/', views.auditorio_kennedy, name='auditorio_kennedy'),
     path("espaco/<int:pk>/", views.detalhe_espaco, name="detalhe_espaco"),
     path('predio/<int:id_predio>/',views.detalhe_predio, name='detalhe_predio'),
+    path('predio/<int:id_predio>/rota/', views_rotas.rota_predio, name='rota_predio'),
     path('teste-base/',views.teste_base,name='teste_base'),
     path('api/dados-mapa/', views.dados_mapa, name='dados_mapa'),
     path('grade/', views.minha_grade, name='minha_grade'),

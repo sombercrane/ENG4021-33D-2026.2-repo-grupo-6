@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}Trajeto em {{ predio.nome }} | Localiza PUC{% endblock %}
+
+{% block css_extra %}
+<link rel="stylesheet" href="{% static 'css/rota.css' %}">
+{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho-pagina rota-cabecalho">
+    <a class="link-voltar" href="{% url 'detalhe_predio' predio.pk %}">← Voltar ao prédio</a>
+    <h1>Trajeto em {{ predio.nome }}</h1>
+</header>
+
+<form class="cartao rota-formulario" method="get">
+    {{ formulario.non_field_errors }}
+    {% for campo in formulario.visible_fields %}
+    <div>
+        <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+        {{ campo }}
+        {{ campo.errors }}
+    </div>
+    {% endfor %}
+    <button type="submit" class="botao">Calcular trajeto</button>
+</form>
+
+{% if destino %}
+<section class="cartao rota-resultado" aria-labelledby="rota-titulo">
+    <h2 id="rota-titulo">Percurso interno</h2>
+    <p>De {{ origem.nome }} ({{ origem.andar.nome }}) até {{ destino.nome }} ({{ destino.andar.nome }}).</p>
+    {% if distancia_m is not None %}
+    <p>{{ distancia_m }} m de percurso interno.</p>
+    {% else %}
+    <p>As conexões cadastradas ainda não ligam esses pontos.</p>
+    {% endif %}
+</section>
+{% endif %}
+{% endblock %}
