@@ -152,3 +152,33 @@ body {
     outline: 2px solid #b9d8c3;
     outline-offset: 4px;
 }
+.site-conta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.site-conta a {
+    color: inherit;
+}
+
+.site-conta form {
+    margin: 0;
+}
+
+.site-conta button {
+    padding: 8px 14px;
+    border: 1px solid currentColor;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.site-conta a:focus-visible,
+.site-conta button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+}
