@@ -13,7 +13,12 @@
     <h1>Trajeto em {{ predio.nome }}</h1>
 </header>
 
-<form class="cartao rota-formulario" method="get">
+<form class="cartao rota-formulario" method="{% if externa %}post{% else %}get{% endif %}">
+    {% if externa %}{% csrf_token %}{% endif %}
+    {% for campo in formulario.hidden_fields %}
+    {{ campo }}
+    {% if campo.errors %}<p>Origem inválida. Selecione sua origem novamente no <a href="{% url 'mapa' %}">mapa</a>.</p>{% endif %}
+    {% endfor %}
     {{ formulario.non_field_errors }}
     {% for campo in formulario.visible_fields %}
     <div>
@@ -22,8 +27,16 @@
         {{ campo.errors }}
     </div>
     {% endfor %}
+    {% if externa %}
+    <p class="rota-nota">Ao calcular, as coordenadas da origem e da chegada são enviadas ao Google Maps.</p>
+    <button type="submit" name="calcular" value="1" class="botao">Calcular trajeto</button>
+    {% else %}
     <button type="submit" class="botao">Calcular trajeto</button>
+    {% endif %}
 </form>
 
+{% if externa and destino %}
+    {% include 'predios/percurso_externo.html' %}
+{% endif %}
 {% include 'predios/percurso_interno.html' %}
 {% endblock %}

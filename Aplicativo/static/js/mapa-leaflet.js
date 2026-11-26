@@ -14,39 +14,60 @@
     const predios = JSON.parse(document.getElementById('mapa-dados').textContent);
     const modeloCartao = document.getElementById('mapa-cartao-local');
 
-function criarCartao(predio, locais) {
-    const cartao = modeloCartao.content.firstElementChild.cloneNode(true);
-    const titulo = cartao.querySelector('[data-nome]');
-    const tipo = cartao.querySelector('[data-tipo]');
-    const andar = cartao.querySelector('[data-andar]');
-
-    cartao.querySelector('[data-predio]').textContent = predio.nome;
-    cartao.querySelector('[data-ver-predio]').href = predio.url;
-    function mostrarLocal(local) {
-        titulo.textContent = local.nome;
-        tipo.textContent = local.tipo;
-        andar.textContent = local.andar || '—';
+    function atualizarOrigem(formulario) {
+        const origem = window.origemMapa;
+        formulario.hidden = !origem;
+        formulario.elements.origem_latitude.value = origem?.latitude ?? '';
+        formulario.elements.origem_longitude.value = origem?.longitude ?? '';
     }
 
-    if (locais.length > 1) {
-        const seletor = cartao.querySelector('select');
+    document.addEventListener('origem:atualizada', () => {
+        elemento.querySelectorAll('[data-rota-externa]').forEach(atualizarOrigem);
+    });
 
-        locais.forEach((local, indice) => {
-            const descricao = local.andar
-                ? `${local.nome} — ${local.andar}`
-                : local.nome;
-            seletor.add(new Option(descricao, indice));
-        });
+    function criarCartao(predio, locais) {
+        const cartao = modeloCartao.content.firstElementChild.cloneNode(true);
+        const titulo = cartao.querySelector('[data-nome]');
+        const tipo = cartao.querySelector('[data-tipo]');
+        const andar = cartao.querySelector('[data-andar]');
+        const linkRota = cartao.querySelector('[data-ver-rota]');
+        const formRotaExterna = cartao.querySelector('[data-rota-externa]');
 
-        seletor.closest('label').hidden = false;
-        seletor.addEventListener('change', () => {
-            mostrarLocal(locais[seletor.selectedIndex]);
-        });
+        cartao.querySelector('[data-predio]').textContent = predio.nome;
+        cartao.querySelector('[data-ver-predio]').href = predio.url;
+        formRotaExterna.action = predio.url_rota_externa;
+        atualizarOrigem(formRotaExterna);
+
+        function mostrarLocal(local) {
+            titulo.textContent = local.nome;
+            tipo.textContent = local.tipo;
+            andar.textContent = local.andar || '—';
+
+            const url = new URL(predio.url_rota, window.location.origin);
+            if (local.destino) url.searchParams.set('destino', local.destino);
+            linkRota.href = url;
+            formRotaExterna.elements.destino.value = local.destino ?? '';
+        }
+
+        if (locais.length > 1) {
+            const seletor = cartao.querySelector('select');
+
+            locais.forEach((local, indice) => {
+                const descricao = local.andar
+                    ? `${local.nome} — ${local.andar}`
+                    : local.nome;
+                seletor.add(new Option(descricao, indice));
+            });
+
+            seletor.closest('label').hidden = false;
+            seletor.addEventListener('change', () => {
+                mostrarLocal(locais[seletor.selectedIndex]);
+            });
+        }
+
+        mostrarLocal(locais[0]);
+        return cartao;
     }
-
-    mostrarLocal(locais[0]);
-    return cartao;
-}
    const siglas = {
     predio: 'PR',
     banheiro: 'WC',

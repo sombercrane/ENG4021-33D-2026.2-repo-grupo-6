@@ -1,0 +1,34 @@
+<section class="cartao rota-resultado" aria-labelledby="rota-externa-titulo">
+    <h2 id="rota-externa-titulo">Percurso externo a pé</h2>
+    {% if erro_externo %}
+    <p>{{ erro_externo }}</p>
+    {% else %}
+    <div class="rota-google">
+        <p>{{ rota_externa.distancia_m }} m · {{ rota_externa.duracao_min }} min</p>
+        <p>O trajeto a pé pode incluir vias sem calçada ou passagem de pedestres.</p>
+        {% if rota_externa.instrucoes %}
+        <details>
+            <summary>Instruções a pé</summary>
+            <ol class="rota-etapas">
+                {% for instrucao in rota_externa.instrucoes %}
+                <li>{{ instrucao }}</li>
+                {% endfor %}
+            </ol>
+        </details>
+        {% endif %}
+        <p class="rota-atribuicao" translate="no">Google Maps</p>
+    </div>
+    {% if distancia_da_chegada %}
+    <p>O trecho externo termina a cerca de {{ distancia_da_chegada }} m de {{ acesso.ponto.nome }}. A ligação com esse acesso ainda não foi confirmada.</p>
+    {% elif acesso %}
+    <p>O trecho externo chega perto de {{ acesso.ponto.nome }} ({{ acesso.ponto.andar.nome }}).</p>
+    {% else %}
+    <p>O trecho externo termina na região de {{ predio.nome }}. O prédio ainda não tem um acesso externo cadastrado.</p>
+    {% endif %}
+    {% endif %}
+
+    {% if not origem %}
+    <p>Andar do destino · <a href="{% url 'detalhe_predio' predio.pk %}?andar={{ destino.andar_id }}">{{ destino.andar.nome }}</a></p>
+    <p><a href="{% url 'rota_predio' predio.pk %}?destino={{ formulario.destino.value|urlencode }}">Planejar apenas o trajeto interno</a></p>
+    {% endif %}
+</section>

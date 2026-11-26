@@ -52,6 +52,7 @@ urlpatterns = [
     path("espaco/<int:pk>/", views.detalhe_espaco, name="detalhe_espaco"),
     path('predio/<int:id_predio>/',views.detalhe_predio, name='detalhe_predio'),
     path('predio/<int:id_predio>/rota/', views_rotas.rota_predio, name='rota_predio'),
+    path('predio/<int:id_predio>/rota-externa/', views_rotas.rota_externa_predio, name='rota_externa_predio'),
     path('teste-base/',views.teste_base,name='teste_base'),
     path('api/dados-mapa/', views.dados_mapa, name='dados_mapa'),
     path('grade/', views.minha_grade, name='minha_grade'),

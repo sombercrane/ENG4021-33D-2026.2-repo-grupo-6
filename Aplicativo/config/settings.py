@@ -19,6 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Chave da Google Maps JavaScript API, lida de uma variavel de ambiente.
 # Nunca commitar a chave real: configure GOOGLE_MAPS_API_KEY no seu .env local.
 GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '')
+GOOGLE_ROUTES_API_KEY = os.environ.get('GOOGLE_ROUTES_API_KEY', '')
 
 
 # Quick-start development settings - unsuitable for production

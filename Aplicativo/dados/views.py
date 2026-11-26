@@ -1,4 +1,3 @@
-from itertools import chain
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
@@ -41,6 +40,8 @@ def mapa(request):
         predio_id = predio.pop('id_predio')
         predio['locais'] = []
         predio['url'] = reverse('detalhe_predio', kwargs={'id_predio': predio_id})
+        predio['url_rota'] = reverse('rota_predio', args=[predio_id])
+        predio['url_rota_externa'] = reverse('rota_externa_predio', args=[predio_id])
         predios_por_id[predio_id] = predio
 
     ids_predios = list(predios_por_id)
@@ -48,20 +49,22 @@ def mapa(request):
     espacos = (
         Espaco.objects.filter(andar__predio_id__in=ids_predios)
         .order_by('nome')
-        .values_list('andar__predio_id', 'nome', 'tipo__nome', 'andar__nome')
+        .values_list('andar__predio_id', 'pk', 'nome', 'tipo__nome', 'andar__nome')
     )
     pontos = (
         Ponto.objects.filter(andar__predio_id__in=ids_predios)
         .order_by('nome')
-        .values_list('andar__predio_id', 'nome', 'tipo_ponto__nome', 'andar__nome')
+        .values_list('andar__predio_id', 'pk', 'nome', 'tipo_ponto__nome', 'andar__nome')
     )
 
-    for predio_id, nome, tipo, andar in chain(espacos, pontos):
-        predios_por_id[predio_id]['locais'].append({
-            'nome': nome,
-            'tipo': tipo,
-            'andar': andar,
-        })
+    for categoria, locais in (('espaco', espacos), ('ponto', pontos)):
+        for predio_id, local_id, nome, tipo, andar in locais:
+            predios_por_id[predio_id]['locais'].append({
+                'nome': nome,
+                'tipo': tipo,
+                'andar': andar,
+                'destino': f'{categoria}-{local_id}',
+            })
 
     return render(request, 'Mapa-HTML.html', {
         'predios_mapa': list(predios_por_id.values()),

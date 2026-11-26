@@ -57,3 +57,21 @@
 .rota-etapas p {
     margin: 6px 0 0;
 }
+
+.rota-nota {
+    color: #b7c5b9;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.rota-google {
+    border-block: 1px solid #34473a;
+    padding: 12px 0;
+}
+
+.rota-atribuicao {
+    color: white;
+    line-height: 1.5;
+    margin: 12px 0 0;
+    white-space: nowrap;
+}

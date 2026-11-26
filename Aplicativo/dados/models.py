@@ -2,7 +2,7 @@
 # Create your models here.
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import F, Q
 
@@ -189,6 +189,26 @@ class Conexao(models.Model):
             raise ValidationError({"destino": "Os dois pontos devem pertencer ao mesmo prédio."})
         if origem.pk != destino.pk and self.tipo not in self.TIPOS_ENTRE_ANDARES:
             raise ValidationError({"tipo": "Use escada, elevador ou rampa para ligar andares."})
+
+
+class AcessoExterno(models.Model):
+    ponto = models.OneToOneField(
+        Ponto, on_delete=models.CASCADE, related_name="acesso_externo",
+        help_text="Ponto interno que corresponde à chegada do trajeto externo.",
+    )
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, validators=[MinValueValidator(-90), MaxValueValidator(90)],
+    )
+    longitude = models.DecimalField(
+        max_digits=9, decimal_places=6, validators=[MinValueValidator(-180), MaxValueValidator(180)],
+    )
+
+    class Meta:
+        verbose_name = "acesso externo"
+        verbose_name_plural = "acessos externos"
+
+    def __str__(self):
+        return str(self.ponto)
 
 
 class Administrador(models.Model):
