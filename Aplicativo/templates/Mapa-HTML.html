@@ -29,6 +29,59 @@ tela-mapa
   src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
   integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
   crossorigin="anonymous"></script>
+{% if proxima_aula %}
+<script type="module">
+// Roda depois do leaflet.js e antes do mapa-leaflet.js (ordem do
+// documento): guarda o mapa e os pins para abrir o da próxima aula.
+let mapaLeaflet = null;
+const pins = [];
+L.Map.addInitHook(function () { mapaLeaflet = this; });
+L.Marker.addInitHook(function () { pins.push(this); });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const botao = document.getElementById('proxima-aula-botao');
+  const aviso = document.getElementById('proxima-aula-aviso');
+  if (!botao || !aviso) return;
+
+  botao.addEventListener('click', () => {
+    const lat = parseFloat(botao.dataset.lat);
+    const lng = parseFloat(botao.dataset.lng);
+    const pin = pins.find((marcador) => {
+      const ponto = marcador.getLatLng();
+      const classes = marcador.options.icon?.options?.className ?? '';
+      return Math.abs(ponto.lat - lat) < 1e-5
+        && Math.abs(ponto.lng - lng) < 1e-5
+        && classes.split(' ').includes(
+          'mapa-marcador--' + botao.dataset.tipo
+        );
+    });
+
+    if (!mapaLeaflet || !pin) {
+      aviso.textContent = 'Não há pin desta sala no mapa agora. '
+        + 'Se houver filtros ativos, use Limpar filtros.';
+      return;
+    }
+
+    aviso.textContent = '';
+    mapaLeaflet.setView(pin.getLatLng(), Math.max(mapaLeaflet.getZoom(), 18));
+    pin.openPopup();
+
+    const seletor = pin.getPopup()?.getElement()?.querySelector('select');
+    if (seletor) {
+      const indice = Array.from(seletor.options).findIndex(
+        (opcao) => opcao.text.startsWith(botao.dataset.sala)
+      );
+      if (indice >= 0) {
+        seletor.selectedIndex = indice;
+        seletor.dispatchEvent(new Event('change'));
+      }
+    }
+    document.getElementById('mapa-interativo')
+      .scrollIntoView({behavior: 'smooth', block: 'center'});
+  });
+});
+</script>
+{% endif %}
 <script defer
   src="{% static 'js/mapa-leaflet.js' %}"></script>
 {% endblock %}
@@ -170,6 +223,43 @@ tela-mapa
 
         <button type="button" id="btn-banheiro-proximo">Banheiro mais próximo</button>
         <div id="banheiro-proximo-resultado" style="margin-top: 8px;"></div>
+      </section>
+
+      <section class="mapa-proxima-aula"
+        aria-label="Próxima aula">
+        {% if not user.is_authenticated %}
+        <p>
+          <a href="{% url 'login' %}">Entre</a>
+          para ver a sua próxima aula.
+        </p>
+        {% elif proxima_aula %}
+        <p>
+          <strong>
+            {% if proxima_aula.em_andamento %}Aula em andamento{% else %}Próxima aula{% endif %}:
+          </strong>
+          {{ proxima_aula.aula.disciplina }} —
+          {{ proxima_aula.sala.nome }}
+          ({{ proxima_aula.predio.sigla }} ·
+          {{ proxima_aula.andar.nome }}),
+          {{ proxima_aula.quando }} às
+          {{ proxima_aula.aula.horario_inicio|time:"H:i" }}.
+        </p>
+        <button id="proxima-aula-botao" type="button"
+          class="botao"
+          data-lat="{{ proxima_aula.predio.latitude|stringformat:'s' }}"
+          data-lng="{{ proxima_aula.predio.longitude|stringformat:'s' }}"
+          data-tipo="{{ proxima_aula.tipo_pin }}"
+          data-sala="{{ proxima_aula.sala.nome }}">
+          Mostrar sala no mapa
+        </button>
+        <p id="proxima-aula-aviso"
+          role="status" aria-live="polite"></p>
+        {% else %}
+        <p role="status">
+          Você não tem próxima aula cadastrada.
+          <a href="{% url 'minha_grade' %}">Cadastre sua grade</a>.
+        </p>
+        {% endif %}
       </section>
 
       {% if filtros_ativos and not predios_mapa %}
