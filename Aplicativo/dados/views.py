@@ -22,7 +22,8 @@ from .forms import (
     PesquisaLaboratorioForm,
     PesquisaMapaForm,
 )
-
+from django.views.decorators.http import require_GET
+from .rotas import calcular_rota
 
 def home(request):
     return render(request, 'home.html')
@@ -515,4 +516,67 @@ def remover_aula(request, pk):
     return render(request, "grade.html", {
         "aula": aula,
         "confirmar_remocao": True,
+    })
+
+
+@require_GET
+def buscar_rota(request):
+    origem_id = request.GET.get("origem")
+    destino_id = request.GET.get("destino")
+    acessivel = request.GET.get("acessivel") == "true"
+
+    if not origem_id or not destino_id:
+        return JsonResponse(
+            {"erro": "Informe a origem e o destino."},
+            status=400,
+        )
+
+    try:
+        origem_tipo, origem_pk = origem_id.split("-")
+        destino_tipo, destino_pk = destino_id.split("-")
+
+        modelos = {
+            "ponto": Ponto,
+            "espaco": Espaco,
+        }
+
+        if origem_tipo not in modelos or destino_tipo not in modelos:
+            raise ValueError
+
+        origem = modelos[origem_tipo].objects.get(pk=origem_pk)
+        destino = modelos[destino_tipo].objects.get(pk=destino_pk)
+
+    except (ValueError, Ponto.DoesNotExist, Espaco.DoesNotExist):
+        return JsonResponse(
+            {"erro": "Origem ou destino inválido."},
+            status=400,
+        )
+
+    resultado = calcular_rota(origem, destino, acessivel)
+
+    if resultado is None:
+        return JsonResponse(
+            {"erro": "Não foi encontrada uma rota cadastrada."},
+            status=404,
+        )
+
+    caminho = []
+
+    for item in resultado["caminho"]:
+        if isinstance(item, Ponto):
+            caminho.append({
+                "tipo": "ponto",
+                "nome": item.nome,
+                "andar": item.andar.nome,
+            })
+        else:
+            caminho.append({
+                "tipo": "espaco",
+                "nome": item.nome,
+                "andar": item.andar.nome,
+            })
+
+    return JsonResponse({
+        "caminho": caminho,
+        "custo": resultado["custo"],
     })

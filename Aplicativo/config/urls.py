@@ -31,6 +31,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.mapa, name='home'),
     path('mapa/', views.mapa, name='mapa'),
+    path('buscar-rota/', views.buscar_rota, name='buscar_rota'),
     path('pesquisa/', views.pesquisa, name='pesquisa'),
     path('search/', views.search, name='search'),
     path('pesquisa_auditorios/', views.pesquisa_auditorios, name='pesquisa_auditorios'),
