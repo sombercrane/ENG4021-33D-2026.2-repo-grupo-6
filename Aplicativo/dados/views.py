@@ -29,6 +29,7 @@ def home(request):
     return redirect("mapa")
 
 
+
 def mapa(request):
     predios = (
         Predio.objects
@@ -38,30 +39,55 @@ def mapa(request):
     )
 
     predios_por_id = {}
+
     for predio in predios:
         predio_id = predio.pop('id_predio')
         predio['locais'] = []
-        predio['url'] = reverse('detalhe_predio', kwargs={'id_predio': predio_id})
+        predio['url'] = reverse(
+            'detalhe_predio',
+            kwargs={'id_predio': predio_id}
+        )
         predios_por_id[predio_id] = predio
 
     ids_predios = list(predios_por_id)
 
     espacos = (
-        Espaco.objects.filter(andar__predio_id__in=ids_predios)
+        Espaco.objects
+        .filter(andar__predio_id__in=ids_predios)
         .order_by('nome')
-        .values_list('andar__predio_id', 'nome', 'tipo__nome', 'andar__nome')
-    )
-    pontos = (
-        Ponto.objects.filter(andar__predio_id__in=ids_predios)
-        .order_by('nome')
-        .values_list('andar__predio_id', 'nome', 'tipo_ponto__nome', 'andar__nome')
+        .values_list(
+            'andar__predio_id',
+            'nome',
+            'tipo__nome',
+            'andar__nome',
+            'posicao_x',
+            'posicao_y'
+        )
     )
 
-    for predio_id, nome, tipo, andar in chain(espacos, pontos):
+    pontos = (
+        Ponto.objects
+        .filter(andar__predio_id__in=ids_predios)
+        .order_by('nome')
+        .values_list(
+            'andar__predio_id',
+            'nome',
+            'tipo_ponto__nome',
+            'andar__nome',
+            'posicao_x',
+            'posicao_y'
+        )
+    )
+
+    for predio_id, nome, tipo, andar, posicao_x, posicao_y in chain(
+        espacos, pontos
+    ):
         predios_por_id[predio_id]['locais'].append({
             'nome': nome,
             'tipo': tipo,
             'andar': andar,
+            'posicao_x': posicao_x,
+            'posicao_y': posicao_y,
         })
 
     contexto = _contexto_pesquisa(request)
@@ -74,6 +100,13 @@ def mapa(request):
     })
     return render(request, "Mapa-HTML.html", contexto)
 
+
+def pesquisa(request):
+    predios = Predio.objects.all()
+
+    return render(request, 'pesquisa.html', {
+        'predios': predios
+    })
 
 def search(request):
     return pesquisa(request)
