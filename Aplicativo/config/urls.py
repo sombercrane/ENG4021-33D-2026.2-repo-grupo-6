@@ -56,6 +56,7 @@ urlpatterns = [
     path('predio/<int:id_predio>/',views.detalhe_predio, name='detalhe_predio'),
     path('teste-base/',views.teste_base,name='teste_base'),
     path('api/dados-mapa/', views.dados_mapa, name='dados_mapa'),
+    path('api/sugestoes/', views.sugestoes_pesquisa, name='sugestoes_pesquisa'),
     path('grade/', views.minha_grade, name='minha_grade'),
     path('grade/nova/', views.cadastrar_aula, name='cadastrar_aula'),
     path('grade/<int:pk>/editar/', views.editar_aula, name='editar_aula'),

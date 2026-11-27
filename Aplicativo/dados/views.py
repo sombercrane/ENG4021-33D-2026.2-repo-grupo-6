@@ -514,6 +514,64 @@ def dados_mapa(request):
 
     return JsonResponse(dados, safe=False)
 
+def sugestoes_pesquisa(request):
+    """Sugestões de locais para o campo de busca do mapa.
+
+    Usa as mesmas regras da pesquisa (nome, código ou sigla) e só
+    devolve locais cujo prédio tem coordenadas, para haver pin.
+    """
+    termo = request.GET.get("q", "").strip()
+    if len(termo) < 2:
+        return JsonResponse({"sugestoes": []})
+
+    predios = (
+        Predio.objects
+        .filter(latitude__isnull=False, longitude__isnull=False)
+        .filter(Q(nome__icontains=termo) | Q(sigla__icontains=termo))
+        .order_by("nome")[:3]
+    )
+    espacos = (
+        Espaco.objects
+        .select_related("andar__predio", "tipo")
+        .filter(
+            andar__predio__latitude__isnull=False,
+            andar__predio__longitude__isnull=False,
+        )
+        .filter(
+            Q(nome__icontains=termo)
+            | Q(codigo__icontains=termo)
+            | Q(andar__predio__sigla__icontains=termo)
+        )
+        .order_by("nome")[:6]
+    )
+
+    sugestoes = [
+        {
+            "rotulo": predio.nome,
+            "detalhe": f"Prédio · {predio.sigla}",
+            "tipo_pin": "predio",
+            "local": f"{predio.sigla} — {predio.nome}",
+            "lat": str(predio.latitude),
+            "lng": str(predio.longitude),
+        }
+        for predio in predios
+    ] + [
+        {
+            "rotulo": espaco.nome,
+            "detalhe": (
+                f"{espaco.codigo} · {espaco.andar.predio.sigla}"
+                f" · {espaco.andar.nome}"
+            ),
+            "tipo_pin": _tipo_do_pin(espaco.tipo.nome),
+            "local": espaco.nome,
+            "lat": str(espaco.andar.predio.latitude),
+            "lng": str(espaco.andar.predio.longitude),
+        }
+        for espaco in espacos
+    ]
+    return JsonResponse({"sugestoes": sugestoes})
+
+
 @login_required(login_url="login")
 def minha_grade(request):
     aulas = (
