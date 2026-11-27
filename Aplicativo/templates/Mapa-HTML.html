@@ -29,6 +29,74 @@ tela-mapa
   src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
   integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
   crossorigin="anonymous"></script>
+<script type="module">
+// Link "Ver espaço" no card do pin. Roda depois do leaflet.js e antes
+// do mapa-leaflet.js (ordem do documento). O link acompanha o local
+// escolhido no seletor, também quando o pin agrupa vários locais.
+const dadosPredios = JSON.parse(
+  document.getElementById('mapa-dados').textContent
+);
+
+function localDoCartao(marcador, cartao) {
+  const ponto = marcador.getLatLng();
+  const predio = dadosPredios.find((item) =>
+    Math.abs(parseFloat(item.latitude) - ponto.lat) < 1e-5
+    && Math.abs(parseFloat(item.longitude) - ponto.lng) < 1e-5
+  );
+  if (!predio) return null;
+
+  const nome = cartao.querySelector('[data-nome]')?.textContent;
+  const andar = cartao.querySelector('[data-andar]')?.textContent;
+  const candidatos = (predio.locais ?? []).filter(
+    (local) => local.nome === nome
+  );
+  return candidatos.find((local) => (local.andar || '—') === andar)
+    ?? candidatos[0] ?? null;
+}
+
+function atualizarVerEspaco(marcador, cartao) {
+  const local = localDoCartao(marcador, cartao);
+  let link = cartao.querySelector('[data-ver-espaco]');
+
+  if (!local || !local.url) {
+    if (link) link.hidden = true;
+    return;
+  }
+  if (!link) {
+    link = document.createElement('a');
+    link.setAttribute('data-ver-espaco', '');
+    link.textContent = 'Ver espaço';
+    link.style.display = 'block';
+    link.style.marginTop = '6px';
+    const verPredio = cartao.querySelector('[data-ver-predio]');
+    (verPredio ?? cartao.lastElementChild).after(link);
+  }
+  link.hidden = false;
+  link.href = local.url;
+}
+
+const popupsAcompanhados = new WeakSet();
+
+L.Marker.addInitHook(function () {
+  const ligar = (popup) => {
+    const cartao = popup.getElement()?.querySelector('.mapa-local');
+    if (!cartao) return;
+    atualizarVerEspaco(this, cartao);
+    cartao.querySelector('select')?.addEventListener('change', () => {
+      atualizarVerEspaco(this, cartao);
+    });
+  };
+
+  this.on('popupopen', (evento) => {
+    ligar(evento.popup);
+    // Com o pin já aberto, o Leaflet só refaz o card (sem novo popupopen).
+    if (!popupsAcompanhados.has(evento.popup)) {
+      popupsAcompanhados.add(evento.popup);
+      evento.popup.on('contentupdate', () => ligar(evento.popup));
+    }
+  });
+});
+</script>
 <style>
 .sugestoes {
   position: relative;
