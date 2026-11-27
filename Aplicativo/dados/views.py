@@ -1,3 +1,4 @@
+import json
 from itertools import chain
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core.paginator import Paginator
@@ -487,4 +488,319 @@ def remover_aula(request, pk):
     return render(request, "grade.html", {
         "aula": aula,
         "confirmar_remocao": True,
+    })
+
+import json
+import os
+import urllib.error
+import urllib.request
+
+from django.conf import settings
+
+ROTAS_URL = (
+    "https://routes.googleapis.com/"
+    "directions/v2:computeRoutes"
+)
+
+
+def _numero(valor, minimo, maximo):
+    try:
+        numero = float(valor)
+    except (TypeError, ValueError):
+        return None
+    if minimo <= numero <= maximo:
+        return numero
+    return None
+
+
+def rota_a_pe(request):
+    lat = _numero(
+        request.GET.get("origem_lat"), -90, 90
+    )
+    lng = _numero(
+        request.GET.get("origem_lng"), -180, 180
+    )
+    try:
+        id_predio = int(request.GET.get("predio", ""))
+    except ValueError:
+        id_predio = None
+
+    predio = (
+        Predio.objects.filter(pk=id_predio).first()
+        if id_predio else None
+    )
+
+    if (
+        lat is None
+        or lng is None
+        or predio is None
+        or predio.latitude is None
+        or predio.longitude is None
+    ):
+        return JsonResponse(
+            {"estado": "invalido"}, status=400
+        )
+
+    chave = (
+        os.environ.get("GOOGLE_ROUTES_API_KEY")
+        or getattr(settings, "GOOGLE_MAPS_API_KEY", "")
+    )
+    if not chave:
+        return JsonResponse({"estado": "sem_chave"})
+
+    corpo = {
+        "origin": {"location": {"latLng": {
+            "latitude": lat,
+            "longitude": lng,
+        }}},
+        "destination": {"location": {"latLng": {
+            "latitude": float(predio.latitude),
+            "longitude": float(predio.longitude),
+        }}},
+        "travelMode": "WALK",
+        "languageCode": "pt-BR",
+        "units": "METRIC",
+    }
+    campos = (
+        "routes.duration,"
+        "routes.distanceMeters,"
+        "routes.polyline.encodedPolyline"
+    )
+    pedido = urllib.request.Request(
+        ROTAS_URL,
+        data=json.dumps(corpo).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": chave,
+            "X-Goog-FieldMask": campos,
+        },
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(
+            pedido, timeout=10
+        ) as resposta:
+            dados = json.loads(
+                resposta.read().decode("utf-8")
+            )
+    except (
+        urllib.error.URLError, TimeoutError, ValueError
+    ):
+        return JsonResponse(
+            {"estado": "falha"}, status=502
+        )
+
+    rotas = dados.get("routes") or []
+    if not rotas:
+        return JsonResponse({"estado": "sem_rota"})
+
+    rota = rotas[0]
+    texto = str(rota.get("duration", "0s")).rstrip("s")
+    try:
+        segundos = round(float(texto))
+    except ValueError:
+        segundos = 0
+
+    return JsonResponse({
+        "estado": "ok",
+        "duracao_segundos": segundos,
+        "minutos": max(1, round(segundos / 60)),
+        "distancia_metros": rota.get(
+            "distanceMeters", 0
+        ),
+        "polilinha": rota.get("polyline", {}).get(
+            "encodedPolyline", ""
+        ),
+    })
+
+def rota_externa(request):
+    try:
+        id_predio = int(request.GET.get("predio", ""))
+    except ValueError:
+        id_predio = None
+
+    predio = (
+        Predio.objects.filter(pk=id_predio).first()
+        if id_predio else None
+    )
+    lat = _numero(
+        request.GET.get("origem_lat"), -90, 90
+    )
+    lng = _numero(
+        request.GET.get("origem_lng"), -180, 180
+    )
+
+    pronto = bool(
+        predio
+        and predio.latitude is not None
+        and predio.longitude is not None
+        and lat is not None
+        and lng is not None
+    )
+
+    dados = {
+        "pronto": pronto,
+        "chave": settings.GOOGLE_MAPS_API_KEY,
+        "rota_url": reverse("rota_a_pe"),
+    }
+    if pronto:
+        nome_origem = (
+            request.GET.get("origem_nome", "")[:100]
+            or "Origem"
+        )
+        dados["origem"] = {
+            "lat": lat,
+            "lng": lng,
+            "nome": nome_origem,
+        }
+        dados["destino"] = {
+            "id": predio.pk,
+            "nome": predio.nome,
+            "lat": float(predio.latitude),
+            "lng": float(predio.longitude),
+        }
+
+    return render(request, "rota.html", {
+        "predio": predio,
+        "dados": dados,
+    })
+
+def _tempo_a_pe(chave, origem_lat, origem_lng, predio):
+    corpo = {
+        "origin": {"location": {"latLng": {
+            "latitude": origem_lat,
+            "longitude": origem_lng,
+        }}},
+        "destination": {"location": {"latLng": {
+            "latitude": float(predio.latitude),
+            "longitude": float(predio.longitude),
+        }}},
+        "travelMode": "WALK",
+        "languageCode": "pt-BR",
+        "units": "METRIC",
+    }
+    pedido = urllib.request.Request(
+        ROTAS_URL,
+        data=json.dumps(corpo).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": chave,
+            "X-Goog-FieldMask": (
+                "routes.duration,routes.distanceMeters"
+            ),
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(
+            pedido, timeout=10
+        ) as resposta:
+            dados = json.loads(
+                resposta.read().decode("utf-8")
+            )
+    except (
+        urllib.error.URLError, TimeoutError, ValueError
+    ):
+        return None
+
+    rotas = dados.get("routes") or []
+    if not rotas:
+        return None
+    rota = rotas[0]
+    try:
+        segundos = round(float(
+            str(rota.get("duration", "0s")).rstrip("s")
+        ))
+    except ValueError:
+        return None
+    return {
+        "segundos": segundos,
+        "metros": rota.get("distanceMeters", 0),
+    }
+
+
+def banheiro_proximo(request):
+    lat = _numero(
+        request.GET.get("origem_lat"), -90, 90
+    )
+    lng = _numero(
+        request.GET.get("origem_lng"), -180, 180
+    )
+    if lat is None or lng is None:
+        return JsonResponse(
+            {"estado": "invalido"}, status=400
+        )
+
+    chave = (
+        os.environ.get("GOOGLE_ROUTES_API_KEY")
+        or getattr(settings, "GOOGLE_MAPS_API_KEY", "")
+    )
+    if not chave:
+        return JsonResponse({"estado": "sem_chave"})
+
+    banheiros = (
+        Espaco.objects
+        .filter(
+            tipo__nome="Banheiro",
+            andar__predio__latitude__isnull=False,
+            andar__predio__longitude__isnull=False,
+        )
+        .select_related("andar__predio")
+    )
+    por_predio = {}
+    for banheiro in banheiros:
+        por_predio.setdefault(
+            banheiro.andar.predio_id, []
+        ).append(banheiro)
+
+    if not por_predio:
+        return JsonResponse({"estado": "sem_banheiro"})
+
+    candidatos = []
+    for lista in por_predio.values():
+        predio = lista[0].andar.predio
+        distancia = (
+            (float(predio.latitude) - lat) ** 2
+            + (float(predio.longitude) - lng) ** 2
+        )
+        candidatos.append((distancia, predio, lista))
+    candidatos.sort(key=lambda item: item[0])
+
+    melhor = None
+    for _, predio, lista in candidatos[:5]:
+        tempo = _tempo_a_pe(chave, lat, lng, predio)
+        if tempo is None:
+            continue
+        if (
+            melhor is None
+            or tempo["segundos"] < melhor["segundos"]
+        ):
+            banheiro = min(
+                lista, key=lambda b: b.andar.numero
+            )
+            melhor = {
+                "segundos": tempo["segundos"],
+                "metros": tempo["metros"],
+                "banheiro": banheiro,
+                "predio": predio,
+            }
+
+    if melhor is None:
+        return JsonResponse(
+            {"estado": "falha"}, status=502
+        )
+
+    return JsonResponse({
+        "estado": "ok",
+        "banheiro": melhor["banheiro"].nome,
+        "predio": melhor["predio"].nome,
+        "predio_id": melhor["predio"].pk,
+        "andar": melhor["banheiro"].andar.nome,
+        "minutos": max(1, round(melhor["segundos"] / 60)),
+        "distancia_metros": melhor["metros"],
+        "aviso": (
+            "Tempo estimado até a entrada do prédio, "
+            "sem contar o caminho dentro dele."
+        ),
     })

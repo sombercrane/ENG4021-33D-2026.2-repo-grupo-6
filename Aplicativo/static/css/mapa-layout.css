@@ -88,3 +88,13 @@
     width: 32px;
     height: 32px;
 }
+
+.mapa-origem-ponto {
+    display: block;
+    width: 18px;
+    height: 18px;
+    background: #1a73e8;
+    border: 3px solid white;
+    border-radius: 50%;
+    box-shadow: 0 0 0 6px #1a73e833;
+}
