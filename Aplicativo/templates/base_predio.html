@@ -13,6 +13,9 @@
     <h1>{{ predio.nome }}</h1>
     <p>{{ predio.sigla }}{% if predio.endereco %} · {{ predio.endereco }}{% endif %}</p>
     {% if predio.descricao %}<p>{{ predio.descricao }}</p>{% endif %}
+    {% if andar %}
+    <p><a class="botao" href="{% url 'rota_predio' predio.pk %}">Planejar trajeto no prédio</a></p>
+    {% endif %}
 </header>
 
 {% if andar %}
@@ -57,8 +60,8 @@
             <h3 id="andar-pontos">Pontos de interesse</h3>
             <ul class="andar-locais">
                 {% for ponto in pontos %}
-                <li>
-                    <strong>{{ ponto.nome }}</strong>
+                <li id="ponto-{{ ponto.pk }}">
+                    <a href="{% url 'rota_predio' predio.pk %}?destino=ponto-{{ ponto.pk }}">{{ ponto.nome }}</a>
                     <small>{{ ponto.tipo_ponto.nome }}</small>
                     {% if ponto.descricao %}<small>{{ ponto.descricao }}</small>{% endif %}
                 </li>

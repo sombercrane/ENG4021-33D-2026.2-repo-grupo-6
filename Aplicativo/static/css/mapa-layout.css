@@ -42,6 +42,63 @@
     margin-top: 16px;
 }
 
+.mapa-limpar {
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.mapa-resultados {
+    margin-top: 22px;
+}
+
+.mapa-resultados h2 {
+    font-size: 1.1rem;
+}
+
+.mapa-resultados ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.mapa-resultados li {
+    padding: 10px 0;
+    border-bottom: 1px solid #34473a;
+    overflow-wrap: anywhere;
+}
+
+.mapa-resultados small,
+.mapa-localizacao label {
+    display: block;
+    margin: 5px 0;
+}
+
+.mapa-resultados small {
+    color: #b7c5b9;
+}
+
+.mapa-paginacao {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.mapa-destaque {
+    padding: 12px 16px;
+    margin: 0 0 12px;
+    background: #101d15;
+    border-radius: 12px;
+}
+
+.mapa-destaque p {
+    margin: 4px 0;
+}
+
+.mapa-localizacao [role="status"]:empty {
+    display: none;
+}
+
 @media (min-width: 900px) {
     .mapa-layout {
         grid-template-columns:
@@ -49,10 +106,6 @@
         align-items: start;
     }
 
-    .mapa-busca {
-        position: sticky;
-        top: 16px;
-    }
 }
 
 .legenda {
@@ -87,57 +140,4 @@
     flex: none;
     width: 32px;
     height: 32px;
-}
-
-.mapa-origem-ponto {
-    display: block;
-    width: 18px;
-    height: 18px;
-    background: #1a73e8;
-    border: 3px solid white;
-    border-radius: 50%;
-    box-shadow: 0 0 0 6px #1a73e833;
-}
-.mapa-resultados {
-    margin-top: 24px;
-    overflow-wrap: anywhere;
-}
-
-.mapa-resultado {
-    display: block;
-    margin-top: 12px;
-    padding: 12px;
-    border: 1px solid #34473a;
-    border-radius: 10px;
-    background-color: #050605;
-    color: #d3e2d4;
-    text-decoration: none;
-}
-
-.mapa-resultado span {
-    display: block;
-    margin-top: 6px;
-    color: #b7c5b9;
-    font-size: 14px;
-}
-
-.mapa-resultado:hover {
-    background-color: #203929;
-}
-
-.mapa-resultado:focus-visible {
-    outline: 2px solid #b9d8c3;
-    outline-offset: 3px;
-}
-
-.mapa-paginacao {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 12px;
-    margin-top: 18px;
-}
-
-.mapa-paginacao a {
-    color: #b9d8c3;
 }

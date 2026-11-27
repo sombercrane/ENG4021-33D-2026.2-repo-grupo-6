@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}Trajeto em {{ predio.nome }} | Localiza PUC{% endblock %}
+
+{% block css_extra %}
+<link rel="stylesheet" href="{% static 'css/rota.css' %}">
+{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho-pagina rota-cabecalho">
+    <a class="link-voltar" href="{% url 'detalhe_predio' predio.pk %}">← Voltar ao prédio</a>
+    <h1>Trajeto em {{ predio.nome }}</h1>
+</header>
+
+<form class="cartao rota-formulario" method="{% if externa %}post{% else %}get{% endif %}">
+    {% if externa %}{% csrf_token %}{% endif %}
+    {% for campo in formulario.hidden_fields %}
+    {{ campo }}
+    {% if campo.errors %}<p>Origem inválida. Selecione sua origem novamente no <a href="{% url 'mapa' %}">mapa</a>.</p>{% endif %}
+    {% endfor %}
+    {{ formulario.non_field_errors }}
+    {% for campo in formulario.visible_fields %}
+    <div>
+        {% if campo.widget_type == 'checkbox' %}
+        <label class="rota-checkbox" for="{{ campo.id_for_label }}">{{ campo }} {{ campo.label }}</label>
+        {% else %}
+        <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+        {{ campo }}
+        {% endif %}
+        {{ campo.errors }}
+    </div>
+    {% endfor %}
+    {% if externa %}
+    <p class="rota-nota">Ao calcular, as coordenadas da origem e da chegada são enviadas ao Google Maps.</p>
+    <button type="submit" name="calcular" value="1" class="botao">Calcular trajeto</button>
+    {% else %}
+    <button type="submit" class="botao">Calcular trajeto</button>
+    {% endif %}
+</form>
+
+{% if externa and destino %}
+    {% include 'predios/percurso_externo.html' %}
+{% endif %}
+{% include 'predios/percurso_interno.html' %}
+{% endblock %}

@@ -1,14 +1,9 @@
 {% load static %}
 
-<div id="mapa-interativo"
-     class="mapa-leaflet"
-     role="region"
-     aria-label="Mapa interativo do campus da PUC-Rio"
-     data-rota-url="{% url 'rota_a_pe' %}"
-     hidden></div>
+<div id="mapa-interativo" class="mapa-leaflet" role="region"
+     aria-label="Mapa interativo do campus da PUC-Rio" hidden></div>
 
-<img id="mapa-estatico"
-     class="mapa-fallback"
+<img id="mapa-estatico" class="mapa-fallback"
      src="{% static 'IMG/Mapa-IMG.png' %}"
      alt="Mapa ilustrativo do campus da PUC-Rio">
 
@@ -29,14 +24,18 @@
             <dt>Andar</dt>
             <dd data-andar></dd>
         </dl>
-        <a data-ver-predio href="#">Ver prédio</a>
-
-        <button type="button" data-rota class="botao">
-            Rota a pé
-        </button>
-        <p data-rota-aviso
-           role="status"
-           aria-live="polite"></p>
+        <div class="mapa-local-acoes">
+            <a data-ver-predio href="#">Ver prédio</a>
+            <a data-ver-local hidden>Ver local</a>
+            <a data-ver-rota href="#">Planejar trajeto</a>
+        </div>
+        <form method="post" data-rota-externa class="mapa-local-rota" hidden>
+            {% csrf_token %}
+            <input type="hidden" name="origem_latitude">
+            <input type="hidden" name="origem_longitude">
+            <input type="hidden" name="destino">
+            <button type="submit" class="botao">Partir da origem no mapa</button>
+        </form>
     </section>
 </template>
 

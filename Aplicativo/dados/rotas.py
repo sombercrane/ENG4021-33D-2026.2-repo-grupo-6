@@ -1,108 +1,80 @@
-
 from collections import defaultdict
+from dataclasses import dataclass
 from heapq import heappop, heappush
+
+from django.db.models import F, Q
 
 from .models import Conexao, Espaco, Ponto
 
 
-def identificar_no(objeto):
-    if isinstance(objeto, Ponto):
-        return ("ponto", objeto.id_ponto)
-
-    if isinstance(objeto, Espaco):
-        return ("espaco", objeto.id_espaco)
-
-    raise ValueError("Origem ou destino invalido.")
+@dataclass(frozen=True)
+class Trecho:
+    conexao: Conexao
+    origem: Ponto
+    destino: Ponto
 
 
-def calcular_rota(origem, destino, acessivel=False):
-    inicio = identificar_no(origem)
-    fim = identificar_no(destino)
-
-    conexoes = Conexao.objects.filter(
-        validada=True
-    ).select_related(
-        "ponto_origem",
-        "espaco_origem",
-        "ponto_destino",
-        "espaco_destino",
-    )
-
-    grafo = defaultdict(list)
-    objetos = {
-        inicio: origem,
-        fim: destino,
-    }
-
-    for conexao in conexoes:
-        if acessivel and not conexao.acessivel:
-            continue
-
-        if conexao.distancia is None:
-            continue
-
-        if conexao.distancia < 0:
-            continue
-
-        origem_obj = (
-            conexao.ponto_origem or conexao.espaco_origem
-        )
-
-        destino_obj = (
-            conexao.ponto_destino or conexao.espaco_destino
-        )
-
-        if origem_obj is None or destino_obj is None:
-            continue
-
-        no_origem = identificar_no(origem_obj)
-        no_destino = identificar_no(destino_obj)
-
-        objetos[no_origem] = origem_obj
-        objetos[no_destino] = destino_obj
-
-        peso = conexao.distancia
-
-        grafo[no_origem].append((no_destino, peso))
-        grafo[no_destino].append((no_origem, peso))
-
-    fila = [(0, inicio)]
-    distancias = {inicio: 0}
-    anteriores = {}
-
-    while fila:
-        custo, atual = heappop(fila)
-
-        if atual == fim:
-            break
-
-        if custo > distancias.get(atual, float("inf")):
-            continue
-
-        for vizinho, peso in grafo[atual]:
-            novo_custo = custo + peso
-
-            if novo_custo < distancias.get(
-                vizinho, float("inf")
-            ):
-                distancias[vizinho] = novo_custo
-                anteriores[vizinho] = atual
-                heappush(fila, (novo_custo, vizinho))
-
-    if fim not in distancias:
+def calcular_rota_interna(origem, destino, *, acessivel=False):
+    """Retorna os trechos mais curtos, ou None se a cobertura for insuficiente."""
+    if acessivel and isinstance(destino, Espaco) and not destino.acessivel:
+        return None
+    chegada = destino if isinstance(destino, Ponto) else destino.ponto_acesso
+    if chegada is None or chegada.andar_id != destino.andar_id:
         return None
 
-    caminho = []
-    atual = fim
+    predio_id = origem.andar.predio_id
+    if chegada.andar.predio_id != predio_id:
+        return None
+    if origem.pk == chegada.pk:
+        # Sem trechos, só um espaço marcado como acessível confirma a chegada.
+        return None if acessivel and isinstance(destino, Ponto) else []
 
-    while atual != inicio:
-        caminho.append(objetos[atual])
-        atual = anteriores[atual]
+    conexoes = (
+        Conexao.objects.filter(
+            origem__andar__predio_id=predio_id,
+            destino__andar__predio_id=predio_id,
+            validada=True,
+            distancia_m__gt=0,
+        )
+        .filter(Q(origem__andar=F("destino__andar")) | Q(tipo__in=Conexao.TIPOS_ENTRE_ANDARES))
+        .select_related("origem__andar", "destino__andar")
+        .order_by("pk")
+    )
+    if acessivel:
+        conexoes = conexoes.filter(acessibilidade_verificada=True, tipo__in=Conexao.TIPOS_ACESSIVEIS)
 
-    caminho.append(origem)
-    caminho.reverse()
+    vizinhos = defaultdict(list)
+    for conexao in conexoes:
+        vizinhos[conexao.origem_id].append(Trecho(conexao, conexao.origem, conexao.destino))
+        if conexao.bidirecional:
+            vizinhos[conexao.destino_id].append(Trecho(conexao, conexao.destino, conexao.origem))
 
-    return {
-        "caminho": caminho,
-        "custo": distancias[fim],
-    }
+    distancias = {origem.pk: 0}
+    anteriores = {}
+    fila = [(0, origem.pk)]
+    while fila:
+        distancia, ponto_id = heappop(fila)
+        if distancia != distancias[ponto_id]:
+            continue
+        if ponto_id == chegada.pk:
+            break
+
+        for trecho in vizinhos[ponto_id]:
+            proximo_id = trecho.destino.pk
+            nova_distancia = distancia + trecho.conexao.distancia_m
+            if nova_distancia < distancias.get(proximo_id, float("inf")):
+                distancias[proximo_id] = nova_distancia
+                anteriores[proximo_id] = trecho
+                heappush(fila, (nova_distancia, proximo_id))
+
+    if chegada.pk not in anteriores:
+        return None
+
+    resultado = []
+    ponto_id = chegada.pk
+    while ponto_id != origem.pk:
+        trecho = anteriores[ponto_id]
+        resultado.append(trecho)
+        ponto_id = trecho.origem.pk
+    resultado.reverse()
+    return resultado

@@ -1,13 +1,19 @@
 from django import forms
 
-from .models import Andar, Predio, Aula, Espaco
+from .models import AcessoExterno, Andar, Aula, Espaco, Ponto, Predio
 
 CATEGORIAS = [
     ("todos", "Todos"),
+    ("predio", "Prédios"),
     ("sala", "Salas"),
     ("laboratorio", "Laboratórios"),
     ("auditorio", "Auditórios"),
-    ("predio", "Prédios"),
+    ("banheiro", "Banheiros"),
+    ("biblioteca", "Bibliotecas"),
+    ("restaurante", "Restaurantes"),
+    ("entrada", "Entradas"),
+    ("elevador", "Elevadores"),
+    ("escada", "Escadas"),
 ]
 
 
@@ -18,7 +24,7 @@ class PesquisaForm(forms.Form):
         label="Pesquisar",
         widget=forms.TextInput(attrs={
             "placeholder":
-                "Buscar sala, prédio ou código",
+                "Buscar sala, prédio, ponto ou código",
             "class": "campo-busca",
         }),
     )
@@ -31,10 +37,6 @@ class PesquisaForm(forms.Form):
     def clean_busca(self):
         busca = self.cleaned_data["busca"]
         busca = busca.strip()
-        if busca and len(busca) < 2:
-            raise forms.ValidationError(
-                "Digite pelo menos 2 letras."
-            )
         return busca
 
     def clean_categoria(self):
@@ -75,11 +77,14 @@ class PesquisaMapaForm(PesquisaForm):
             .order_by("predio__nome", "numero")
         )
 
+    def clean(self):
+        dados = super().clean()
+        predio = dados.get("predio")
+        andar = dados.get("andar")
+        if predio and andar and andar.predio_id != predio.pk:
+            self.add_error("andar", "Escolha um andar do prédio selecionado.")
+        return dados
 
-PesquisaEspacoForm = PesquisaForm
-PesquisaAuditorioForm = PesquisaForm
-PesquisaPredioForm = PesquisaForm
-PesquisaLaboratorioForm = PesquisaForm
 
 class AulaForm(forms.ModelForm):
     dias_semana = forms.TypedMultipleChoiceField(
@@ -156,3 +161,81 @@ class AulaForm(forms.ModelForm):
                 f"{e.andar.predio.sigla} / {e.andar.nome}"
             )
         )
+
+
+class DestinoRotaForm(forms.Form):
+    destino = forms.ChoiceField(label="Destino", widget=forms.Select(attrs={"class": "campo"}))
+    acessivel = forms.BooleanField(label="Usar percurso interno acessível", required=False)
+
+    def __init__(self, predio, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.pontos = (
+            Ponto.objects.filter(andar__predio=predio)
+            .select_related("andar")
+            .order_by("andar__numero", "nome", "pk")
+        )
+        espacos = (
+            Espaco.objects.filter(andar__predio=predio)
+            .select_related("andar", "ponto_acesso__andar")
+            .order_by("andar__numero", "nome", "pk")
+        )
+        por_espaco = {f"espaco-{espaco.pk}": espaco for espaco in espacos}
+        por_ponto = {f"ponto-{ponto.pk}": ponto for ponto in self.pontos}
+        self.destinos = por_espaco | por_ponto
+        self.fields["destino"].choices = [
+            ("", "Escolha o destino"),
+            ("Espaços", [(chave, self.rotulo_local(local)) for chave, local in por_espaco.items()]),
+            ("Pontos de interesse", [(chave, self.rotulo_local(local)) for chave, local in por_ponto.items()]),
+        ]
+
+    @staticmethod
+    def rotulo_local(local):
+        nome = f"{local.codigo} · {local.nome}" if isinstance(local, Espaco) and local.codigo else local.nome
+        return f"{nome} — {local.andar.nome}"
+
+    def clean_destino(self):
+        return self.destinos[self.cleaned_data["destino"]]
+
+
+class RotaInternaForm(DestinoRotaForm):
+    field_order = ("origem", "destino", "acessivel")
+    origem = forms.ModelChoiceField(
+        queryset=Ponto.objects.none(),
+        label="Ponto de partida",
+        empty_label="Escolha um ponto",
+        widget=forms.Select(attrs={"class": "campo"}),
+    )
+
+    def __init__(self, predio, *args, **kwargs):
+        super().__init__(predio, *args, **kwargs)
+        self.fields["origem"].queryset = self.pontos
+        self.fields["origem"].label_from_instance = self.rotulo_local
+
+
+class RotaExternaForm(DestinoRotaForm):
+    field_order = ("chegada", "destino", "acessivel")
+    origem_latitude = forms.FloatField(min_value=-90, max_value=90, widget=forms.HiddenInput)
+    origem_longitude = forms.FloatField(min_value=-180, max_value=180, widget=forms.HiddenInput)
+    chegada = forms.ModelChoiceField(
+        queryset=AcessoExterno.objects.none(),
+        label="Chegada no prédio",
+        empty_label="Escolha um acesso",
+        widget=forms.Select(attrs={"class": "campo"}),
+    )
+
+    def __init__(self, predio, *args, **kwargs):
+        super().__init__(predio, *args, **kwargs)
+        acessos = (
+            AcessoExterno.objects.filter(ponto__andar__predio=predio)
+            .select_related("ponto__andar__predio")
+            .order_by("ponto__andar__numero", "ponto__nome", "pk")
+        )
+        campo = self.fields["chegada"]
+        campo.queryset = acessos
+        campo.label_from_instance = lambda acesso: self.rotulo_local(acesso.ponto)
+        primeiro_acesso = acessos.first()
+        if primeiro_acesso:
+            self.initial["chegada"] = primeiro_acesso.pk
+        else:
+            campo.required = False
+            campo.empty_label = "Referência do prédio"
