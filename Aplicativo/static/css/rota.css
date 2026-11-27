@@ -1,38 +1,90 @@
-.rota-mapa {
-    width: 100%;
-    height: clamp(320px, 60vh, 560px);
-    border-radius: 16px;
-    background-color: #101d15;
+.rota-cabecalho h1 {
+    margin-top: 12px;
 }
 
-.rota-resumo {
-    margin-top: 16px;
-}
-
-.rota-resumo p {
-    margin: 0;
-    line-height: 1.5;
-}
-
-.rota-dados {
+.rota-formulario {
     display: grid;
-    grid-template-columns:
-        repeat(auto-fit, minmax(160px, 1fr));
-    gap: 12px;
-    margin: 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
 }
 
-.rota-dados dt {
-    color: #b7c5b9;
-    font-size: 14px;
+.rota-formulario label {
+    display: block;
+    margin-bottom: 6px;
 }
 
-.rota-dados dd {
-    margin: 4px 0 0;
-    font-weight: 700;
+.rota-formulario .rota-checkbox {
+    display: flex;
+    align-items: start;
+    gap: 8px;
+    margin-bottom: 0;
+}
+
+.rota-checkbox input {
+    margin-top: 3px;
+    accent-color: #b9d8c3;
+}
+
+.rota-formulario .botao {
+    justify-self: start;
+}
+
+.rota-formulario .errorlist {
+    color: #ffd3be;
+    margin: 6px 0 0;
+}
+
+.rota-resultado {
+    margin-top: 20px;
     overflow-wrap: anywhere;
 }
 
-.rota-dados[hidden] {
-    display: none;
+.rota-resultado h2 {
+    margin-top: 0;
+}
+
+.rota-resultado a {
+    color: #b9d8c3;
+}
+
+.rota-etapas {
+    margin: 0;
+    padding-inline-start: 24px;
+}
+
+.rota-etapas li {
+    padding: 12px 0;
+    border-bottom: 1px solid #34473a;
+}
+
+.rota-etapas li:last-child {
+    border-bottom: 0;
+}
+
+.rota-etapas span {
+    display: block;
+    margin-top: 4px;
+    color: #b7c5b9;
+}
+
+.rota-etapas p {
+    margin: 6px 0 0;
+}
+
+.rota-nota {
+    color: #b7c5b9;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.rota-google {
+    border-block: 1px solid #34473a;
+    padding: 12px 0;
+}
+
+.rota-atribuicao {
+    color: white;
+    line-height: 1.5;
+    margin: 12px 0 0;
+    white-space: nowrap;
 }

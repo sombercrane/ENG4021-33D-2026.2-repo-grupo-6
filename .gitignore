@@ -220,4 +220,7 @@ __marimo__/
 .streamlit/secrets.toml
 
 # Banco pronto para demonstracao
-!/Aplicativo/db.sqlite3
+/Aplicativo/*.sqlite3
+/Aplicativo/*.sqlite3-*
+/Aplicativo/media/
+/Aplicativo/staticfiles/

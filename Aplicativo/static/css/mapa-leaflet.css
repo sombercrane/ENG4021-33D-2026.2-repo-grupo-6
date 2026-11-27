@@ -88,3 +88,18 @@
     width: 100%;
     margin-top: 4px;
 }
+
+.mapa-local-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    margin-top: 12px;
+}
+
+.mapa-local-rota {
+    margin-top: 8px;
+}
+
+.mapa-local-rota .botao {
+    padding: 6px 10px;
+}

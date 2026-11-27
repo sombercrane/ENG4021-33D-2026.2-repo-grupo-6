@@ -1,8 +1,11 @@
 
 # Create your models here.
-from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+from django.db.models import F, Q
+
 
 class Predio(models.Model):
     id_predio = models.BigAutoField(primary_key=True)
@@ -75,6 +78,15 @@ class Espaco(models.Model):
     posicao_y = models.FloatField(null=True, blank=True)
     acessivel = models.BooleanField(default=False)
     observacoes = models.TextField(blank=True)
+    ponto_acesso = models.ForeignKey(
+        "Ponto",
+        on_delete=models.SET_NULL,
+        related_name="espacos_atendidos",
+        null=True,
+        blank=True,
+        verbose_name="ponto de acesso",
+        help_text="Ponto da rota que dá acesso ao espaço. Deve estar no mesmo andar.",
+    )
 
     class Meta:
         verbose_name = "espaço"
@@ -82,6 +94,13 @@ class Espaco(models.Model):
 
     def __str__(self):
         return f"{self.codigo} - {self.nome}"
+
+    def clean(self):
+        super().clean()
+        if self.ponto_acesso_id and not Ponto.objects.filter(
+            pk=self.ponto_acesso_id, andar_id=self.andar_id,
+        ).exists():
+            raise ValidationError({"ponto_acesso": "Escolha um ponto no mesmo andar do espaço."})
 
 
 class TipoPonto(models.Model):
@@ -119,7 +138,110 @@ class Ponto(models.Model):
     descricao = models.TextField(blank=True)
 
     def __str__(self):
-        return self.nome
+        return f"{self.nome} — {self.andar}"
+
+
+class Conexao(models.Model):
+    class Tipo(models.TextChoices):
+        A_CONFIRMAR = "a_confirmar", "A confirmar"
+        CORREDOR = "corredor", "Corredor"
+        PASSAGEM = "passagem", "Passagem"
+        ESCADA = "escada", "Escada"
+        ELEVADOR = "elevador", "Elevador"
+        RAMPA = "rampa", "Rampa"
+
+    TIPOS_ENTRE_ANDARES = (Tipo.ESCADA, Tipo.ELEVADOR, Tipo.RAMPA)
+    TIPOS_ACESSIVEIS = (Tipo.CORREDOR, Tipo.PASSAGEM, Tipo.ELEVADOR, Tipo.RAMPA)
+
+    origem = models.ForeignKey(Ponto, on_delete=models.CASCADE, related_name="conexoes_de_saida")
+    destino = models.ForeignKey(Ponto, on_delete=models.CASCADE, related_name="conexoes_de_chegada")
+    tipo = models.CharField("tipo de trecho", max_length=12, choices=Tipo.choices)
+    nome = models.CharField(
+        "nome do trecho", max_length=150, blank=True,
+        help_text="Identifique o trecho, por exemplo Corredor leste ou Elevador B.",
+    )
+    distancia_m = models.FloatField(
+        "distância em metros", null=True, blank=True, validators=[MinValueValidator(0.01)],
+    )
+    observacoes = models.TextField("observações", blank=True)
+    validada = models.BooleanField(
+        default=True, help_text="Marque após confirmar o trajeto, a distância e o tipo do trecho.",
+    )
+    bidirecional = models.BooleanField(
+        default=True,
+        help_text="Quando desmarcado, o trecho só pode ser percorrido da origem ao destino.",
+    )
+    acessibilidade_verificada = models.BooleanField(
+        default=False,
+        help_text="Marque após verificar a largura, os desníveis e as condições de passagem em todo o trecho.",
+    )
+
+    class Meta:
+        verbose_name = "conexão interna"
+        verbose_name_plural = "conexões internas"
+        constraints = [
+            models.CheckConstraint(condition=~Q(origem=F("destino")), name="conexao_pontos_distintos"),
+            models.CheckConstraint(
+                condition=Q(distancia_m__gt=0) | Q(distancia_m__isnull=True),
+                name="conexao_distancia_positiva",
+            ),
+            models.CheckConstraint(
+                condition=Q(validada=False) | (Q(distancia_m__isnull=False) & ~Q(tipo="a_confirmar")),
+                name="conexao_validada_tem_distancia_e_tipo",
+            ),
+            models.CheckConstraint(
+                condition=Q(acessibilidade_verificada=False) | Q(validada=True),
+                name="conexao_acessivel_requer_validacao",
+            ),
+            models.CheckConstraint(
+                condition=~Q(tipo="escada", acessibilidade_verificada=True),
+                name="conexao_escada_sem_acessibilidade",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.origem} → {self.destino}"
+
+    def clean(self):
+        super().clean()
+        if self.validada and (not self.distancia_m or self.tipo == self.Tipo.A_CONFIRMAR):
+            raise ValidationError({"validada": "Informe a distância medida e o tipo antes de validar."})
+        if self.tipo == self.Tipo.ESCADA and self.acessibilidade_verificada:
+            raise ValidationError({"acessibilidade_verificada": "Uma escada não é um trecho sem degraus."})
+        if self.acessibilidade_verificada and not self.validada:
+            raise ValidationError({"acessibilidade_verificada": "Valide o trecho antes de marcar a acessibilidade."})
+        if not self.origem_id or not self.destino_id:
+            return
+
+        try:
+            origem, destino = self.origem.andar, self.destino.andar
+        except Ponto.DoesNotExist:
+            return  # A validação da chave estrangeira informa o ponto inválido.
+
+        if origem.predio_id != destino.predio_id:
+            raise ValidationError({"destino": "Os dois pontos devem pertencer ao mesmo prédio."})
+        if origem.pk != destino.pk and self.tipo not in (*self.TIPOS_ENTRE_ANDARES, self.Tipo.A_CONFIRMAR):
+            raise ValidationError({"tipo": "Use escada, elevador ou rampa para ligar andares."})
+
+
+class AcessoExterno(models.Model):
+    ponto = models.OneToOneField(
+        Ponto, on_delete=models.CASCADE, related_name="acesso_externo",
+        help_text="Ponto interno que corresponde à chegada do trajeto externo.",
+    )
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, validators=[MinValueValidator(-90), MaxValueValidator(90)],
+    )
+    longitude = models.DecimalField(
+        max_digits=9, decimal_places=6, validators=[MinValueValidator(-180), MaxValueValidator(180)],
+    )
+
+    class Meta:
+        verbose_name = "acesso externo"
+        verbose_name_plural = "acessos externos"
+
+    def __str__(self):
+        return str(self.ponto)
 
 
 class Administrador(models.Model):
@@ -132,6 +254,8 @@ class Administrador(models.Model):
 
     def __str__(self):
         return self.nome
+
+
 class Aula(models.Model):
     DIAS_SEMANA = [
         (0, "Segunda-feira"),
@@ -183,69 +307,3 @@ class Aula(models.Model):
             f"{self.get_dia_semana_display()} "
             f"{self.horario_inicio:%H:%M}"
         )
-
-class Conexao(models.Model):
-    id_conexao = models.BigAutoField(primary_key=True)
-
-    ponto_origem = models.ForeignKey(
-        Ponto,
-        on_delete=models.CASCADE,
-        related_name="conexoes_saida",
-        null=True,
-        blank=True,
-    )
-
-    espaco_origem = models.ForeignKey(
-        Espaco,
-        on_delete=models.CASCADE,
-        related_name="conexoes_saida",
-        null=True,
-        blank=True,
-    )
-
-    ponto_destino = models.ForeignKey(
-        Ponto,
-        on_delete=models.CASCADE,
-        related_name="conexoes_entrada",
-        null=True,
-        blank=True,
-    )
-
-    espaco_destino = models.ForeignKey(
-        Espaco,
-        on_delete=models.CASCADE,
-        related_name="conexoes_entrada",
-        null=True,
-        blank=True,
-    )
-
-    acessivel = models.BooleanField(null=True, blank=True, default=None)
-    validada = models.BooleanField(default=False)
-    distancia = models.FloatField(null=True, blank=True)
-    descricao = models.TextField(blank=True)
-
-    def clean(self):
-        from django.core.exceptions import ValidationError
-
-        origem = int(self.ponto_origem_id is not None) + int(
-            self.espaco_origem_id is not None
-        )
-        destino = int(self.ponto_destino_id is not None) + int(
-            self.espaco_destino_id is not None
-        )
-
-        if origem != 1:
-            raise ValidationError(
-                "Informe exatamente um ponto ou espaço de origem."
-            )
-
-        if destino != 1:
-            raise ValidationError(
-                "Informe exatamente um ponto ou espaço de destino."
-            )
-
-        if self.distancia is not None and self.distancia < 0:
-            raise ValidationError("A distância não pode ser negativa.")
-
-    def __str__(self):
-        return f"Conexão {self.id_conexao}"

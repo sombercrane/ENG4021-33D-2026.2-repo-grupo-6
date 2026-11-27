@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Predio, Andar, TipoEspaco, Espaco, TipoPonto, Ponto, Conexao
+from .models import AcessoExterno, Andar, Conexao, Espaco, Ponto, Predio, TipoEspaco, TipoPonto
 
 # Register your models here.
 
@@ -27,6 +27,7 @@ class TipoEspacoAdmin(admin.ModelAdmin):
 class EspacoAdmin(admin.ModelAdmin):
     list_display = ("codigo", "nome", "andar", "tipo", "acessivel")
     list_filter = ("tipo", "acessivel", "andar__predio")
+    autocomplete_fields = ("ponto_acesso",)
     search_fields = (
         "nome",
         "codigo",
@@ -47,34 +48,27 @@ class PontoAdmin(admin.ModelAdmin):
     list_filter = ("tipo_ponto", "andar__predio")
     search_fields = ("nome", "descricao", "andar__nome", "andar__predio__nome")
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("andar__predio", "tipo_ponto")
+
+
 @admin.register(Conexao)
 class ConexaoAdmin(admin.ModelAdmin):
-    list_display = (
-        "id_conexao",
-        "ponto_origem",
-        "espaco_origem",
-        "ponto_destino",
-        "espaco_destino",
-        "distancia",
-        "acessivel",
-        "validada",
-    )
+    list_display = ("origem", "destino", "tipo", "distancia_m", "validada", "acessibilidade_verificada")
+    list_filter = ("origem__andar__predio", "tipo", "validada", "acessibilidade_verificada")
+    list_select_related = ("origem__andar__predio", "destino__andar__predio")
+    autocomplete_fields = ("origem", "destino")
+    search_fields = ("nome", "origem__nome", "destino__nome")
 
-    list_filter = (
-        "validada",
-        "acessivel",
-    )
+    def get_changeform_initial_data(self, request):
+        iniciais = super().get_changeform_initial_data(request)
+        return {"tipo": Conexao.Tipo.A_CONFIRMAR, "validada": False, **iniciais}
 
-    search_fields = (
-        "descricao",
-        "ponto_origem__nome",
-        "espaco_origem__nome",
-        "ponto_destino__nome",
-        "espaco_destino__nome",
-    )
 
-    list_editable = (
-        "validada",
-    )
-
-    ordering = ("validada", "id_conexao")
+@admin.register(AcessoExterno)
+class AcessoExternoAdmin(admin.ModelAdmin):
+    list_display = ("ponto", "latitude", "longitude")
+    list_filter = ("ponto__andar__predio",)
+    list_select_related = ("ponto__andar__predio",)
+    autocomplete_fields = ("ponto",)
+    search_fields = ("ponto__nome", "ponto__andar__predio__nome")

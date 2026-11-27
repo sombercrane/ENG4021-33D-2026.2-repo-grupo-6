@@ -29,507 +29,89 @@ tela-mapa
   src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
   integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
   crossorigin="anonymous"></script>
-<script type="module">
-// Link "Ver espaço" no card do pin. Roda depois do leaflet.js e antes
-// do mapa-leaflet.js (ordem do documento). O link acompanha o local
-// escolhido no seletor, também quando o pin agrupa vários locais.
-const dadosPredios = JSON.parse(
-  document.getElementById('mapa-dados').textContent
-);
-
-function localDoCartao(marcador, cartao) {
-  const ponto = marcador.getLatLng();
-  const predio = dadosPredios.find((item) =>
-    Math.abs(parseFloat(item.latitude) - ponto.lat) < 1e-5
-    && Math.abs(parseFloat(item.longitude) - ponto.lng) < 1e-5
-  );
-  if (!predio) return null;
-
-  const nome = cartao.querySelector('[data-nome]')?.textContent;
-  const andar = cartao.querySelector('[data-andar]')?.textContent;
-  const candidatos = (predio.locais ?? []).filter(
-    (local) => local.nome === nome
-  );
-  return candidatos.find((local) => (local.andar || '—') === andar)
-    ?? candidatos[0] ?? null;
-}
-
-function atualizarVerEspaco(marcador, cartao) {
-  const local = localDoCartao(marcador, cartao);
-  let link = cartao.querySelector('[data-ver-espaco]');
-
-  if (!local || !local.url) {
-    if (link) link.hidden = true;
-    return;
-  }
-  if (!link) {
-    link = document.createElement('a');
-    link.setAttribute('data-ver-espaco', '');
-    link.textContent = 'Ver espaço';
-    link.style.display = 'block';
-    link.style.marginTop = '6px';
-    const verPredio = cartao.querySelector('[data-ver-predio]');
-    (verPredio ?? cartao.lastElementChild).after(link);
-  }
-  link.hidden = false;
-  link.href = local.url;
-}
-
-const popupsAcompanhados = new WeakSet();
-
-L.Marker.addInitHook(function () {
-  const ligar = (popup) => {
-    const cartao = popup.getElement()?.querySelector('.mapa-local');
-    if (!cartao) return;
-    atualizarVerEspaco(this, cartao);
-    cartao.querySelector('select')?.addEventListener('change', () => {
-      atualizarVerEspaco(this, cartao);
-    });
-  };
-
-  this.on('popupopen', (evento) => {
-    ligar(evento.popup);
-    // Com o pin já aberto, o Leaflet só refaz o card (sem novo popupopen).
-    if (!popupsAcompanhados.has(evento.popup)) {
-      popupsAcompanhados.add(evento.popup);
-      evento.popup.on('contentupdate', () => ligar(evento.popup));
-    }
-  });
-});
-</script>
-<style>
-.sugestoes {
-  position: relative;
-}
-.sugestoes ul {
-  position: absolute;
-  z-index: 1000;
-  left: 0;
-  right: 0;
-  margin: 4px 0 0;
-  padding: 4px;
-  list-style: none;
-  background: #0d1a12;
-  border: 1px solid #34473a;
-  border-radius: 10px;
-}
-.sugestoes li {
-  padding: 8px 10px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-.sugestoes li small {
-  display: block;
-  color: #b7c5b9;
-}
-.sugestoes li[aria-selected="true"],
-.sugestoes li:hover {
-  background: #203929;
-}
-</style>
-<script type="module">
-// Sugestões de pesquisa no campo de busca. Roda depois do leaflet.js
-// e antes do mapa-leaflet.js (ordem do documento): guarda o mapa e os
-// pins para destacar e abrir o card do local escolhido.
-let mapaLeaflet = null;
-const pins = [];
-L.Map.addInitHook(function () { mapaLeaflet = this; });
-L.Marker.addInitHook(function () { pins.push(this); });
-
-document.addEventListener('DOMContentLoaded', () => {
-  const campo = document.getElementById('mapa-busca');
-  if (!campo) return;
-
-  const URL_SUGESTOES = "{% url 'sugestoes_pesquisa' %}";
-  campo.setAttribute('autocomplete', 'off');
-  campo.setAttribute('role', 'combobox');
-  campo.setAttribute('aria-autocomplete', 'list');
-  campo.setAttribute('aria-expanded', 'false');
-  campo.setAttribute('aria-controls', 'sugestoes-lista');
-
-  const caixa = document.createElement('div');
-  caixa.className = 'sugestoes';
-  campo.after(caixa);
-  const lista = document.createElement('ul');
-  lista.id = 'sugestoes-lista';
-  lista.setAttribute('role', 'listbox');
-  lista.hidden = true;
-  const aviso = document.createElement('p');
-  aviso.setAttribute('role', 'status');
-  aviso.setAttribute('aria-live', 'polite');
-  caixa.append(lista, aviso);
-
-  let itens = [];
-  let ativo = -1;
-  let espera = null;
-  let pedido = 0;
-
-  function fechar() {
-    lista.hidden = true;
-    lista.replaceChildren();
-    itens = [];
-    ativo = -1;
-    campo.setAttribute('aria-expanded', 'false');
-  }
-
-  function marcar(indice) {
-    ativo = indice;
-    Array.from(lista.children).forEach((li, i) => {
-      li.setAttribute('aria-selected', String(i === indice));
-    });
-  }
-
-  function abrirPin(item) {
-    const lat = parseFloat(item.lat);
-    const lng = parseFloat(item.lng);
-    const pin = pins.find((marcador) => {
-      const ponto = marcador.getLatLng();
-      const classes = marcador.options.icon?.options?.className ?? '';
-      return Math.abs(ponto.lat - lat) < 1e-5
-        && Math.abs(ponto.lng - lng) < 1e-5
-        && classes.split(' ').includes('mapa-marcador--' + item.tipo_pin);
-    });
-
-    if (!mapaLeaflet || !pin) {
-      aviso.textContent = 'Este local não tem pin no mapa agora. '
-        + 'Se houver filtros ativos, use Limpar filtros.';
-      return;
-    }
-
-    aviso.textContent = '';
-    mapaLeaflet.setView(pin.getLatLng(), Math.max(mapaLeaflet.getZoom(), 18));
-    pin.openPopup();
-
-    const seletor = pin.getPopup()?.getElement()?.querySelector('select');
-    if (seletor) {
-      const indice = Array.from(seletor.options).findIndex(
-        (opcao) => opcao.text.startsWith(item.local)
-      );
-      if (indice >= 0) {
-        seletor.selectedIndex = indice;
-        seletor.dispatchEvent(new Event('change'));
-      }
-    }
-    document.getElementById('mapa-interativo')
-      .scrollIntoView({behavior: 'smooth', block: 'center'});
-  }
-
-  function escolher(item) {
-    campo.value = item.rotulo;
-    fechar();
-    abrirPin(item);
-  }
-
-  function mostrar(sugestoes) {
-    fechar();
-    if (sugestoes.length === 0) return;
-    itens = sugestoes;
-    sugestoes.forEach((item, indice) => {
-      const li = document.createElement('li');
-      li.setAttribute('role', 'option');
-      li.setAttribute('aria-selected', 'false');
-      const nome = document.createElement('span');
-      nome.textContent = item.rotulo;
-      const detalhe = document.createElement('small');
-      detalhe.textContent = item.detalhe;
-      li.append(nome, detalhe);
-      li.addEventListener('mousedown', (evento) => {
-        evento.preventDefault();
-        escolher(item);
-      });
-      lista.append(li);
-    });
-    lista.hidden = false;
-    campo.setAttribute('aria-expanded', 'true');
-  }
-
-  async function buscar() {
-    const termo = campo.value.trim();
-    const numero = ++pedido;
-    if (termo.length < 2) {
-      fechar();
-      return;
-    }
-    try {
-      const resposta = await fetch(
-        URL_SUGESTOES + '?q=' + encodeURIComponent(termo)
-      );
-      if (!resposta.ok) throw new Error();
-      const dados = await resposta.json();
-      if (numero === pedido) mostrar(dados.sugestoes);
-    } catch (erro) {
-      if (numero === pedido) fechar();
-    }
-  }
-
-  campo.addEventListener('input', () => {
-    aviso.textContent = '';
-    clearTimeout(espera);
-    espera = setTimeout(buscar, 200);
-  });
-
-  campo.addEventListener('keydown', (evento) => {
-    if (lista.hidden) return;
-    if (evento.key === 'ArrowDown') {
-      evento.preventDefault();
-      marcar((ativo + 1) % itens.length);
-    } else if (evento.key === 'ArrowUp') {
-      evento.preventDefault();
-      marcar((ativo - 1 + itens.length) % itens.length);
-    } else if (evento.key === 'Enter' && ativo >= 0) {
-      evento.preventDefault();
-      escolher(itens[ativo]);
-    } else if (evento.key === 'Escape') {
-      fechar();
-    }
-  });
-
-  campo.addEventListener('blur', fechar);
-});
-</script>
-{% if proxima_aula %}
-<script type="module">
-// Roda depois do leaflet.js e antes do mapa-leaflet.js (ordem do
-// documento): guarda o mapa e os pins para abrir o da próxima aula.
-let mapaLeaflet = null;
-const pins = [];
-L.Map.addInitHook(function () { mapaLeaflet = this; });
-L.Marker.addInitHook(function () { pins.push(this); });
-
-document.addEventListener('DOMContentLoaded', () => {
-  const botao = document.getElementById('proxima-aula-botao');
-  const aviso = document.getElementById('proxima-aula-aviso');
-  if (!botao || !aviso) return;
-
-  botao.addEventListener('click', () => {
-    const lat = parseFloat(botao.dataset.lat);
-    const lng = parseFloat(botao.dataset.lng);
-    const pin = pins.find((marcador) => {
-      const ponto = marcador.getLatLng();
-      const classes = marcador.options.icon?.options?.className ?? '';
-      return Math.abs(ponto.lat - lat) < 1e-5
-        && Math.abs(ponto.lng - lng) < 1e-5
-        && classes.split(' ').includes(
-          'mapa-marcador--' + botao.dataset.tipo
-        );
-    });
-
-    if (!mapaLeaflet || !pin) {
-      aviso.textContent = 'Não há pin desta sala no mapa agora. '
-        + 'Se houver filtros ativos, use Limpar filtros.';
-      return;
-    }
-
-    aviso.textContent = '';
-    mapaLeaflet.setView(pin.getLatLng(), Math.max(mapaLeaflet.getZoom(), 18));
-    pin.openPopup();
-
-    const seletor = pin.getPopup()?.getElement()?.querySelector('select');
-    if (seletor) {
-      const indice = Array.from(seletor.options).findIndex(
-        (opcao) => opcao.text.startsWith(botao.dataset.sala)
-      );
-      if (indice >= 0) {
-        seletor.selectedIndex = indice;
-        seletor.dispatchEvent(new Event('change'));
-      }
-    }
-    document.getElementById('mapa-interativo')
-      .scrollIntoView({behavior: 'smooth', block: 'center'});
-  });
-});
-</script>
-{% endif %}
 <script defer
   src="{% static 'js/mapa-leaflet.js' %}"></script>
 {% endblock %}
 
 {% block conteudo %}
 <div class="container">
-
-  <h2 class="titulo">Mapa da PUC-Rio</h2>
-  <p class="subtitulo">
-    Explore os prédios e encontre
-    seu caminho pelo campus.
-  </p>
-
-  <div class="filtros">
-    <span class="filtro">Entrada</span>
-    <span class="filtro">Elevador</span>
-    <span class="filtro">Escada</span>
-    <span class="filtro">Banheiro</span>
-  </div>
+  <h1 class="titulo">Mapa da PUC-Rio</h1>
 
   <div class="mapa-layout">
-
-    <aside class="mapa-busca"
-      aria-label="Busca">
-      <h3>Buscar no campus</h3>
-      <form method="get" action="{% url 'mapa' %}">
-        <label for="mapa-busca">
-          Nome, código ou sigla
-        </label>
-        {{ formulario.busca }}
-        {{ formulario.busca.errors }}
-
-        <label for="mapa-categoria">
-          Categoria
-        </label>
-        {{ formulario.categoria }}
-        {{ formulario.categoria.errors }}
-
-        <label for="mapa-predio">
-          Prédio
-        </label>
-        {{ formulario.predio }}
-        {{ formulario.predio.errors }}
-
-        <label for="mapa-andar">
-          Andar
-        </label>
-        {{ formulario.andar }}
-        {{ formulario.andar.errors }}
-
-        <button type="submit" class="botao">
-          Buscar
-        </button>
-        {% if filtros_ativos %}
-        <a href="{% url 'mapa' %}"
-          class="botao botao-secundario">
-          Limpar filtros
-        </a>
+    <aside class="mapa-busca" aria-label="Busca no campus">
+      <form id="mapa-filtros" method="get" action="{% url 'mapa' %}"
+            data-sugestoes-url="{% url 'sugestoes_pesquisa' %}">
+        {% for campo in formulario %}
+        <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+        {{ campo }}
+        {% if campo.name == "busca" %}
+        <datalist id="mapa-sugestoes"></datalist>
         {% endif %}
+        {{ campo.errors }}
+        {% endfor %}
+        <button type="submit" class="botao">Buscar</button>
+        {% if filtros_ativos %}<a class="mapa-limpar" href="{% url 'mapa' %}">Limpar filtros</a>{% endif %}
       </form>
-        {% if pagina is not None %}
-        <section class="mapa-resultados"
-                 aria-labelledby="titulo-resultados">
-          <h3 id="titulo-resultados">Resultados</h3>
-          <p>{{ pagina.paginator.count }} resultado(s)</p>
 
-          {% for item in pagina %}
-            {% if categoria == "predio" %}
-              <a class="mapa-resultado"
-                 href="{% url 'detalhe_predio' item.pk %}">
-                <strong>{{ item.nome }}</strong>
-                <span>{{ item.sigla }}</span>
-              </a>
-            {% else %}
-              <a class="mapa-resultado"
-                 href="{% url 'detalhe_espaco' item.pk %}">
-                <strong>{{ item.nome }}</strong>
-                <span>
-                  {{ item.codigo }} ·
-                  {{ item.andar.predio.sigla }} ·
-                  {{ item.andar.nome }}
-                </span>
-              </a>
-            {% endif %}
+      {% if pagina is not None %}
+      <section class="mapa-resultados" aria-labelledby="mapa-resultados-titulo">
+        <h2 id="mapa-resultados-titulo">{% if filtros_ativos %}Resultados{% else %}Locais no campus{% endif %}</h2>
+        <ul>
+          {% for local in pagina %}
+          <li>
+            <a href="{{ local.url }}">{{ local.nome }}</a>
+            <small>{{ local.tipo }}{% if local.detalhe %} · {{ local.detalhe }}{% endif %}</small>
+            {% if local.no_mapa %}<button type="button" data-focar-local="{{ local.id }}" hidden
+                 aria-label="Mostrar {{ local.nome }} no mapa">Ver no mapa</button>{% endif %}
+          </li>
           {% empty %}
-            <p role="status">
-              Nenhum resultado encontrado.
-              Tente outro termo ou use
-              <strong>Limpar filtros</strong>.
-            </p>
+          <li>Nenhum local encontrado com esses filtros.</li>
           {% endfor %}
-
-          {% if pagina.paginator.num_pages > 1 %}
-            <nav class="mapa-paginacao"
-                 aria-label="Páginas dos resultados">
-              {% if pagina.has_previous %}
-                <a href="?{{ filtros }}&page={{ pagina.previous_page_number }}">
-                  Anterior
-                </a>
-              {% endif %}
-
-              <span>
-                {{ pagina.number }} de
-                {{ pagina.paginator.num_pages }}
-              </span>
-
-              {% if pagina.has_next %}
-                <a href="?{{ filtros }}&page={{ pagina.next_page_number }}">
-                  Próxima
-                </a>
-              {% endif %}
-            </nav>
-          {% endif %}
-        </section>
+        </ul>
+        {% if pagina.has_other_pages %}
+        <nav class="mapa-paginacao" aria-label="Páginas de resultados">
+          {% if pagina.has_previous %}<a href="{% querystring page=pagina.previous_page_number %}">Anterior</a>{% endif %}
+          <span>{{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+          {% if pagina.has_next %}<a href="{% querystring page=pagina.next_page_number %}">Próxima</a>{% endif %}
+        </nav>
+        {% endif %}
+      </section>
       {% endif %}
     </aside>
 
     <div class="mapa-coluna">
-
-      <section class="mapa-localizacao"
-        aria-label="Sua localização">
-        <button id="localizacao-botao"
-          type="button" class="botao">
-          Usar minha localização
-        </button>
-        <p id="localizacao-aviso"
-          role="status" aria-live="polite"></p>
-
-        <div id="entrada-referencia" hidden>
-          <label for="entrada-select">
-            Estou na entrada…
-          </label>
-          <select id="entrada-select" class="campo">
-            <option value="">Escolha uma entrada</option>
-          </select>
-          <p id="origem-aviso"
-            role="status" aria-live="polite"></p>
-        </div>
-
-        <button type="button" id="btn-banheiro-proximo">Banheiro mais próximo</button>
-        <div id="banheiro-proximo-resultado" style="margin-top: 8px;"></div>
-      </section>
-
-      <section class="mapa-proxima-aula"
-        aria-label="Próxima aula">
-        {% if not user.is_authenticated %}
-        <p>
-          <a href="{% url 'login' %}">Entre</a>
-          para ver a sua próxima aula.
-        </p>
-        {% elif proxima_aula %}
-        <p>
-          <strong>
-            {% if proxima_aula.em_andamento %}Aula em andamento{% else %}Próxima aula{% endif %}:
-          </strong>
-          {{ proxima_aula.aula.disciplina }} —
-          {{ proxima_aula.sala.nome }}
-          ({{ proxima_aula.predio.sigla }} ·
-          {{ proxima_aula.andar.nome }}),
-          {{ proxima_aula.quando }} às
-          {{ proxima_aula.aula.horario_inicio|time:"H:i" }}.
-        </p>
-        <button id="proxima-aula-botao" type="button"
-          class="botao"
-          data-lat="{{ proxima_aula.predio.latitude|stringformat:'s' }}"
-          data-lng="{{ proxima_aula.predio.longitude|stringformat:'s' }}"
-          data-tipo="{{ proxima_aula.tipo_pin }}"
-          data-sala="{{ proxima_aula.sala.nome }}">
-          Mostrar sala no mapa
-        </button>
-        <p id="proxima-aula-aviso"
-          role="status" aria-live="polite"></p>
-        {% else %}
-        <p role="status">
-          Você não tem próxima aula cadastrada.
-          <a href="{% url 'minha_grade' %}">Cadastre sua grade</a>.
-        </p>
-        {% endif %}
-      </section>
-
-      {% if filtros_ativos and not predios_mapa %}
-      <p role="status">
-        Nenhum local do mapa corresponde aos filtros.
-      </p>
+      {% if demo %}
+      <p class="mapa-destaque"><a href="{% url 'detalhe_predio' demo.pk %}">Abrir prédio de demonstração</a> · Percurso e plantas simulados.</p>
       {% endif %}
+      {% if proxima_aula %}
+      <section class="mapa-destaque" aria-label="Próxima aula">
+        <strong>{% if proxima_aula.em_andamento %}Aula em andamento{% else %}Próxima aula{% endif %}</strong>
+        <p>{{ proxima_aula.aula.disciplina }} · {{ proxima_aula.inicio|date:"l, H:i" }}</p>
+        <a href="{% url 'detalhe_espaco' proxima_aula.aula.sala_id %}">
+          {{ proxima_aula.aula.sala.nome }} · {{ proxima_aula.aula.sala.andar.predio.nome }}
+        </a>
+        <button type="button" data-focar-local="espaco-{{ proxima_aula.aula.sala_id }}" hidden>Ver no mapa</button>
+      </section>
+      {% endif %}
+      <section class="mapa-localizacao" aria-label="Origem do trajeto">
+        <button id="localizacao-botao" type="button" class="botao" hidden>Usar minha localização</button>
+        <label for="entrada-select">Ou escolha uma entrada de referência</label>
+        <select id="entrada-select" class="campo">
+          <option value="">Escolha uma entrada</option>
+          <option value="-22.9791274,-43.2319012">Entrada 1 · Av. Padre Leonel Franca</option>
+          <option value="-22.9773516,-43.2314211">Entrada 2 · Marquês de São Vicente</option>
+        </select>
+        <p id="localizacao-aviso" role="status"></p>
+        <form id="banheiro-proximo" action="{% url 'banheiro_proximo' %}" method="post" hidden>
+          {% csrf_token %}
+          <button type="submit" class="botao" disabled>Buscar banheiro perto da origem</button>
+        </form>
+        <div id="banheiro-resultado" role="status"></div>
+      </section>
 
-      <section class="cartao-mapa">
+      <section class="cartao-mapa" aria-label="Mapa do campus">
         {% include 'mapa/leaflet.html' %}
       </section>
-
       <section class="legenda"
         aria-label="Legenda dos marcadores">
         <h3>Legenda</h3>
@@ -583,276 +165,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     </div>
   </div>
-
-  <section class="informacoes">
-    <h2>Visualização geral do campus</h2>
-    <p>
-      Explore a localização dos prédios
-      ou utilize a busca para encontrar
-      uma sala pelo nome ou código.
-    </p>
-  </section>
-
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-(() => {
-  const botao = document.getElementById('localizacao-botao');
-  const aviso = document.getElementById('localizacao-aviso');
-  if (!botao || !aviso) return;
-
-  const OPCOES = {
-    enableHighAccuracy: true,
-    timeout: 10000,
-    maximumAge: 60000,
-  };
-
-  function mostrar(mensagem, estado) {
-    aviso.textContent = mensagem;
-    aviso.dataset.estado = estado;
-  }
-
-  function emitir(detalhe) {
-    document.dispatchEvent(
-      new CustomEvent('localizacao:atualizada',
-        {detail: detalhe})
-    );
-  }
-
-  function aoObterPosicao(posicao) {
-    const {latitude, longitude, accuracy} = posicao.coords;
-    botao.disabled = false;
-    mostrar(
-      'Localização obtida (precisão de cerca de '
-        + Math.round(accuracy) + ' m).',
-      'permitida'
-    );
-    emitir({
-      estado: 'permitida',
-      latitude: latitude,
-      longitude: longitude,
-      precisao: accuracy,
-    });
-  }
-
-  function aoFalhar(erro) {
-    botao.disabled = false;
-
-    if (erro.code === erro.PERMISSION_DENIED) {
-      mostrar(
-        'Permissão de localização negada. '
-          + 'Você pode liberar nas configurações do navegador.',
-        'negada'
-      );
-      emitir({estado: 'negada'});
-      return;
-    }
-
-    mostrar(
-      erro.code === erro.TIMEOUT
-        ? 'A localização demorou demais para responder.'
-        : 'Não foi possível determinar sua posição agora.',
-      'indisponivel'
-    );
-    emitir({estado: 'indisponivel'});
-  }
-
-  if (!('geolocation' in navigator)) {
-    botao.disabled = true;
-    mostrar(
-      'Seu navegador não permite obter a localização.',
-      'indisponivel'
-    );
-    emitir({estado: 'indisponivel'});
-    return;
-  }
-
-  botao.addEventListener('click', () => {
-    botao.disabled = true;
-    mostrar('Buscando sua localização…', 'carregando');
-    navigator.geolocation.getCurrentPosition(
-      aoObterPosicao, aoFalhar, OPCOES
-    );
-  });
-})();
-</script>
-<script>
-(() => {
-  const ENTRADAS = [
-    {
-      nome: 'Entrada 1 (Av. Padre Leonel Franca)',
-      latitude: -22.9791274,
-      longitude: -43.2319012,
-    },
-    {
-      nome: 'Entrada 2 (Marquês de São Vicente)',
-      latitude: -22.9773516,
-      longitude: -43.2314211,
-    },
-  ];
-  const CENTRO_CAMPUS = {latitude: -22.9793, longitude: -43.23245};
-  const RAIO_CAMPUS_M = 500;
-
-  const caixa = document.getElementById('entrada-referencia');
-  const seletor = document.getElementById('entrada-select');
-  const aviso = document.getElementById('localizacao-aviso');
-  const avisoOrigem = document.getElementById('origem-aviso');
-  if (!caixa || !seletor || !aviso || !avisoOrigem) return;
-
-  function distanciaMetros(a, b) {
-    const R = 6371000;
-    const rad = (graus) => graus * Math.PI / 180;
-    const dLat = rad(b.latitude - a.latitude);
-    const dLng = rad(b.longitude - a.longitude);
-    const h = Math.sin(dLat / 2) ** 2
-      + Math.cos(rad(a.latitude)) * Math.cos(rad(b.latitude))
-- Math.sin(dLng / 2) ** 2;
-    return 2 * R * Math.asin(Math.sqrt(h));
-  }
-
-  function definirOrigem(origem) {
-    window.origemMapa = origem;
-    document.dispatchEvent(
-      new CustomEvent('origem:atualizada', {detail: origem})
-    );
-  }
-
-  ENTRADAS.forEach((entrada, indice) => {
-    seletor.add(new Option(entrada.nome, indice));
-  });
-
-  seletor.addEventListener('change', () => {
-    const entrada = ENTRADAS[seletor.value];
-    if (!entrada) {
-      avisoOrigem.textContent = '';
-      definirOrigem(null);
-      return;
-    }
-    avisoOrigem.textContent = 'Referência: ' + entrada.nome + '.';
-    definirOrigem({
-      tipo: 'entrada',
-      nome: entrada.nome,
-      latitude: entrada.latitude,
-      longitude: entrada.longitude,
-    });
-  });
-
-  function mostrarSeletor() {
-    caixa.hidden = false;
-    seletor.dispatchEvent(new Event('change'));
-  }
-
-  document.addEventListener('localizacao:atualizada', (evento) => {
-    const dados = evento.detail;
-
-    if (dados.estado === 'permitida') {
-      if (distanciaMetros(dados, CENTRO_CAMPUS) <= RAIO_CAMPUS_M) {
-        caixa.hidden = true;
-        seletor.value = '';
-        avisoOrigem.textContent = '';
-        definirOrigem({
-          tipo: 'gps',
-          nome: 'Sua localização',
-          latitude: dados.latitude,
-          longitude: dados.longitude,
-        });
-        return;
-      }
-      aviso.textContent = 'Você parece estar fora do campus. '
-        + 'Escolha uma entrada como referência.';
-      aviso.dataset.estado = 'fora';
-    }
-
-    mostrarSeletor();
-  });
-
-  // Sem suporte a geolocalização: o aviso do botão é emitido antes
-  // deste bloco carregar, então o seletor já aparece desde o início.
-  if (!('geolocation' in navigator)) {
-    mostrarSeletor();
-  }
-})();
-</script>
-<script>
-(() => {
-  const TELA = "{% url 'rota_externa' %}";
-
-  document.addEventListener(
-    'rota:calculada',
-    (evento) => {
-      const {origem, predio} = evento.detail;
-      const cartao = document.querySelector(
-        '.leaflet-popup .mapa-local'
-      );
-      if (!cartao) return;
-
-      const achado = String(predio.url)
-        .match(/\/predio\/(\d+)\//);
-      if (!achado) return;
-
-      let link = cartao.querySelector(
-        '[data-rota-tela]'
-      );
-      if (!link) {
-        link = document.createElement('a');
-        link.setAttribute('data-rota-tela', '');
-        link.textContent = 'Ver trajeto no mapa';
-        link.style.display = 'block';
-        link.style.marginTop = '8px';
-        cartao.appendChild(link);
-      }
-
-      const params = new URLSearchParams({
-        origem_lat: origem.latitude,
-        origem_lng: origem.longitude,
-        origem_nome: origem.nome || '',
-        predio: achado[1],
-      });
-      link.href = `${TELA}?${params}`;
-    }
-  );
-
-  const btnBanheiro = document.getElementById('btn-banheiro-proximo');
-  const resultadoBanheiro = document.getElementById('banheiro-proximo-resultado');
-
-  if (btnBanheiro && resultadoBanheiro) {
-    btnBanheiro.addEventListener('click', async () => {
-      const origem = window.origemMapa;
-      if (!origem) {
-        resultadoBanheiro.textContent =
-          'Defina sua origem primeiro (GPS ou entrada) para buscar o banheiro mais próximo.';
-        return;
-      }
-
-      resultadoBanheiro.textContent = 'Buscando banheiro mais próximo...';
-
-      try {
-        const params = new URLSearchParams({
-          origem_lat: origem.latitude,
-          origem_lng: origem.longitude,
-        });
-        const resp = await fetch(`/banheiro-proximo/?${params.toString()}`);
-        const dados = await resp.json();
-
-        if (!resp.ok || dados.estado !== 'ok') {
-          resultadoBanheiro.textContent =
-            'Não foi possível encontrar um banheiro próximo agora.';
-          return;
-        }
-
-        resultadoBanheiro.innerHTML = `
-          <strong>${dados.banheiro}</strong><br>
-          Prédio: ${dados.predio} (${dados.andar})<br>
-          Tempo a pé: ${dados.minutos} min (${dados.distancia_metros} m)<br>
-          <small>${dados.aviso}</small>
-        `;
-      } catch (e) {
-        resultadoBanheiro.textContent = 'Erro de conexão ao buscar banheiro.';
-      }
-    });
-  }
-})();
-</script>
 {% endblock %}
