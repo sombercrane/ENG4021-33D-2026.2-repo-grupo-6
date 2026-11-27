@@ -1,31 +1,32 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
-    <link rel="stylesheet" href="{% static 'css/responsivo.css' %}">
-</head>
-<body class="tela-auth">
-    <main class="container">
+
+{% block titulo %}Entrar | Localiza PUC{% endblock %}
+
+{% block css_extra %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block conteudo %}
+<section class="cartao auth-cartao">
+    <header class="cabecalho-pagina">
         <h1>Entrar</h1>
-        <p>Faça login para acessar a plataforma.</p>
+        <p>Acesse sua conta para gerenciar sua grade de aulas.</p>
+    </header>
 
-        <form method="POST">
-            {% csrf_token %}
+    <form method="post" class="auth-formulario">
+        {% csrf_token %}
+        {{ formulario.as_p }}
+        <button type="submit" class="botao">Entrar</button>
+    </form>
 
-            {{ formulario.as_p }}
+    <p>
+        Ainda não possui uma conta?
+        <a href="{% url 'cadastro' %}">Criar conta</a>
+    </p>
 
-            <button type="submit">Entrar</button>
-        </form>
-
-        <p>Ainda não possui uma conta?
-            <a href="{% url 'cadastro' %}">Cadastre-se</a>
-        </p>
-
-        <a href="{% url 'home' %}">Voltar para o início</a>
-    </main>
-</body>
-</html>
+    <a href="{% url 'home' %}" class="link-voltar">
+        ← Voltar ao mapa
+    </a>
+</section>
+{% endblock %}
