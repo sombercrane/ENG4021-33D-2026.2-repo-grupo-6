@@ -54,8 +54,7 @@ tela-mapa
     <aside class="mapa-busca"
       aria-label="Busca">
       <h3>Buscar no campus</h3>
-      <form method="get"
-        action="{% url 'pesquisa' %}">
+      <form method="get" action="{% url 'mapa' %}">
         <label for="mapa-busca">
           Nome, código ou sigla
         </label>
@@ -66,21 +65,75 @@ tela-mapa
           Categoria
         </label>
         {{ formulario.categoria }}
+        {{ formulario.categoria.errors }}
 
         <label for="mapa-predio">
           Prédio
         </label>
         {{ formulario.predio }}
+        {{ formulario.predio.errors }}
 
         <label for="mapa-andar">
           Andar
         </label>
         {{ formulario.andar }}
+        {{ formulario.andar.errors }}
 
         <button type="submit" class="botao">
           Buscar
         </button>
       </form>
+        {% if pagina is not None %}
+        <section class="mapa-resultados"
+                 aria-labelledby="titulo-resultados">
+          <h3 id="titulo-resultados">Resultados</h3>
+          <p>{{ pagina.paginator.count }} resultado(s)</p>
+
+          {% for item in pagina %}
+            {% if categoria == "predio" %}
+              <a class="mapa-resultado"
+                 href="{% url 'detalhe_predio' item.pk %}">
+                <strong>{{ item.nome }}</strong>
+                <span>{{ item.sigla }}</span>
+              </a>
+            {% else %}
+              <a class="mapa-resultado"
+                 href="{% url 'detalhe_espaco' item.pk %}">
+                <strong>{{ item.nome }}</strong>
+                <span>
+                  {{ item.codigo }} ·
+                  {{ item.andar.predio.sigla }} ·
+                  {{ item.andar.nome }}
+                </span>
+              </a>
+            {% endif %}
+          {% empty %}
+            <p>Nenhum resultado encontrado.</p>
+          {% endfor %}
+
+          {% if pagina.paginator.num_pages > 1 %}
+            <nav class="mapa-paginacao"
+                 aria-label="Páginas dos resultados">
+              {% if pagina.has_previous %}
+                <a href="?{{ filtros }}&page={{ pagina.previous_page_number }}">
+                  Anterior
+                </a>
+              {% endif %}
+
+              <span>
+                {{ pagina.number }} de
+                {{ pagina.paginator.num_pages }}
+              </span>
+
+              {% if pagina.has_next %}
+                <a href="?{{ filtros }}&page={{ pagina.next_page_number }}">
+                  Próxima
+                </a>
+              {% endif %}
+            </nav>
+          {% endif %}
+        </section>
+      {% endif %}
     </aside>
 
     <div class="mapa-coluna">
@@ -104,6 +157,9 @@ tela-mapa
           <p id="origem-aviso"
             role="status" aria-live="polite"></p>
         </div>
+
+        <button type="button" id="btn-banheiro-proximo">Banheiro mais próximo</button>
+        <div id="banheiro-proximo-resultado" style="margin-top: 8px;"></div>
       </section>
 
       <section class="cartao-mapa">
@@ -288,7 +344,7 @@ tela-mapa
     const dLng = rad(b.longitude - a.longitude);
     const h = Math.sin(dLat / 2) ** 2
       + Math.cos(rad(a.latitude)) * Math.cos(rad(b.latitude))
-        * Math.sin(dLng / 2) ** 2;
+- Math.sin(dLng / 2) ** 2;
     return 2 * R * Math.asin(Math.sqrt(h));
   }
 
@@ -352,6 +408,86 @@ tela-mapa
   // deste bloco carregar, então o seletor já aparece desde o início.
   if (!('geolocation' in navigator)) {
     mostrarSeletor();
+  }
+})();
+</script>
+<script>
+(() => {
+  const TELA = "{% url 'rota_externa' %}";
+
+  document.addEventListener(
+    'rota:calculada',
+    (evento) => {
+      const {origem, predio} = evento.detail;
+      const cartao = document.querySelector(
+        '.leaflet-popup .mapa-local'
+      );
+      if (!cartao) return;
+
+      const achado = String(predio.url)
+        .match(/\/predio\/(\d+)\//);
+      if (!achado) return;
+
+      let link = cartao.querySelector(
+        '[data-rota-tela]'
+      );
+      if (!link) {
+        link = document.createElement('a');
+        link.setAttribute('data-rota-tela', '');
+        link.textContent = 'Ver trajeto no mapa';
+        link.style.display = 'block';
+        link.style.marginTop = '8px';
+        cartao.appendChild(link);
+      }
+
+      const params = new URLSearchParams({
+        origem_lat: origem.latitude,
+        origem_lng: origem.longitude,
+        origem_nome: origem.nome || '',
+        predio: achado[1],
+      });
+      link.href = `${TELA}?${params}`;
+    }
+  );
+
+  const btnBanheiro = document.getElementById('btn-banheiro-proximo');
+  const resultadoBanheiro = document.getElementById('banheiro-proximo-resultado');
+
+  if (btnBanheiro && resultadoBanheiro) {
+    btnBanheiro.addEventListener('click', async () => {
+      const origem = window.origemMapa;
+      if (!origem) {
+        resultadoBanheiro.textContent =
+          'Defina sua origem primeiro (GPS ou entrada) para buscar o banheiro mais próximo.';
+        return;
+      }
+
+      resultadoBanheiro.textContent = 'Buscando banheiro mais próximo...';
+
+      try {
+        const params = new URLSearchParams({
+          origem_lat: origem.latitude,
+          origem_lng: origem.longitude,
+        });
+        const resp = await fetch(`/banheiro-proximo/?${params.toString()}`);
+        const dados = await resp.json();
+
+        if (!resp.ok || dados.estado !== 'ok') {
+          resultadoBanheiro.textContent =
+            'Não foi possível encontrar um banheiro próximo agora.';
+          return;
+        }
+
+        resultadoBanheiro.innerHTML = `
+          <strong>${dados.banheiro}</strong><br>
+          Prédio: ${dados.predio} (${dados.andar})<br>
+          Tempo a pé: ${dados.minutos} min (${dados.distancia_metros} m)<br>
+          <small>${dados.aviso}</small>
+        `;
+      } catch (e) {
+        resultadoBanheiro.textContent = 'Erro de conexão ao buscar banheiro.';
+      }
+    });
   }
 })();
 </script>

@@ -1,3 +1,4 @@
+import json
 from itertools import chain
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core.paginator import Paginator
@@ -25,7 +26,7 @@ from .forms import (
 
 
 def home(request):
-    return render(request, 'home.html')
+    return redirect("mapa")
 
 
 
@@ -89,13 +90,15 @@ def mapa(request):
             'posicao_y': posicao_y,
         })
 
-    return render(request, 'Mapa-HTML.html', {
-        'predios_mapa': list(predios_por_id.values()),
-        'formulario': PesquisaMapaForm(
+    contexto = _contexto_pesquisa(request)
+    contexto.update({
+        "predios_mapa": list(predios_por_id.values()),
+        "formulario": PesquisaMapaForm(
             request.GET or None,
-            auto_id='mapa-%s'
+            auto_id="mapa-%s",
         ),
     })
+    return render(request, "Mapa-HTML.html", contexto)
 
 
 def pesquisa(request):
@@ -106,38 +109,16 @@ def pesquisa(request):
     })
 
 def search(request):
-    formulario = PesquisaEspacoForm(request.GET)
-    return render(request, 'search.html', {
-        'formulario': formulario
-    })
+    return pesquisa(request)
 
+def _redirecionar_categoria(request, categoria):
+    parametros = request.GET.copy()
+    parametros["categoria"] = categoria
+    destino = reverse("mapa")
+    return redirect(f"{destino}?{parametros.urlencode()}")
 
 def predios(request):
-    formulario = PesquisaPredioForm(
-        request.GET or None
-    )
-
-    lista = Predio.objects.all().order_by('nome')
-
-    if formulario.is_valid():
-        busca = formulario.cleaned_data['busca']
-
-        if busca:
-            lista = lista.filter(
-                Q(nome__icontains=busca) |
-                Q(sigla__icontains=busca)
-            )
-
-    paginas = Paginator(lista, 5)
-    predios = paginas.get_page(
-        request.GET.get('page')
-    )
-
-    return render(request, 'pesquisa_predio.html', {
-        'formulario': formulario,
-        'predios': predios
-    })
-
+    return _redirecionar_categoria(request, "predio")
 
 
 def predio_por_sigla(request, sigla):
@@ -145,104 +126,44 @@ def predio_por_sigla(request, sigla):
     return redirect('detalhe_predio', id_predio=predio.pk)
 
 def iag(request):
-    return render(
-        request, 'HTML Tela Prédio IAG.html'
-    )
-
+    return predio_por_sigla(request, "IAG")
 
 def leme(request):
-    return render(
-        request, 'HTML Tela Prédio Leme.html'
-    )
-
+    return predio_por_sigla(request, "L")
 
 def laboratorios(request):
-    formulario = PesquisaLaboratorioForm(
-        request.GET or None
-    )
-
-    laboratorios = Espaco.objects.filter(
-        tipo__nome__icontains='laboratório'
-    ).select_related(
-        'andar__predio', 'tipo'
-    ).order_by('nome')
-
-    if formulario.is_valid():
-        busca = formulario.cleaned_data['busca']
-
-        if busca:
-            laboratorios = laboratorios.filter(
-                Q(nome__icontains=busca) |
-                Q(codigo__icontains=busca)
-            )
-
-    return render(
-        request, 'pesquisa_laboratorio.html', {
-            'formulario': formulario,
-            'laboratorios': laboratorios
-        }
-    )
-
+    return _redirecionar_categoria(request, "laboratorio")
 
 def kennedy(request):
-    form = PesquisaEspacoForm(request.GET or None)
-    espacos = Espaco.objects.filter(
-        andar__predio__sigla='K'
-    )
-
-    termo = (
-        form['busca'].value()
-        if form.is_bound else None
-    )
-    if termo:
-        espacos = espacos.filter(
-            Q(nome__icontains=termo)
-            | Q(codigo__icontains=termo)
-        )
-
-    return render(request, 'kennedy.html', {
-        'form': form,
-        'espacos': espacos,
-    })
-
+    return predio_por_sigla(request, "Kennedy")
 
 def auditorios(request):
-    return render(
-        request, 'pesquisa-auditorios.html'
-    )
-
+    return _redirecionar_categoria(request, "auditorio")
 
 
 def laboratorio_fisica(request):
-    return render(
-        request, 'laboratorio_de_fisica.html'
+    parametros = request.GET.copy()
+    parametros["categoria"] = "laboratorio"
+    parametros["busca"] = "Física"
+    return redirect(
+        f'{reverse("mapa")}?{parametros.urlencode()}'
     )
 
 
 def laboratorio_design(request):
-    return render(
-        request, 'laboratorio_de_design.html'
+    parametros = request.GET.copy()
+    parametros["categoria"] = "laboratorio"
+    parametros["busca"] = "Design"
+    return redirect(
+        f'{reverse("mapa")}?{parametros.urlencode()}'
     )
-
 
 def pesquisa_auditorios(request):
-    form = PesquisaAuditorioForm(
-        request.GET or None
-    )
-    return render(
-        request, 'pesquisa-auditorios.html', {
-            'form': form
-        }
-    )
+    return _redirecionar_categoria(request, "auditorio")
 
 
 def pesquisa_sala(request):
-    form = PesquisaEspacoForm(request.GET or None)
-    return render(
-        request, 'Pesquisa-Sala-HTML.html', {
-            'form': form
-        }
-    )
+    return _redirecionar_categoria(request, "sala")
 
 
 def cadastro(request):
@@ -285,14 +206,11 @@ def logout_view(request):
 
     return redirect('home')
 
-
 def auditorio_rdc(request):
-    return render(request, 'audrdc.html')
-
+    return predio_por_sigla(request, "RDC")
 
 def auditorio_kennedy(request):
-    return render(request, 'HTML aud kennedy')
-
+    return predio_por_sigla(request, "Kennedy")
 
 def detalhe_espaco(request, pk):
     espacos = Espaco.objects.select_related("andar__predio", "tipo")
@@ -318,7 +236,7 @@ TIPOS = {
 }
 
 
-def pesquisa(request):
+def _contexto_pesquisa(request):
     formulario = PesquisaForm(request.GET or None)
     pagina = None
     categoria = "todos"
@@ -366,13 +284,23 @@ def pesquisa(request):
     filtros = request.GET.copy()
     filtros.pop("page", None)
 
-    return render(request, "pesquisa.html", {
+    return {
         "formulario": formulario,
         "pagina": pagina,
         "categoria": categoria,
         "filtros": filtros.urlencode(),
         "atual": request.GET.urlencode(),
-    })
+    }
+
+
+def pesquisa(request):
+    parametros = request.GET.urlencode()
+    destino = reverse("mapa")
+
+    if parametros:
+        destino = f"{destino}?{parametros}"
+
+    return redirect(destino)
 
 
 def detalhe_predio(request, id_predio):
@@ -402,7 +330,7 @@ def detalhe_predio(request, id_predio):
 
 
 def teste_base(request):
-    return render(request, 'teste_base.html')
+    return redirect("mapa")
 
 def dados_mapa(request):
     espacos = Espaco.objects.select_related(
@@ -515,4 +443,319 @@ def remover_aula(request, pk):
     return render(request, "grade.html", {
         "aula": aula,
         "confirmar_remocao": True,
+    })
+
+import json
+import os
+import urllib.error
+import urllib.request
+
+from django.conf import settings
+
+ROTAS_URL = (
+    "https://routes.googleapis.com/"
+    "directions/v2:computeRoutes"
+)
+
+
+def _numero(valor, minimo, maximo):
+    try:
+        numero = float(valor)
+    except (TypeError, ValueError):
+        return None
+    if minimo <= numero <= maximo:
+        return numero
+    return None
+
+
+def rota_a_pe(request):
+    lat = _numero(
+        request.GET.get("origem_lat"), -90, 90
+    )
+    lng = _numero(
+        request.GET.get("origem_lng"), -180, 180
+    )
+    try:
+        id_predio = int(request.GET.get("predio", ""))
+    except ValueError:
+        id_predio = None
+
+    predio = (
+        Predio.objects.filter(pk=id_predio).first()
+        if id_predio else None
+    )
+
+    if (
+        lat is None
+        or lng is None
+        or predio is None
+        or predio.latitude is None
+        or predio.longitude is None
+    ):
+        return JsonResponse(
+            {"estado": "invalido"}, status=400
+        )
+
+    chave = (
+        os.environ.get("GOOGLE_ROUTES_API_KEY")
+        or getattr(settings, "GOOGLE_MAPS_API_KEY", "")
+    )
+    if not chave:
+        return JsonResponse({"estado": "sem_chave"})
+
+    corpo = {
+        "origin": {"location": {"latLng": {
+            "latitude": lat,
+            "longitude": lng,
+        }}},
+        "destination": {"location": {"latLng": {
+            "latitude": float(predio.latitude),
+            "longitude": float(predio.longitude),
+        }}},
+        "travelMode": "WALK",
+        "languageCode": "pt-BR",
+        "units": "METRIC",
+    }
+    campos = (
+        "routes.duration,"
+        "routes.distanceMeters,"
+        "routes.polyline.encodedPolyline"
+    )
+    pedido = urllib.request.Request(
+        ROTAS_URL,
+        data=json.dumps(corpo).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": chave,
+            "X-Goog-FieldMask": campos,
+        },
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(
+            pedido, timeout=10
+        ) as resposta:
+            dados = json.loads(
+                resposta.read().decode("utf-8")
+            )
+    except (
+        urllib.error.URLError, TimeoutError, ValueError
+    ):
+        return JsonResponse(
+            {"estado": "falha"}, status=502
+        )
+
+    rotas = dados.get("routes") or []
+    if not rotas:
+        return JsonResponse({"estado": "sem_rota"})
+
+    rota = rotas[0]
+    texto = str(rota.get("duration", "0s")).rstrip("s")
+    try:
+        segundos = round(float(texto))
+    except ValueError:
+        segundos = 0
+
+    return JsonResponse({
+        "estado": "ok",
+        "duracao_segundos": segundos,
+        "minutos": max(1, round(segundos / 60)),
+        "distancia_metros": rota.get(
+            "distanceMeters", 0
+        ),
+        "polilinha": rota.get("polyline", {}).get(
+            "encodedPolyline", ""
+        ),
+    })
+
+def rota_externa(request):
+    try:
+        id_predio = int(request.GET.get("predio", ""))
+    except ValueError:
+        id_predio = None
+
+    predio = (
+        Predio.objects.filter(pk=id_predio).first()
+        if id_predio else None
+    )
+    lat = _numero(
+        request.GET.get("origem_lat"), -90, 90
+    )
+    lng = _numero(
+        request.GET.get("origem_lng"), -180, 180
+    )
+
+    pronto = bool(
+        predio
+        and predio.latitude is not None
+        and predio.longitude is not None
+        and lat is not None
+        and lng is not None
+    )
+
+    dados = {
+        "pronto": pronto,
+        "chave": settings.GOOGLE_MAPS_API_KEY,
+        "rota_url": reverse("rota_a_pe"),
+    }
+    if pronto:
+        nome_origem = (
+            request.GET.get("origem_nome", "")[:100]
+            or "Origem"
+        )
+        dados["origem"] = {
+            "lat": lat,
+            "lng": lng,
+            "nome": nome_origem,
+        }
+        dados["destino"] = {
+            "id": predio.pk,
+            "nome": predio.nome,
+            "lat": float(predio.latitude),
+            "lng": float(predio.longitude),
+        }
+
+    return render(request, "rota.html", {
+        "predio": predio,
+        "dados": dados,
+    })
+
+def _tempo_a_pe(chave, origem_lat, origem_lng, predio):
+    corpo = {
+        "origin": {"location": {"latLng": {
+            "latitude": origem_lat,
+            "longitude": origem_lng,
+        }}},
+        "destination": {"location": {"latLng": {
+            "latitude": float(predio.latitude),
+            "longitude": float(predio.longitude),
+        }}},
+        "travelMode": "WALK",
+        "languageCode": "pt-BR",
+        "units": "METRIC",
+    }
+    pedido = urllib.request.Request(
+        ROTAS_URL,
+        data=json.dumps(corpo).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": chave,
+            "X-Goog-FieldMask": (
+                "routes.duration,routes.distanceMeters"
+            ),
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(
+            pedido, timeout=10
+        ) as resposta:
+            dados = json.loads(
+                resposta.read().decode("utf-8")
+            )
+    except (
+        urllib.error.URLError, TimeoutError, ValueError
+    ):
+        return None
+
+    rotas = dados.get("routes") or []
+    if not rotas:
+        return None
+    rota = rotas[0]
+    try:
+        segundos = round(float(
+            str(rota.get("duration", "0s")).rstrip("s")
+        ))
+    except ValueError:
+        return None
+    return {
+        "segundos": segundos,
+        "metros": rota.get("distanceMeters", 0),
+    }
+
+
+def banheiro_proximo(request):
+    lat = _numero(
+        request.GET.get("origem_lat"), -90, 90
+    )
+    lng = _numero(
+        request.GET.get("origem_lng"), -180, 180
+    )
+    if lat is None or lng is None:
+        return JsonResponse(
+            {"estado": "invalido"}, status=400
+        )
+
+    chave = (
+        os.environ.get("GOOGLE_ROUTES_API_KEY")
+        or getattr(settings, "GOOGLE_MAPS_API_KEY", "")
+    )
+    if not chave:
+        return JsonResponse({"estado": "sem_chave"})
+
+    banheiros = (
+        Espaco.objects
+        .filter(
+            tipo__nome="Banheiro",
+            andar__predio__latitude__isnull=False,
+            andar__predio__longitude__isnull=False,
+        )
+        .select_related("andar__predio")
+    )
+    por_predio = {}
+    for banheiro in banheiros:
+        por_predio.setdefault(
+            banheiro.andar.predio_id, []
+        ).append(banheiro)
+
+    if not por_predio:
+        return JsonResponse({"estado": "sem_banheiro"})
+
+    candidatos = []
+    for lista in por_predio.values():
+        predio = lista[0].andar.predio
+        distancia = (
+            (float(predio.latitude) - lat) ** 2
+            + (float(predio.longitude) - lng) ** 2
+        )
+        candidatos.append((distancia, predio, lista))
+    candidatos.sort(key=lambda item: item[0])
+
+    melhor = None
+    for _, predio, lista in candidatos[:5]:
+        tempo = _tempo_a_pe(chave, lat, lng, predio)
+        if tempo is None:
+            continue
+        if (
+            melhor is None
+            or tempo["segundos"] < melhor["segundos"]
+        ):
+            banheiro = min(
+                lista, key=lambda b: b.andar.numero
+            )
+            melhor = {
+                "segundos": tempo["segundos"],
+                "metros": tempo["metros"],
+                "banheiro": banheiro,
+                "predio": predio,
+            }
+
+    if melhor is None:
+        return JsonResponse(
+            {"estado": "falha"}, status=502
+        )
+
+    return JsonResponse({
+        "estado": "ok",
+        "banheiro": melhor["banheiro"].nome,
+        "predio": melhor["predio"].nome,
+        "predio_id": melhor["predio"].pk,
+        "andar": melhor["banheiro"].andar.nome,
+        "minutos": max(1, round(melhor["segundos"] / 60)),
+        "distancia_metros": melhor["metros"],
+        "aviso": (
+            "Tempo estimado até a entrada do prédio, "
+            "sem contar o caminho dentro dele."
+        ),
     })
