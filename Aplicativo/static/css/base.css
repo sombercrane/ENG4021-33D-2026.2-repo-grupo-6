@@ -182,3 +182,165 @@ body {
     outline: 2px solid currentColor;
     outline-offset: 3px;
 }
+/* Grade de aulas */
+.grade-pagina {
+    overflow-wrap: anywhere;
+}
+
+.grade-pagina h2,
+.grade-pagina h3 {
+    margin-top: 0;
+}
+
+.grade-pagina .cabecalho-pagina h1 {
+    margin-top: 12px;
+}
+
+.grade-formulario p {
+    margin: 0 0 18px;
+}
+
+.grade-formulario label {
+    display: block;
+    margin-bottom: 6px;
+}
+
+.grade-formulario fieldset {
+    min-width: 0;
+    margin: 0 0 18px;
+    padding: 12px;
+    border: 1px solid #34473a;
+    border-radius: 10px;
+}
+
+.grade-formulario fieldset label {
+    padding: 4px 0;
+}
+
+.grade-formulario .helptext {
+    display: block;
+    margin-top: 6px;
+    color: #b7c5b9;
+    font-size: 14px;
+}
+
+.grade-formulario .errorlist {
+    color: #ffb4ab;
+    padding-left: 20px;
+}
+
+.grade-formulario .campo {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.grade-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.grade-lista {
+    display: grid;
+    gap: 16px;
+    margin-top: 28px;
+}
+
+.grade-lista > h2 {
+    margin-bottom: 0;
+}
+
+@media (max-width: 480px) {
+    .grade-pagina .cartao {
+        padding: 18px;
+    }
+
+    .grade-acoes .botao {
+        width: 100%;
+    }
+}
+/* Detalhe do espaço */
+.espaco-detalhe {
+    overflow-wrap: anywhere;
+    line-height: 1.6;
+}
+
+.espaco-navegacao {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    margin-bottom: 24px;
+}
+
+.espaco-cabecalho {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #34473a;
+}
+
+.espaco-cabecalho h1 {
+    margin: 8px 0;
+    font-size: 28px;
+    line-height: 1.3;
+}
+
+.espaco-tipo,
+.espaco-codigo {
+    margin: 8px 0;
+    color: #b7c5b9;
+}
+
+.espaco-detalhe section {
+    margin-top: 28px;
+}
+
+.espaco-dados {
+    display: grid;
+    gap: 16px;
+}
+
+.espaco-dados dt {
+    font-weight: bold;
+}
+
+.espaco-dados dd {
+    margin: 4px 0 0;
+}
+
+.espaco-relacionados {
+    display: grid;
+    gap: 12px;
+    padding: 0;
+    list-style: none;
+}
+
+.espaco-relacionado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid #34473a;
+    border-radius: 10px;
+    background-color: #102014;
+    color: #d3e2d4;
+    text-decoration: none;
+}
+
+.espaco-relacionado:hover {
+    background-color: #203929;
+}
+
+.espaco-relacionado:focus-visible {
+    outline: 2px solid #b9d8c3;
+    outline-offset: 4px;
+}
+
+.espaco-relacionado-texto {
+    min-width: 0;
+}
+
+.espaco-relacionado-texto span {
+    display: block;
+    color: #b7c5b9;
+}

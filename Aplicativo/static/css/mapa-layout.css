@@ -88,3 +88,56 @@
     width: 32px;
     height: 32px;
 }
+
+.mapa-origem-ponto {
+    display: block;
+    width: 18px;
+    height: 18px;
+    background: #1a73e8;
+    border: 3px solid white;
+    border-radius: 50%;
+    box-shadow: 0 0 0 6px #1a73e833;
+}
+.mapa-resultados {
+    margin-top: 24px;
+    overflow-wrap: anywhere;
+}
+
+.mapa-resultado {
+    display: block;
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid #34473a;
+    border-radius: 10px;
+    background-color: #050605;
+    color: #d3e2d4;
+    text-decoration: none;
+}
+
+.mapa-resultado span {
+    display: block;
+    margin-top: 6px;
+    color: #b7c5b9;
+    font-size: 14px;
+}
+
+.mapa-resultado:hover {
+    background-color: #203929;
+}
+
+.mapa-resultado:focus-visible {
+    outline: 2px solid #b9d8c3;
+    outline-offset: 3px;
+}
+
+.mapa-paginacao {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.mapa-paginacao a {
+    color: #b9d8c3;
+}
