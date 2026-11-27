@@ -114,8 +114,8 @@ class Ponto(models.Model):
         db_column="id_tipo_ponto",
     )
     nome = models.CharField(max_length=150)
-    posicao_x = models.FloatField()
-    posicao_y = models.FloatField()
+    posicao_x = models.FloatField(null=True, blank=True)
+    posicao_y = models.FloatField(null=True, blank=True)
     descricao = models.TextField(blank=True)
 
     def __str__(self):
@@ -183,3 +183,69 @@ class Aula(models.Model):
             f"{self.get_dia_semana_display()} "
             f"{self.horario_inicio:%H:%M}"
         )
+
+class Conexao(models.Model):
+    id_conexao = models.BigAutoField(primary_key=True)
+
+    ponto_origem = models.ForeignKey(
+        Ponto,
+        on_delete=models.CASCADE,
+        related_name="conexoes_saida",
+        null=True,
+        blank=True,
+    )
+
+    espaco_origem = models.ForeignKey(
+        Espaco,
+        on_delete=models.CASCADE,
+        related_name="conexoes_saida",
+        null=True,
+        blank=True,
+    )
+
+    ponto_destino = models.ForeignKey(
+        Ponto,
+        on_delete=models.CASCADE,
+        related_name="conexoes_entrada",
+        null=True,
+        blank=True,
+    )
+
+    espaco_destino = models.ForeignKey(
+        Espaco,
+        on_delete=models.CASCADE,
+        related_name="conexoes_entrada",
+        null=True,
+        blank=True,
+    )
+
+    acessivel = models.BooleanField(null=True, blank=True, default=None)
+    validada = models.BooleanField(default=False)
+    distancia = models.FloatField(null=True, blank=True)
+    descricao = models.TextField(blank=True)
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+
+        origem = int(self.ponto_origem_id is not None) + int(
+            self.espaco_origem_id is not None
+        )
+        destino = int(self.ponto_destino_id is not None) + int(
+            self.espaco_destino_id is not None
+        )
+
+        if origem != 1:
+            raise ValidationError(
+                "Informe exatamente um ponto ou espaço de origem."
+            )
+
+        if destino != 1:
+            raise ValidationError(
+                "Informe exatamente um ponto ou espaço de destino."
+            )
+
+        if self.distancia is not None and self.distancia < 0:
+            raise ValidationError("A distância não pode ser negativa.")
+
+    def __str__(self):
+        return f"Conexão {self.id_conexao}"

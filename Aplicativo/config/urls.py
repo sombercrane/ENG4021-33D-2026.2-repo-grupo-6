@@ -31,6 +31,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.mapa, name='home'),
     path('mapa/', views.mapa, name='mapa'),
+    path('buscar-rota/', views.buscar_rota, name='buscar_rota'),
     path('rota-a-pe/', views.rota_a_pe, name='rota_a_pe'),
     path('rota/', views.rota_externa, name='rota_externa'),
     path('banheiro-proximo/', views.banheiro_proximo, name='banheiro_proximo'),

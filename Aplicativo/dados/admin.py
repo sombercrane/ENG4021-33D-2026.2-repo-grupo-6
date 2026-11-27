@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Predio, Andar, TipoEspaco, Espaco, TipoPonto, Ponto
+from .models import Predio, Andar, TipoEspaco, Espaco, TipoPonto, Ponto, Conexao
 
 # Register your models here.
 
@@ -46,3 +46,35 @@ class PontoAdmin(admin.ModelAdmin):
     list_display = ("nome", "andar", "tipo_ponto", "posicao_x", "posicao_y")
     list_filter = ("tipo_ponto", "andar__predio")
     search_fields = ("nome", "descricao", "andar__nome", "andar__predio__nome")
+
+@admin.register(Conexao)
+class ConexaoAdmin(admin.ModelAdmin):
+    list_display = (
+        "id_conexao",
+        "ponto_origem",
+        "espaco_origem",
+        "ponto_destino",
+        "espaco_destino",
+        "distancia",
+        "acessivel",
+        "validada",
+    )
+
+    list_filter = (
+        "validada",
+        "acessivel",
+    )
+
+    search_fields = (
+        "descricao",
+        "ponto_origem__nome",
+        "espaco_origem__nome",
+        "ponto_destino__nome",
+        "espaco_destino__nome",
+    )
+
+    list_editable = (
+        "validada",
+    )
+
+    ordering = ("validada", "id_conexao")
