@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}{{ predio.nome }} | Localiza PUC{% endblock %}
+
+{% block css_extra %}
+<link rel="stylesheet" href="{% static 'css/predio-andares.css' %}">
+{% endblock %}
+
+{% block conteudo %}
+<header class="cabecalho-pagina predio-cabecalho">
+    <a class="link-voltar" href="{% url 'mapa' %}">← Voltar ao mapa</a>
+    <h1>{{ predio.nome }}</h1>
+    <p>{{ predio.sigla }}{% if predio.endereco %} · {{ predio.endereco }}{% endif %}</p>
+    {% if predio.descricao %}<p>{{ predio.descricao }}</p>{% endif %}
+</header>
+
+{% if andar %}
+<form class="predio-seletor" method="get" action="{% url 'detalhe_predio' predio.pk %}">
+    <div>
+        <label for="predio-andar">Andar</label>
+        <select name="andar" id="predio-andar" class="campo">
+            {% for opcao in andares %}
+            <option value="{{ opcao.pk }}"{% if opcao.pk == andar.pk %} selected{% endif %}>
+                {{ opcao.nome }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="botao">Ver andar</button>
+</form>
+
+<section class="cartao andar-detalhe" aria-labelledby="andar-nome">
+    <h2 id="andar-nome">{{ andar.nome }}</h2>
+    {% if andar.descricao %}<p>{{ andar.descricao }}</p>{% endif %}
+    {% if andar.imagem_mapa %}
+    <img class="andar-planta" src="{{ andar.imagem_mapa.url }}" alt="Planta de {{ andar.nome }}">
+    {% else %}
+    <p>Planta indisponível para este andar.</p>
+    {% endif %}
+
+    <div class="andar-listas">
+        <section aria-labelledby="andar-espacos">
+            <h3 id="andar-espacos">Espaços</h3>
+            <ul class="andar-locais">
+                {% for espaco in espacos %}
+                <li>
+                    <a href="{% url 'detalhe_espaco' espaco.pk %}">{{ espaco.nome }}</a>
+                    <small>{{ espaco.tipo.nome }}{% if espaco.codigo %} · {{ espaco.codigo }}{% endif %}</small>
+                </li>
+                {% empty %}
+                <li>Nenhum espaço cadastrado neste andar.</li>
+                {% endfor %}
+            </ul>
+        </section>
+        <section aria-labelledby="andar-pontos">
+            <h3 id="andar-pontos">Pontos de interesse</h3>
+            <ul class="andar-locais">
+                {% for ponto in pontos %}
+                <li>
+                    <strong>{{ ponto.nome }}</strong>
+                    <small>{{ ponto.tipo_ponto.nome }}</small>
+                    {% if ponto.descricao %}<small>{{ ponto.descricao }}</small>{% endif %}
+                </li>
+                {% empty %}
+                <li>Nenhum ponto de interesse cadastrado neste andar.</li>
+                {% endfor %}
+            </ul>
+        </section>
+    </div>
+</section>
+{% else %}
+<p>Nenhum andar cadastrado para este prédio.</p>
+{% endif %}
+{% endblock %}

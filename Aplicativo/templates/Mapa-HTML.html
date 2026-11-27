@@ -1,0 +1,600 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}
+Mapa - LocalizaPUC
+{% endblock %}
+
+{% block body_class %}
+tela-mapa
+{% endblock %}
+
+{% block css_extra %}
+<link rel="stylesheet"
+  href="{% static 'css/Mapa-CSS.css' %}">
+<link rel="stylesheet"
+  href="{% static 'css/responsivo.css' %}">
+<link rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+  crossorigin="anonymous">
+<link rel="stylesheet"
+  href="{% static 'css/mapa-leaflet.css' %}">
+<link rel="stylesheet"
+  href="{% static 'css/mapa-layout.css' %}">
+{% endblock %}
+
+{% block extra_head %}
+<script defer
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  crossorigin="anonymous"></script>
+{% if proxima_aula %}
+<script type="module">
+// Roda depois do leaflet.js e antes do mapa-leaflet.js (ordem do
+// documento): guarda o mapa e os pins para abrir o da próxima aula.
+let mapaLeaflet = null;
+const pins = [];
+L.Map.addInitHook(function () { mapaLeaflet = this; });
+L.Marker.addInitHook(function () { pins.push(this); });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const botao = document.getElementById('proxima-aula-botao');
+  const aviso = document.getElementById('proxima-aula-aviso');
+  if (!botao || !aviso) return;
+
+  botao.addEventListener('click', () => {
+    const lat = parseFloat(botao.dataset.lat);
+    const lng = parseFloat(botao.dataset.lng);
+    const pin = pins.find((marcador) => {
+      const ponto = marcador.getLatLng();
+      const classes = marcador.options.icon?.options?.className ?? '';
+      return Math.abs(ponto.lat - lat) < 1e-5
+        && Math.abs(ponto.lng - lng) < 1e-5
+        && classes.split(' ').includes(
+          'mapa-marcador--' + botao.dataset.tipo
+        );
+    });
+
+    if (!mapaLeaflet || !pin) {
+      aviso.textContent = 'Não há pin desta sala no mapa agora. '
+        + 'Se houver filtros ativos, use Limpar filtros.';
+      return;
+    }
+
+    aviso.textContent = '';
+    mapaLeaflet.setView(pin.getLatLng(), Math.max(mapaLeaflet.getZoom(), 18));
+    pin.openPopup();
+
+    const seletor = pin.getPopup()?.getElement()?.querySelector('select');
+    if (seletor) {
+      const indice = Array.from(seletor.options).findIndex(
+        (opcao) => opcao.text.startsWith(botao.dataset.sala)
+      );
+      if (indice >= 0) {
+        seletor.selectedIndex = indice;
+        seletor.dispatchEvent(new Event('change'));
+      }
+    }
+    document.getElementById('mapa-interativo')
+      .scrollIntoView({behavior: 'smooth', block: 'center'});
+  });
+});
+</script>
+{% endif %}
+<script defer
+  src="{% static 'js/mapa-leaflet.js' %}"></script>
+{% endblock %}
+
+{% block conteudo %}
+<div class="container">
+
+  <h2 class="titulo">Mapa da PUC-Rio</h2>
+  <p class="subtitulo">
+    Explore os prédios e encontre
+    seu caminho pelo campus.
+  </p>
+
+  <div class="filtros">
+    <span class="filtro">Entrada</span>
+    <span class="filtro">Elevador</span>
+    <span class="filtro">Escada</span>
+    <span class="filtro">Banheiro</span>
+  </div>
+
+  <div class="mapa-layout">
+
+    <aside class="mapa-busca"
+      aria-label="Busca">
+      <h3>Buscar no campus</h3>
+      <form method="get" action="{% url 'mapa' %}">
+        <label for="mapa-busca">
+          Nome, código ou sigla
+        </label>
+        {{ formulario.busca }}
+        {{ formulario.busca.errors }}
+
+        <label for="mapa-categoria">
+          Categoria
+        </label>
+        {{ formulario.categoria }}
+        {{ formulario.categoria.errors }}
+
+        <label for="mapa-predio">
+          Prédio
+        </label>
+        {{ formulario.predio }}
+        {{ formulario.predio.errors }}
+
+        <label for="mapa-andar">
+          Andar
+        </label>
+        {{ formulario.andar }}
+        {{ formulario.andar.errors }}
+
+        <button type="submit" class="botao">
+          Buscar
+        </button>
+        {% if filtros_ativos %}
+        <a href="{% url 'mapa' %}"
+          class="botao botao-secundario">
+          Limpar filtros
+        </a>
+        {% endif %}
+      </form>
+        {% if pagina is not None %}
+        <section class="mapa-resultados"
+                 aria-labelledby="titulo-resultados">
+          <h3 id="titulo-resultados">Resultados</h3>
+          <p>{{ pagina.paginator.count }} resultado(s)</p>
+
+          {% for item in pagina %}
+            {% if categoria == "predio" %}
+              <a class="mapa-resultado"
+                 href="{% url 'detalhe_predio' item.pk %}">
+                <strong>{{ item.nome }}</strong>
+                <span>{{ item.sigla }}</span>
+              </a>
+            {% else %}
+              <a class="mapa-resultado"
+                 href="{% url 'detalhe_espaco' item.pk %}">
+                <strong>{{ item.nome }}</strong>
+                <span>
+                  {{ item.codigo }} ·
+                  {{ item.andar.predio.sigla }} ·
+                  {{ item.andar.nome }}
+                </span>
+              </a>
+            {% endif %}
+          {% empty %}
+            <p role="status">
+              Nenhum resultado encontrado.
+              Tente outro termo ou use
+              <strong>Limpar filtros</strong>.
+            </p>
+          {% endfor %}
+
+          {% if pagina.paginator.num_pages > 1 %}
+            <nav class="mapa-paginacao"
+                 aria-label="Páginas dos resultados">
+              {% if pagina.has_previous %}
+                <a href="?{{ filtros }}&page={{ pagina.previous_page_number }}">
+                  Anterior
+                </a>
+              {% endif %}
+
+              <span>
+                {{ pagina.number }} de
+                {{ pagina.paginator.num_pages }}
+              </span>
+
+              {% if pagina.has_next %}
+                <a href="?{{ filtros }}&page={{ pagina.next_page_number }}">
+                  Próxima
+                </a>
+              {% endif %}
+            </nav>
+          {% endif %}
+        </section>
+      {% endif %}
+    </aside>
+
+    <div class="mapa-coluna">
+
+      <section class="mapa-localizacao"
+        aria-label="Sua localização">
+        <button id="localizacao-botao"
+          type="button" class="botao">
+          Usar minha localização
+        </button>
+        <p id="localizacao-aviso"
+          role="status" aria-live="polite"></p>
+
+        <div id="entrada-referencia" hidden>
+          <label for="entrada-select">
+            Estou na entrada…
+          </label>
+          <select id="entrada-select" class="campo">
+            <option value="">Escolha uma entrada</option>
+          </select>
+          <p id="origem-aviso"
+            role="status" aria-live="polite"></p>
+        </div>
+
+        <button type="button" id="btn-banheiro-proximo">Banheiro mais próximo</button>
+        <div id="banheiro-proximo-resultado" style="margin-top: 8px;"></div>
+      </section>
+
+      <section class="mapa-proxima-aula"
+        aria-label="Próxima aula">
+        {% if not user.is_authenticated %}
+        <p>
+          <a href="{% url 'login' %}">Entre</a>
+          para ver a sua próxima aula.
+        </p>
+        {% elif proxima_aula %}
+        <p>
+          <strong>
+            {% if proxima_aula.em_andamento %}Aula em andamento{% else %}Próxima aula{% endif %}:
+          </strong>
+          {{ proxima_aula.aula.disciplina }} —
+          {{ proxima_aula.sala.nome }}
+          ({{ proxima_aula.predio.sigla }} ·
+          {{ proxima_aula.andar.nome }}),
+          {{ proxima_aula.quando }} às
+          {{ proxima_aula.aula.horario_inicio|time:"H:i" }}.
+        </p>
+        <button id="proxima-aula-botao" type="button"
+          class="botao"
+          data-lat="{{ proxima_aula.predio.latitude|stringformat:'s' }}"
+          data-lng="{{ proxima_aula.predio.longitude|stringformat:'s' }}"
+          data-tipo="{{ proxima_aula.tipo_pin }}"
+          data-sala="{{ proxima_aula.sala.nome }}">
+          Mostrar sala no mapa
+        </button>
+        <p id="proxima-aula-aviso"
+          role="status" aria-live="polite"></p>
+        {% else %}
+        <p role="status">
+          Você não tem próxima aula cadastrada.
+          <a href="{% url 'minha_grade' %}">Cadastre sua grade</a>.
+        </p>
+        {% endif %}
+      </section>
+
+      {% if filtros_ativos and not predios_mapa %}
+      <p role="status">
+        Nenhum local do mapa corresponde aos filtros.
+      </p>
+      {% endif %}
+
+      <section class="cartao-mapa">
+        {% include 'mapa/leaflet.html' %}
+      </section>
+
+      <section class="legenda"
+        aria-label="Legenda dos marcadores">
+        <h3>Legenda</h3>
+        <ul class="legenda-lista">
+          <li>
+            <span class="mapa-marcador mapa-marcador--predio"><span class="mapa-pin"><span>PR</span></span></span>
+            Prédio
+          </li>
+          <li>
+            <span class="mapa-marcador mapa-marcador--sala"><span class="mapa-pin"><span>SA</span></span></span>
+            Sala
+          </li>
+          <li>
+            <span class="mapa-marcador mapa-marcador--laboratorio"><span class="mapa-pin"><span>LB</span></span></span>
+            Laboratório
+          </li>
+          <li>
+            <span class="mapa-marcador mapa-marcador--auditorio"><span class="mapa-pin"><span>AU</span></span></span>
+            Auditório
+          </li>
+          <li>
+            <span class="mapa-marcador mapa-marcador--biblioteca"><span class="mapa-pin"><span>BI</span></span></span>
+            Biblioteca
+          </li>
+          <li>
+            <span class="mapa-marcador mapa-marcador--restaurante"><span class="mapa-pin"><span>RE</span></span></span>
+            Restaurante
+          </li>
+          <li>
+            <span class="mapa-marcador mapa-marcador--banheiro"><span class="mapa-pin"><span>WC</span></span></span>
+            Banheiro
+          </li>
+          <li>
+            <span class="mapa-marcador mapa-marcador--entrada"><span class="mapa-pin"><span>EN</span></span></span>
+            Entrada
+          </li>
+          <li>
+            <span class="mapa-marcador mapa-marcador--elevador"><span class="mapa-pin"><span>EL</span></span></span>
+            Elevador
+          </li>
+          <li>
+            <span class="mapa-marcador mapa-marcador--escada"><span class="mapa-pin"><span>ES</span></span></span>
+            Escada
+          </li>
+          <li>
+            <span class="mapa-marcador"><span class="mapa-pin"><span>&bull;</span></span></span>
+            Outro
+          </li>
+        </ul>
+      </section>
+
+    </div>
+  </div>
+
+  <section class="informacoes">
+    <h2>Visualização geral do campus</h2>
+    <p>
+      Explore a localização dos prédios
+      ou utilize a busca para encontrar
+      uma sala pelo nome ou código.
+    </p>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(() => {
+  const botao = document.getElementById('localizacao-botao');
+  const aviso = document.getElementById('localizacao-aviso');
+  if (!botao || !aviso) return;
+
+  const OPCOES = {
+    enableHighAccuracy: true,
+    timeout: 10000,
+    maximumAge: 60000,
+  };
+
+  function mostrar(mensagem, estado) {
+    aviso.textContent = mensagem;
+    aviso.dataset.estado = estado;
+  }
+
+  function emitir(detalhe) {
+    document.dispatchEvent(
+      new CustomEvent('localizacao:atualizada',
+        {detail: detalhe})
+    );
+  }
+
+  function aoObterPosicao(posicao) {
+    const {latitude, longitude, accuracy} = posicao.coords;
+    botao.disabled = false;
+    mostrar(
+      'Localização obtida (precisão de cerca de '
+        + Math.round(accuracy) + ' m).',
+      'permitida'
+    );
+    emitir({
+      estado: 'permitida',
+      latitude: latitude,
+      longitude: longitude,
+      precisao: accuracy,
+    });
+  }
+
+  function aoFalhar(erro) {
+    botao.disabled = false;
+
+    if (erro.code === erro.PERMISSION_DENIED) {
+      mostrar(
+        'Permissão de localização negada. '
+          + 'Você pode liberar nas configurações do navegador.',
+        'negada'
+      );
+      emitir({estado: 'negada'});
+      return;
+    }
+
+    mostrar(
+      erro.code === erro.TIMEOUT
+        ? 'A localização demorou demais para responder.'
+        : 'Não foi possível determinar sua posição agora.',
+      'indisponivel'
+    );
+    emitir({estado: 'indisponivel'});
+  }
+
+  if (!('geolocation' in navigator)) {
+    botao.disabled = true;
+    mostrar(
+      'Seu navegador não permite obter a localização.',
+      'indisponivel'
+    );
+    emitir({estado: 'indisponivel'});
+    return;
+  }
+
+  botao.addEventListener('click', () => {
+    botao.disabled = true;
+    mostrar('Buscando sua localização…', 'carregando');
+    navigator.geolocation.getCurrentPosition(
+      aoObterPosicao, aoFalhar, OPCOES
+    );
+  });
+})();
+</script>
+<script>
+(() => {
+  const ENTRADAS = [
+    {
+      nome: 'Entrada 1 (Av. Padre Leonel Franca)',
+      latitude: -22.9791274,
+      longitude: -43.2319012,
+    },
+    {
+      nome: 'Entrada 2 (Marquês de São Vicente)',
+      latitude: -22.9773516,
+      longitude: -43.2314211,
+    },
+  ];
+  const CENTRO_CAMPUS = {latitude: -22.9793, longitude: -43.23245};
+  const RAIO_CAMPUS_M = 500;
+
+  const caixa = document.getElementById('entrada-referencia');
+  const seletor = document.getElementById('entrada-select');
+  const aviso = document.getElementById('localizacao-aviso');
+  const avisoOrigem = document.getElementById('origem-aviso');
+  if (!caixa || !seletor || !aviso || !avisoOrigem) return;
+
+  function distanciaMetros(a, b) {
+    const R = 6371000;
+    const rad = (graus) => graus * Math.PI / 180;
+    const dLat = rad(b.latitude - a.latitude);
+    const dLng = rad(b.longitude - a.longitude);
+    const h = Math.sin(dLat / 2) ** 2
+      + Math.cos(rad(a.latitude)) * Math.cos(rad(b.latitude))
+- Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+
+  function definirOrigem(origem) {
+    window.origemMapa = origem;
+    document.dispatchEvent(
+      new CustomEvent('origem:atualizada', {detail: origem})
+    );
+  }
+
+  ENTRADAS.forEach((entrada, indice) => {
+    seletor.add(new Option(entrada.nome, indice));
+  });
+
+  seletor.addEventListener('change', () => {
+    const entrada = ENTRADAS[seletor.value];
+    if (!entrada) {
+      avisoOrigem.textContent = '';
+      definirOrigem(null);
+      return;
+    }
+    avisoOrigem.textContent = 'Referência: ' + entrada.nome + '.';
+    definirOrigem({
+      tipo: 'entrada',
+      nome: entrada.nome,
+      latitude: entrada.latitude,
+      longitude: entrada.longitude,
+    });
+  });
+
+  function mostrarSeletor() {
+    caixa.hidden = false;
+    seletor.dispatchEvent(new Event('change'));
+  }
+
+  document.addEventListener('localizacao:atualizada', (evento) => {
+    const dados = evento.detail;
+
+    if (dados.estado === 'permitida') {
+      if (distanciaMetros(dados, CENTRO_CAMPUS) <= RAIO_CAMPUS_M) {
+        caixa.hidden = true;
+        seletor.value = '';
+        avisoOrigem.textContent = '';
+        definirOrigem({
+          tipo: 'gps',
+          nome: 'Sua localização',
+          latitude: dados.latitude,
+          longitude: dados.longitude,
+        });
+        return;
+      }
+      aviso.textContent = 'Você parece estar fora do campus. '
+        + 'Escolha uma entrada como referência.';
+      aviso.dataset.estado = 'fora';
+    }
+
+    mostrarSeletor();
+  });
+
+  // Sem suporte a geolocalização: o aviso do botão é emitido antes
+  // deste bloco carregar, então o seletor já aparece desde o início.
+  if (!('geolocation' in navigator)) {
+    mostrarSeletor();
+  }
+})();
+</script>
+<script>
+(() => {
+  const TELA = "{% url 'rota_externa' %}";
+
+  document.addEventListener(
+    'rota:calculada',
+    (evento) => {
+      const {origem, predio} = evento.detail;
+      const cartao = document.querySelector(
+        '.leaflet-popup .mapa-local'
+      );
+      if (!cartao) return;
+
+      const achado = String(predio.url)
+        .match(/\/predio\/(\d+)\//);
+      if (!achado) return;
+
+      let link = cartao.querySelector(
+        '[data-rota-tela]'
+      );
+      if (!link) {
+        link = document.createElement('a');
+        link.setAttribute('data-rota-tela', '');
+        link.textContent = 'Ver trajeto no mapa';
+        link.style.display = 'block';
+        link.style.marginTop = '8px';
+        cartao.appendChild(link);
+      }
+
+      const params = new URLSearchParams({
+        origem_lat: origem.latitude,
+        origem_lng: origem.longitude,
+        origem_nome: origem.nome || '',
+        predio: achado[1],
+      });
+      link.href = `${TELA}?${params}`;
+    }
+  );
+
+  const btnBanheiro = document.getElementById('btn-banheiro-proximo');
+  const resultadoBanheiro = document.getElementById('banheiro-proximo-resultado');
+
+  if (btnBanheiro && resultadoBanheiro) {
+    btnBanheiro.addEventListener('click', async () => {
+      const origem = window.origemMapa;
+      if (!origem) {
+        resultadoBanheiro.textContent =
+          'Defina sua origem primeiro (GPS ou entrada) para buscar o banheiro mais próximo.';
+        return;
+      }
+
+      resultadoBanheiro.textContent = 'Buscando banheiro mais próximo...';
+
+      try {
+        const params = new URLSearchParams({
+          origem_lat: origem.latitude,
+          origem_lng: origem.longitude,
+        });
+        const resp = await fetch(`/banheiro-proximo/?${params.toString()}`);
+        const dados = await resp.json();
+
+        if (!resp.ok || dados.estado !== 'ok') {
+          resultadoBanheiro.textContent =
+            'Não foi possível encontrar um banheiro próximo agora.';
+          return;
+        }
+
+        resultadoBanheiro.innerHTML = `
+          <strong>${dados.banheiro}</strong><br>
+          Prédio: ${dados.predio} (${dados.andar})<br>
+          Tempo a pé: ${dados.minutos} min (${dados.distancia_metros} m)<br>
+          <small>${dados.aviso}</small>
+        `;
+      } catch (e) {
+        resultadoBanheiro.textContent = 'Erro de conexão ao buscar banheiro.';
+      }
+    });
+  }
+})();
+</script>
+{% endblock %}

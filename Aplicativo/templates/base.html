@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block titulo %}Localiza PUC{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+
+    {% block css_extra %}{% endblock %}
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+    <a class="site-pular" href="#conteudo">Ir para o conteúdo</a>
+
+    {% block header %}
+    <header class="site-cabecalho">
+        <a class="site-marca" href="{% url 'home' %}">
+            Localiza PUC
+        </a>
+
+        <nav class="site-navegacao" aria-label="Navegação principal">
+            <a href="{% url 'home' %}">Início</a>
+            <a href="{% url 'mapa' %}">Pesquisa</a>
+            <a href="{% url 'mapa' %}">Mapa</a>
+        </nav>
+<div class="site-conta">
+    {% if user.is_authenticated %}
+    <a href="{% url 'minha_grade' %}">Minha grade</a>
+        <span>Olá, {{ user.username }}</span>
+
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit">Sair</button>
+        </form>
+    {% else %}
+        <a href="{% url 'login' %}">Entrar</a>
+        <a href="{% url 'cadastro' %}">Criar conta</a>
+    {% endif %}
+</div>
+        {% block header_extra %}{% endblock %}
+    </header>
+    {% endblock %}
+
+    {% block navigation %}{% endblock %}
+
+    <main id="conteudo" class="site-conteudo">
+    {% block conteudo %}{% endblock %}
+    </main>
+
+    {% block footer %}{% endblock %}
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

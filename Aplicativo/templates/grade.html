@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block titulo %}Minha grade | Localiza PUC{% endblock %}
+
+{% block conteudo %}
+<section class="grade-pagina">
+    <header class="cabecalho-pagina">
+        <a href="{% url 'home' %}" class="link-voltar">
+            ← Voltar ao mapa
+        </a>
+        <h1>Minha grade de aulas</h1>
+        <p>Organize seus dias, horários e espaços de aula.</p>
+    </header>
+
+    {% if confirmar_remocao %}
+        <section class="cartao">
+            <h2>Remover aula</h2>
+            <p>
+                Deseja remover {{ aula.disciplina }},
+                {{ aula.get_dia_semana_display }},
+                às {{ aula.horario_inicio|time:"H:i" }}?
+            </p>
+
+            <form method="post" class="grade-acoes">
+                {% csrf_token %}
+                <button type="submit" class="botao">
+                    Confirmar remoção
+                </button>
+                <a href="{% url 'minha_grade' %}"
+                   class="botao botao-secundario">
+                    Cancelar
+                </a>
+            </form>
+        </section>
+    {% else %}
+        <section class="cartao">
+            <h2>{{ titulo }}</h2>
+
+            <form method="post" class="grade-formulario"
+                  action="{% if formulario.instance.pk %}{% url 'editar_aula' formulario.instance.pk %}{% else %}{% url 'cadastrar_aula' %}{% endif %}">
+                {% csrf_token %}
+                {{ formulario.as_p }}
+
+                <div class="grade-acoes">
+                    <button type="submit" class="botao">
+                        Salvar aula
+                    </button>
+                    <a href="{% url 'minha_grade' %}"
+                       class="botao botao-secundario">
+                        Voltar à grade
+                    </a>
+                </div>
+            </form>
+        </section>
+
+        {% if aulas is not None %}
+            <section class="grade-lista">
+                <h2>Aulas cadastradas</h2>
+
+                {% for aula in aulas %}
+                    <article class="cartao">
+                        <h3>{{ aula.disciplina }}</h3>
+                        <p>
+                            {{ aula.get_dia_semana_display }}:
+                            {{ aula.horario_inicio|time:"H:i" }}
+                            às {{ aula.horario_fim|time:"H:i" }}
+                        </p>
+                        <p>
+                            {{ aula.sala.nome }}
+                            — {{ aula.sala.codigo }}
+                        </p>
+                        <p>
+                            {{ aula.sala.andar.predio.nome }}
+                            — {{ aula.sala.andar.nome }}
+                        </p>
+
+                        <div class="grade-acoes">
+                            <a href="{% url 'detalhe_espaco' aula.sala.pk %}"
+                               class="botao">
+                                Ver espaço
+                            </a>
+                            <a href="{% url 'editar_aula' aula.pk %}"
+                               class="botao botao-secundario">
+                                Editar
+                            </a>
+                            <a href="{% url 'remover_aula' aula.pk %}"
+                               class="botao botao-secundario">
+                                Remover
+                            </a>
+                        </div>
+                    </article>
+                {% empty %}
+                    <p class="cartao">
+                        Você ainda não cadastrou aulas.
+                    </p>
+                {% endfor %}
+            </section>
+        {% endif %}
+    {% endif %}
+</section>
+{% endblock %}

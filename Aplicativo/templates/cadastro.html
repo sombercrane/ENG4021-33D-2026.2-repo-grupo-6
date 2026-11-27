@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block titulo %}Criar conta | Localiza PUC{% endblock %}
+
+{% block css_extra %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block conteudo %}
+<section class="cartao auth-cartao">
+    <header class="cabecalho-pagina">
+        <h1>Criar conta</h1>
+        <p>Cadastre-se para gerenciar sua grade de aulas.</p>
+    </header>
+
+    <form method="post" class="auth-formulario">
+        {% csrf_token %}
+        {{ formulario.as_p }}
+        <button type="submit" class="botao">Cadastrar</button>
+    </form>
+
+    <p>
+        Já possui uma conta?
+        <a href="{% url 'login' %}">Entrar</a>
+    </p>
+
+    <a href="{% url 'home' %}" class="link-voltar">
+        ← Voltar ao mapa
+    </a>
+</section>
+{% endblock %}

@@ -1,0 +1,38 @@
+.rota-mapa {
+    width: 100%;
+    height: clamp(320px, 60vh, 560px);
+    border-radius: 16px;
+    background-color: #101d15;
+}
+
+.rota-resumo {
+    margin-top: 16px;
+}
+
+.rota-resumo p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.rota-dados {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin: 0;
+}
+
+.rota-dados dt {
+    color: #b7c5b9;
+    font-size: 14px;
+}
+
+.rota-dados dd {
+    margin: 4px 0 0;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.rota-dados[hidden] {
+    display: none;
+}

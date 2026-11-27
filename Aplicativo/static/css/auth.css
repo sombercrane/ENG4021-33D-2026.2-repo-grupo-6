@@ -1,0 +1,66 @@
+.auth-cartao {
+    width: 100%;
+    max-width: 520px;
+    margin: 24px auto;
+    overflow-wrap: anywhere;
+}
+
+.auth-cartao a {
+    color: #b9d8c3;
+}
+
+.auth-formulario p {
+    margin: 0 0 18px;
+}
+
+.auth-formulario label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.auth-formulario input {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid #34473a;
+    border-radius: 10px;
+    background-color: #050605;
+    color: #d3e2d4;
+    font: inherit;
+}
+
+.auth-formulario .helptext {
+    display: block;
+    margin-top: 6px;
+    color: #b7c5b9;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.auth-formulario ul {
+    padding-left: 20px;
+}
+
+.auth-formulario .errorlist {
+    color: #ffb4ab;
+    line-height: 1.5;
+}
+
+.auth-formulario .botao {
+    width: 100%;
+}
+
+.auth-formulario input:focus-visible,
+.auth-cartao a:focus-visible {
+    outline: 2px solid #b9d8c3;
+    outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+    .auth-cartao {
+        padding: 18px;
+        margin: 12px auto;
+    }
+}
