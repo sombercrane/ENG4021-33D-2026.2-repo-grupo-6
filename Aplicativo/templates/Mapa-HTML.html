@@ -82,6 +82,12 @@ tela-mapa
         <button type="submit" class="botao">
           Buscar
         </button>
+        {% if filtros_ativos %}
+        <a href="{% url 'mapa' %}"
+          class="botao botao-secundario">
+          Limpar filtros
+        </a>
+        {% endif %}
       </form>
         {% if pagina is not None %}
         <section class="mapa-resultados"
@@ -108,7 +114,11 @@ tela-mapa
               </a>
             {% endif %}
           {% empty %}
-            <p>Nenhum resultado encontrado.</p>
+            <p role="status">
+              Nenhum resultado encontrado.
+              Tente outro termo ou use
+              <strong>Limpar filtros</strong>.
+            </p>
           {% endfor %}
 
           {% if pagina.paginator.num_pages > 1 %}
@@ -161,6 +171,12 @@ tela-mapa
         <button type="button" id="btn-banheiro-proximo">Banheiro mais próximo</button>
         <div id="banheiro-proximo-resultado" style="margin-top: 8px;"></div>
       </section>
+
+      {% if filtros_ativos and not predios_mapa %}
+      <p role="status">
+        Nenhum local do mapa corresponde aos filtros.
+      </p>
+      {% endif %}
 
       <section class="cartao-mapa">
         {% include 'mapa/leaflet.html' %}
