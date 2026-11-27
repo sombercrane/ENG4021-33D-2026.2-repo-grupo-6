@@ -55,7 +55,26 @@ class ConexaoAdmin(admin.ModelAdmin):
         "espaco_origem",
         "ponto_destino",
         "espaco_destino",
+        "distancia",
+        "acessivel",
+        "validada",
+    )
+
+    list_filter = (
+        "validada",
         "acessivel",
     )
-    list_filter = ("acessivel",)
-    search_fields = ("descricao",)
+
+    search_fields = (
+        "descricao",
+        "ponto_origem__nome",
+        "espaco_origem__nome",
+        "ponto_destino__nome",
+        "espaco_destino__nome",
+    )
+
+    list_editable = (
+        "validada",
+    )
+
+    ordering = ("validada", "id_conexao")

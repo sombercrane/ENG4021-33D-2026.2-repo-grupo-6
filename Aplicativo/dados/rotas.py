@@ -12,14 +12,16 @@ def identificar_no(objeto):
     if isinstance(objeto, Espaco):
         return ("espaco", objeto.id_espaco)
 
-    raise ValueError("Origem ou destino inválido.")
+    raise ValueError("Origem ou destino invalido.")
 
 
 def calcular_rota(origem, destino, acessivel=False):
     inicio = identificar_no(origem)
     fim = identificar_no(destino)
 
-    conexoes = Conexao.objects.select_related(
+    conexoes = Conexao.objects.filter(
+        validada=True
+    ).select_related(
         "ponto_origem",
         "espaco_origem",
         "ponto_destino",
@@ -34,6 +36,12 @@ def calcular_rota(origem, destino, acessivel=False):
 
     for conexao in conexoes:
         if acessivel and not conexao.acessivel:
+            continue
+
+        if conexao.distancia is None:
+            continue
+
+        if conexao.distancia < 0:
             continue
 
         origem_obj = (
@@ -53,11 +61,7 @@ def calcular_rota(origem, destino, acessivel=False):
         objetos[no_origem] = origem_obj
         objetos[no_destino] = destino_obj
 
-        peso = (
-            conexao.distancia
-            if conexao.distancia is not None
-            else 1.0
-        )
+        peso = conexao.distancia
 
         grafo[no_origem].append((no_destino, peso))
         grafo[no_destino].append((no_origem, peso))

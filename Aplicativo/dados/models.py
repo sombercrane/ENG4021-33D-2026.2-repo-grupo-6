@@ -114,8 +114,8 @@ class Ponto(models.Model):
         db_column="id_tipo_ponto",
     )
     nome = models.CharField(max_length=150)
-    posicao_x = models.FloatField()
-    posicao_y = models.FloatField()
+    posicao_x = models.FloatField(null=True, blank=True)
+    posicao_y = models.FloatField(null=True, blank=True)
     descricao = models.TextField(blank=True)
 
     def __str__(self):
@@ -219,7 +219,8 @@ class Conexao(models.Model):
         blank=True,
     )
 
-    acessivel = models.BooleanField(default=False)
+    acessivel = models.BooleanField(null=True, blank=True, default=None)
+    validada = models.BooleanField(default=False)
     distancia = models.FloatField(null=True, blank=True)
     descricao = models.TextField(blank=True)
 
