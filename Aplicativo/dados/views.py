@@ -30,6 +30,40 @@ def home(request):
 
 
 
+def _tem_filtro(dados):
+    return bool(
+        dados["busca"]
+        or dados["categoria"] != "todos"
+        or dados["predio"]
+        or dados["andar"]
+    )
+
+
+def _pins_filtrados(lista, categoria, dados, espacos, pontos):
+    """Restringe os pins do mapa aos mesmos filtros da lista.
+
+    Devolve os espaços, os pontos e os ids dos prédios que ficam.
+    """
+    if categoria == "predio":
+        return [], [], set(lista.values_list("pk", flat=True))
+
+    espacos = espacos.filter(
+        pk__in=lista.values_list("pk", flat=True)
+    )
+    # Pontos (banheiro, entrada...) não têm nome de busca nem
+    # categoria: só aparecem quando filtra por prédio ou andar.
+    if dados["busca"] or categoria != "todos":
+        pontos = pontos.none()
+    if dados["predio"]:
+        pontos = pontos.filter(andar__predio=dados["predio"])
+    if dados["andar"]:
+        pontos = pontos.filter(andar=dados["andar"])
+
+    ids = set(espacos.values_list("andar__predio_id", flat=True))
+    ids |= set(pontos.values_list("andar__predio_id", flat=True))
+    return espacos, pontos, ids
+
+
 def mapa(request):
     predios = (
         Predio.objects
@@ -50,6 +84,12 @@ def mapa(request):
         predios_por_id[predio_id] = predio
 
     ids_predios = list(predios_por_id)
+
+    contexto = _contexto_pesquisa(request)
+    lista = contexto["lista"]
+    filtrando = lista is not None and _tem_filtro(
+        contexto["formulario"].cleaned_data
+    )
 
     espacos = (
         Espaco.objects
@@ -79,6 +119,15 @@ def mapa(request):
         )
     )
 
+    if filtrando:
+        espacos, pontos, ids_filtrados = _pins_filtrados(
+            lista,
+            contexto["categoria"],
+            contexto["formulario"].cleaned_data,
+            espacos,
+            pontos,
+        )
+
     for predio_id, nome, tipo, andar, posicao_x, posicao_y in chain(
         espacos, pontos
     ):
@@ -90,9 +139,17 @@ def mapa(request):
             'posicao_y': posicao_y,
         })
 
-    contexto = _contexto_pesquisa(request)
+    if filtrando:
+        # Só ficam no mapa os prédios com algum resultado.
+        predios_por_id = {
+            predio_id: predio
+            for predio_id, predio in predios_por_id.items()
+            if predio_id in ids_filtrados
+        }
+
     contexto.update({
         "predios_mapa": list(predios_por_id.values()),
+        "filtros_ativos": filtrando,
         "formulario": PesquisaMapaForm(
             request.GET or None,
             auto_id="mapa-%s",
@@ -239,6 +296,7 @@ TIPOS = {
 def _contexto_pesquisa(request):
     formulario = PesquisaMapaForm(request.GET or None)
     pagina = None
+    lista = None
     categoria = "todos"
 
     if formulario.is_valid():
@@ -297,6 +355,7 @@ def _contexto_pesquisa(request):
     return {
         "formulario": formulario,
         "pagina": pagina,
+        "lista": lista,
         "categoria": categoria,
         "filtros": filtros.urlencode(),
         "atual": request.GET.urlencode(),
