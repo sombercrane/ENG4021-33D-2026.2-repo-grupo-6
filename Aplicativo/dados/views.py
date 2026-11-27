@@ -1,3 +1,4 @@
+import json
 from itertools import chain
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core.paginator import Paginator
@@ -489,7 +490,7 @@ def remover_aula(request, pk):
         "confirmar_remocao": True,
     })
 
-    import json
+import json
 import os
 import urllib.error
 import urllib.request
