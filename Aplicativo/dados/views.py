@@ -1,5 +1,8 @@
 import json
+import unicodedata
+from datetime import datetime, timedelta
 from itertools import chain
+from zoneinfo import ZoneInfo
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
@@ -28,6 +31,73 @@ from .forms import (
 def home(request):
     return redirect("mapa")
 
+
+
+TIPOS_DE_PIN = {
+    "predio", "banheiro", "auditorio", "sala", "laboratorio",
+    "biblioteca", "restaurante", "entrada", "elevador", "escada",
+}
+
+
+def _tipo_do_pin(nome_do_tipo):
+    """Mesma regra do mapa para escolher a categoria do pin."""
+    texto = unicodedata.normalize("NFD", nome_do_tipo)
+    texto = "".join(c for c in texto if not unicodedata.combining(c))
+    palavras = texto.strip().lower().split()
+    chave = palavras[0] if palavras else ""
+    return chave if chave in TIPOS_DE_PIN else "outro"
+
+
+def _proxima_aula(usuario):
+    """Próxima aula da grade do usuário, contando a que está em andamento.
+
+    Os horários da grade são o relógio de Brasília; o TIME_ZONE do
+    projeto é UTC, por isso o fuso é indicado aqui.
+    """
+    agora = datetime.now(ZoneInfo("America/Sao_Paulo"))
+    escolhida = None
+
+    aulas = (
+        Aula.objects.filter(usuario=usuario)
+        .select_related("sala__andar__predio", "sala__tipo")
+    )
+    for aula in aulas:
+        dias = (aula.dia_semana - agora.weekday()) % 7
+        dia = agora.date() + timedelta(days=dias)
+        inicio = datetime.combine(
+            dia, aula.horario_inicio, tzinfo=agora.tzinfo
+        )
+        fim = datetime.combine(
+            dia, aula.horario_fim, tzinfo=agora.tzinfo
+        )
+        if fim <= agora:
+            inicio += timedelta(days=7)
+            fim += timedelta(days=7)
+        if escolhida is None or inicio < escolhida[0]:
+            escolhida = (inicio, aula)
+
+    if escolhida is None:
+        return None
+
+    inicio, aula = escolhida
+    hoje = agora.date()
+    if inicio.date() == hoje:
+        quando = "hoje"
+    elif inicio.date() == hoje + timedelta(days=1):
+        quando = "amanhã"
+    else:
+        quando = aula.get_dia_semana_display().lower()
+
+    predio = aula.sala.andar.predio
+    return {
+        "aula": aula,
+        "sala": aula.sala,
+        "predio": predio,
+        "andar": aula.sala.andar,
+        "quando": quando,
+        "em_andamento": inicio <= agora,
+        "tipo_pin": _tipo_do_pin(aula.sala.tipo.nome),
+    }
 
 
 def _tem_filtro(dados):
@@ -150,6 +220,10 @@ def mapa(request):
     contexto.update({
         "predios_mapa": list(predios_por_id.values()),
         "filtros_ativos": filtrando,
+        "proxima_aula": (
+            _proxima_aula(request.user)
+            if request.user.is_authenticated else None
+        ),
         "formulario": PesquisaMapaForm(
             request.GET or None,
             auto_id="mapa-%s",
