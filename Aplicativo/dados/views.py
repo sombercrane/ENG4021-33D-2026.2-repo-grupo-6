@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import IntegerField, Q, Value
 from django.contrib.auth.decorators import login_required
 from .models import Aula
 from django.db import transaction
@@ -171,7 +171,8 @@ def mapa(request):
             'tipo__nome',
             'andar__nome',
             'posicao_x',
-            'posicao_y'
+            'posicao_y',
+            'pk'
         )
     )
 
@@ -179,13 +180,15 @@ def mapa(request):
         Ponto.objects
         .filter(andar__predio_id__in=ids_predios)
         .order_by('nome')
+        .annotate(sem_pagina=Value(None, output_field=IntegerField()))
         .values_list(
             'andar__predio_id',
             'nome',
             'tipo_ponto__nome',
             'andar__nome',
             'posicao_x',
-            'posicao_y'
+            'posicao_y',
+            'sem_pagina'
         )
     )
 
@@ -198,15 +201,20 @@ def mapa(request):
             pontos,
         )
 
-    for predio_id, nome, tipo, andar, posicao_x, posicao_y in chain(
-        espacos, pontos
-    ):
+    for (
+        predio_id, nome, tipo, andar, posicao_x, posicao_y, id_espaco
+    ) in chain(espacos, pontos):
         predios_por_id[predio_id]['locais'].append({
             'nome': nome,
             'tipo': tipo,
             'andar': andar,
             'posicao_x': posicao_x,
             'posicao_y': posicao_y,
+            # Só espaços têm página de detalhe (pontos não).
+            'url': (
+                reverse('detalhe_espaco', kwargs={'pk': id_espaco})
+                if id_espaco else None
+            ),
         })
 
     if filtrando:
