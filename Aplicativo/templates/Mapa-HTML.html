@@ -54,8 +54,7 @@ tela-mapa
     <aside class="mapa-busca"
       aria-label="Busca">
       <h3>Buscar no campus</h3>
-      <form method="get"
-        action="{% url 'pesquisa' %}">
+      <form method="get" action="{% url 'mapa' %}">
         <label for="mapa-busca">
           Nome, código ou sigla
         </label>
@@ -66,21 +65,75 @@ tela-mapa
           Categoria
         </label>
         {{ formulario.categoria }}
+        {{ formulario.categoria.errors }}
 
         <label for="mapa-predio">
           Prédio
         </label>
         {{ formulario.predio }}
+        {{ formulario.predio.errors }}
 
         <label for="mapa-andar">
           Andar
         </label>
         {{ formulario.andar }}
+        {{ formulario.andar.errors }}
 
         <button type="submit" class="botao">
           Buscar
         </button>
       </form>
+        {% if pagina is not None %}
+        <section class="mapa-resultados"
+                 aria-labelledby="titulo-resultados">
+          <h3 id="titulo-resultados">Resultados</h3>
+          <p>{{ pagina.paginator.count }} resultado(s)</p>
+
+          {% for item in pagina %}
+            {% if categoria == "predio" %}
+              <a class="mapa-resultado"
+                 href="{% url 'detalhe_predio' item.pk %}">
+                <strong>{{ item.nome }}</strong>
+                <span>{{ item.sigla }}</span>
+              </a>
+            {% else %}
+              <a class="mapa-resultado"
+                 href="{% url 'detalhe_espaco' item.pk %}">
+                <strong>{{ item.nome }}</strong>
+                <span>
+                  {{ item.codigo }} ·
+                  {{ item.andar.predio.sigla }} ·
+                  {{ item.andar.nome }}
+                </span>
+              </a>
+            {% endif %}
+          {% empty %}
+            <p>Nenhum resultado encontrado.</p>
+          {% endfor %}
+
+          {% if pagina.paginator.num_pages > 1 %}
+            <nav class="mapa-paginacao"
+                 aria-label="Páginas dos resultados">
+              {% if pagina.has_previous %}
+                <a href="?{{ filtros }}&page={{ pagina.previous_page_number }}">
+                  Anterior
+                </a>
+              {% endif %}
+
+              <span>
+                {{ pagina.number }} de
+                {{ pagina.paginator.num_pages }}
+              </span>
+
+              {% if pagina.has_next %}
+                <a href="?{{ filtros }}&page={{ pagina.next_page_number }}">
+                  Próxima
+                </a>
+              {% endif %}
+            </nav>
+          {% endif %}
+        </section>
+      {% endif %}
     </aside>
 
     <div class="mapa-coluna">
