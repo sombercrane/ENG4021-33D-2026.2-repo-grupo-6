@@ -33,6 +33,7 @@ urlpatterns = [
     path('mapa/', views.mapa, name='mapa'),
     path('rota-a-pe/', views.rota_a_pe, name='rota_a_pe'),
     path('rota/', views.rota_externa, name='rota_externa'),
+    path('banheiro-proximo/', views.banheiro_proximo, name='banheiro_proximo'),
     path('pesquisa/', views.pesquisa, name='pesquisa'),
     path('search/', views.search, name='search'),
     path('pesquisa_auditorios/', views.pesquisa_auditorios, name='pesquisa_auditorios'),

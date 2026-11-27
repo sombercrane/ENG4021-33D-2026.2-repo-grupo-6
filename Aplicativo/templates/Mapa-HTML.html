@@ -104,6 +104,9 @@ tela-mapa
           <p id="origem-aviso"
             role="status" aria-live="polite"></p>
         </div>
+
+        <button type="button" id="btn-banheiro-proximo">Banheiro mais próximo</button>
+        <div id="banheiro-proximo-resultado" style="margin-top: 8px;"></div>
       </section>
 
       <section class="cartao-mapa">
@@ -288,7 +291,7 @@ tela-mapa
     const dLng = rad(b.longitude - a.longitude);
     const h = Math.sin(dLat / 2) ** 2
       + Math.cos(rad(a.latitude)) * Math.cos(rad(b.latitude))
-        * Math.sin(dLng / 2) ** 2;
+- Math.sin(dLng / 2) ** 2;
     return 2 * R * Math.asin(Math.sqrt(h));
   }
 
@@ -393,6 +396,46 @@ tela-mapa
       link.href = `${TELA}?${params}`;
     }
   );
+
+  const btnBanheiro = document.getElementById('btn-banheiro-proximo');
+  const resultadoBanheiro = document.getElementById('banheiro-proximo-resultado');
+
+  if (btnBanheiro && resultadoBanheiro) {
+    btnBanheiro.addEventListener('click', async () => {
+      const origem = window.origemMapa;
+      if (!origem) {
+        resultadoBanheiro.textContent =
+          'Defina sua origem primeiro (GPS ou entrada) para buscar o banheiro mais próximo.';
+        return;
+      }
+
+      resultadoBanheiro.textContent = 'Buscando banheiro mais próximo...';
+
+      try {
+        const params = new URLSearchParams({
+          origem_lat: origem.latitude,
+          origem_lng: origem.longitude,
+        });
+        const resp = await fetch(`/banheiro-proximo/?${params.toString()}`);
+        const dados = await resp.json();
+
+        if (!resp.ok || dados.estado !== 'ok') {
+          resultadoBanheiro.textContent =
+            'Não foi possível encontrar um banheiro próximo agora.';
+          return;
+        }
+
+        resultadoBanheiro.innerHTML = `
+          <strong>${dados.banheiro}</strong><br>
+          Prédio: ${dados.predio} (${dados.andar})<br>
+          Tempo a pé: ${dados.minutos} min (${dados.distancia_metros} m)<br>
+          <small>${dados.aviso}</small>
+        `;
+      } catch (e) {
+        resultadoBanheiro.textContent = 'Erro de conexão ao buscar banheiro.';
+      }
+    });
+  }
 })();
 </script>
 {% endblock %}
