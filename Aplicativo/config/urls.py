@@ -32,6 +32,7 @@ urlpatterns = [
     path('', views.mapa, name='home'),
     path('mapa/', views.mapa, name='mapa'),
     path('rota-a-pe/', views.rota_a_pe, name='rota_a_pe'),
+    path('rota/', views.rota_externa, name='rota_externa'),
     path('pesquisa/', views.pesquisa, name='pesquisa'),
     path('search/', views.search, name='search'),
     path('pesquisa_auditorios/', views.pesquisa_auditorios, name='pesquisa_auditorios'),

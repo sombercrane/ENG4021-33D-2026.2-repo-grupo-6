@@ -612,3 +612,55 @@ def rota_a_pe(request):
             "encodedPolyline", ""
         ),
     })
+
+def rota_externa(request):
+    try:
+        id_predio = int(request.GET.get("predio", ""))
+    except ValueError:
+        id_predio = None
+
+    predio = (
+        Predio.objects.filter(pk=id_predio).first()
+        if id_predio else None
+    )
+    lat = _numero(
+        request.GET.get("origem_lat"), -90, 90
+    )
+    lng = _numero(
+        request.GET.get("origem_lng"), -180, 180
+    )
+
+    pronto = bool(
+        predio
+        and predio.latitude is not None
+        and predio.longitude is not None
+        and lat is not None
+        and lng is not None
+    )
+
+    dados = {
+        "pronto": pronto,
+        "chave": settings.GOOGLE_MAPS_API_KEY,
+        "rota_url": reverse("rota_a_pe"),
+    }
+    if pronto:
+        nome_origem = (
+            request.GET.get("origem_nome", "")[:100]
+            or "Origem"
+        )
+        dados["origem"] = {
+            "lat": lat,
+            "lng": lng,
+            "nome": nome_origem,
+        }
+        dados["destino"] = {
+            "id": predio.pk,
+            "nome": predio.nome,
+            "lat": float(predio.latitude),
+            "lng": float(predio.longitude),
+        }
+
+    return render(request, "rota.html", {
+        "predio": predio,
+        "dados": dados,
+    })

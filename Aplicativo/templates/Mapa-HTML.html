@@ -355,4 +355,44 @@ tela-mapa
   }
 })();
 </script>
+<script>
+(() => {
+  const TELA = "{% url 'rota_externa' %}";
+
+  document.addEventListener(
+    'rota:calculada',
+    (evento) => {
+      const {origem, predio} = evento.detail;
+      const cartao = document.querySelector(
+        '.leaflet-popup .mapa-local'
+      );
+      if (!cartao) return;
+
+      const achado = String(predio.url)
+        .match(/\/predio\/(\d+)\//);
+      if (!achado) return;
+
+      let link = cartao.querySelector(
+        '[data-rota-tela]'
+      );
+      if (!link) {
+        link = document.createElement('a');
+        link.setAttribute('data-rota-tela', '');
+        link.textContent = 'Ver trajeto no mapa';
+        link.style.display = 'block';
+        link.style.marginTop = '8px';
+        cartao.appendChild(link);
+      }
+
+      const params = new URLSearchParams({
+        origem_lat: origem.latitude,
+        origem_lng: origem.longitude,
+        origem_nome: origem.nome || '',
+        predio: achado[1],
+      });
+      link.href = `${TELA}?${params}`;
+    }
+  );
+})();
+</script>
 {% endblock %}
