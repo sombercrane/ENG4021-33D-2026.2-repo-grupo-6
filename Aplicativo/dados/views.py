@@ -237,7 +237,7 @@ TIPOS = {
 
 
 def _contexto_pesquisa(request):
-    formulario = PesquisaForm(request.GET or None)
+    formulario = PesquisaMapaForm(request.GET or None)
     pagina = None
     categoria = "todos"
 
@@ -246,9 +246,15 @@ def _contexto_pesquisa(request):
         categoria = (
             formulario.cleaned_data["categoria"]
         )
+        predio = formulario.cleaned_data["predio"]
+        andar = formulario.cleaned_data["andar"]
 
         if categoria == "predio":
             lista = Predio.objects.order_by("nome")
+            if predio:
+                lista = lista.filter(pk=predio.pk)
+            if andar:
+                lista = lista.filter(pk=andar.predio_id)
             if busca:
                 lista = lista.filter(
                     Q(nome__icontains=busca)
@@ -267,6 +273,10 @@ def _contexto_pesquisa(request):
                 lista = lista.filter(
                     tipo__nome__icontains=tipo
                 )
+            if predio:
+                lista = lista.filter(andar__predio=predio)
+            if andar:
+                lista = lista.filter(andar=andar)
             if busca:
                 lista = lista.filter(
                     Q(nome__icontains=busca)
